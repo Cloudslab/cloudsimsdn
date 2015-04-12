@@ -1,0 +1,38 @@
+{
+  "nodes" : [
+    {
+      "name" : "vm01",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 30000000,
+      "ram"  : 512
+    },
+    {
+      "name": "vm02",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 30000000,
+      "ram"  : 512
+    },
+    {
+      "name": "vm03",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 30000000,
+      "ram"  : 512
+    }
+  ],
+  "links" : [
+    { "name": "l32", "source" : "vm03" , "destination" : "vm02" , "bandwidth" : 660000},
+    { "name": "l21", "source" : "vm02" , "destination" : "vm01" , "bandwidth" : 660000},
+
+    { "name": "default", "source" : "vm01" , "destination" : "vm02" },
+    { "name": "default", "source" : "vm02" , "destination" : "vm01" },
+    { "name": "default", "source" : "vm02" , "destination" : "vm03" },
+    { "name": "default", "source" : "vm03" , "destination" : "vm02" },
+    
+  ]
+}

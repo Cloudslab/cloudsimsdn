@@ -1,0 +1,74 @@
+{
+  "nodes" : [
+    {
+      "name": "core",
+      "type" : "core",
+      "iops" : 1000000000,
+      "upports" : 0,
+      "downports" : 2,
+      "bw" : 12500000,
+    },
+    {
+      "name": "edge1",
+      "type" : "edge",
+      "iops" : 1000000000,
+      "upports" : 1,
+      "downports" : 4,
+      "bw" : 12500000,
+    },
+    {
+      "name": "edge2",
+      "type" : "edge",
+      "iops" : 1000000000,
+      "upports" : 1,
+      "downports" : 4,
+      "bw" : 12500000,
+    },
+    
+    
+    {
+      "name": "host01",
+      "type" : "host",
+      "pes" : 1,
+      "mips" : 30000000,
+      "ram" : 10240,
+      "storage" : 10000000,
+      "bw" : 12500000,
+    },
+     {
+      "name": "host02",
+      "type" : "host",
+      "pes" : 1,
+      "mips" : 30000000,
+      "ram" : 10240,
+      "storage" : 10000000,
+      "bw" : 12500000,
+    },
+    {
+      "name": "host03",
+      "type" : "host",
+      "pes" : 1,
+      "mips" : 30000000,
+      "ram" : 10240,
+      "storage" : 10000000,
+      "bw" : 12500000,
+    },
+    {
+      "name": "host04",
+      "type" : "host",
+      "pes" : 1,
+      "mips" : 30000000,
+      "ram" : 10240,
+      "storage" : 10000000,
+      "bw" : 12500000,
+    }
+  ],
+  "links" : [
+    { "source" : "core" , "destination" : "edge1" , "latency" : 1.0 },
+    { "source" : "core" , "destination" : "edge2" , "latency" : 1.0 },
+    { "source" : "edge1" , "destination" : "host01" , "latency" : 1.0 },
+    { "source" : "edge1" , "destination" : "host02" , "latency" : 1.0 },
+    { "source" : "edge2" , "destination" : "host03" , "latency" : 1.0 },
+    { "source" : "edge2" , "destination" : "host04" , "latency" : 1.0 },
+  ]
+}
