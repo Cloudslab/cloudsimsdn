@@ -106,6 +106,7 @@ The results have five parts.
 ### EXAMPLE:
 * Part 1 / 2) In our example, part 1 and 2 (for workload results) is not useful; because the workload is generated solely to make switches work for the whole lifetime of communicating VMs. 
 * Part 3 / 4)
+```
     Host #0: 29653.168930555563
     0.0, 4000.0
     0.0, 16000.0
@@ -119,7 +120,7 @@ The results have five parts.
     90180.21001, 3
     502117.0, 2
     1458312.66651, 0
- 
+```
 Part 3 and 4 shows the detailed power consumption and utilization level of each host or switch. 
 For Host #0, it consumed 29,653 Wh which hosted 4 VMs at the time 0. From the time 0 until 2390, the host utilized 51200 MIPS. 
 For Switch #103, it consumed 27,511 Wh for the whole experiment. No traffic was occurred until the time 22660, and 2 ports were active between 22660 and 90180 seconds.
