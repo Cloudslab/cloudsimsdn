@@ -74,7 +74,7 @@ Workload file has a long packet transmission between VMs in a same virtual netwo
   6. The next VM (VM2)
   7. Packet size of the transmission to VM2
   8. Computational workload for VM2
-  ... (repeat 5 ~ 8)
+  9. ... (repeat v ~ viii)
 
 ## Simulation execution
 To execute the example, use the following command.
@@ -83,49 +83,48 @@ To execute the example, use the following command.
 java -cp ./*:. org/cloudbus/cloudsim/sdn/example/SDNExample <LFF|MFF> [physical.json] [virtual.json] [workload1.csv] [workload2.csv] [...]
 ```
 
-* <LFF | MFF>: Choose VM placement policy. LFF(Least Full First) or MFF(Most Full First)
-* [physical.json]: Filename of physical topology (data center configuration)
-* [virtual.json]: Filename of virtual topology (VM creation and network request)
-* [workload1.csv] ... : Filenames of workload files. Multiple files can be supplied.
+* ```<LFF | MFF>```: Choose VM placement policy. LFF(Least Full First) or MFF(Most Full First)
+* ```[physical.json]```: Filename of physical topology (data center configuration)
+* ```[virtual.json]```: Filename of virtual topology (VM creation and network request)
+* ```[workload1.csv] ...```: Filenames of workload files. Multiple files can be supplied.
 
 ### EXAMPLE:
 ```
-$ java -cp ./*:. org/cloudbus/cloudsim/sdn/example/SDNExample MFF dataset-energy/energy-physical.json dataset-energy/energy-virtual.json dataset-energy/energy-workload.csv > results.out
+java -cp ./*:. org/cloudbus/cloudsim/sdn/example/SDNExample MFF dataset-energy/energy-physical.json dataset-energy/energy-virtual.json dataset-energy/energy-workload.csv > results.out
 ```
 
 This command will run the simulation using MFF algorithm, and the output is redirected to results.out file.
 ## Simulation results
 The results have five parts.
 
-Part 1) Detailed result of workloads: shows computational time and transmission time of each workload components. It also shows total response time of each workload.
-Part 2) Average result of workloads: shows the total number of workloads, average rate of all workload requests, and the average response time.
-Part 3) Host power consumption and detailed utilization: shows total power consumption and detailed utilization history (in MIPS) for each host
-Part 4) Switch power consumption and detailed utilization: shows total power consumption and detailed utilization history (in number of active ports) for each switch
-Part 5) Total power consumption: shows total power consumption over the data center with the maximum hosts utilized at the same time
+* Part 1) Detailed result of workloads: shows computational time and transmission time of each workload components. It also shows total response time of each workload.
+* Part 2) Average result of workloads: shows the total number of workloads, average rate of all workload requests, and the average response time.
+* Part 3) Host power consumption and detailed utilization: shows total power consumption and detailed utilization history (in MIPS) for each host
+* Part 4) Switch power consumption and detailed utilization: shows total power consumption and detailed utilization history (in number of active ports) for each switch
+* Part 5) Total power consumption: shows total power consumption over the data center with the maximum hosts utilized at the same time
 
 ### EXAMPLE:
-Part 1 / 2) In our example, part 1 and 2 (for workload results) is not useful; because the workload is generated solely to make switches work for the whole lifetime of communicating VMs. 
-Part 3 / 4)
-```
-Host #0: 29653.168930555563
-0.0, 4000.0
-0.0, 16000.0
-0.0, 35200.0
-0.0, 51200.0
-2390.0, 55200.0
-2423.0, 59200.0
-...
-Switch #103: 27511.461264316662
-22660.21001, 2
-90180.21001, 3
-502117.0, 2
-1458312.66651, 0
-```
+* Part 1 / 2) In our example, part 1 and 2 (for workload results) is not useful; because the workload is generated solely to make switches work for the whole lifetime of communicating VMs. 
+* Part 3 / 4)
+    Host #0: 29653.168930555563
+    0.0, 4000.0
+    0.0, 16000.0
+    0.0, 35200.0
+    0.0, 51200.0
+    2390.0, 55200.0
+    2423.0, 59200.0
+    ...
+    Switch #103: 27511.461264316662
+    22660.21001, 2
+    90180.21001, 3
+    502117.0, 2
+    1458312.66651, 0
  
 Part 3 and 4 shows the detailed power consumption and utilization level of each host or switch. 
 For Host #0, it consumed 29,653 Wh which hosted 4 VMs at the time 0. From the time 0 until 2390, the host utilized 51200 MIPS. 
 For Switch #103, it consumed 27,511 Wh for the whole experiment. No traffic was occurred until the time 22660, and 2 ports were active between 22660 and 90180 seconds.
-Part 5)
+
+* Part 5)
 ```
 ========== TOTAL POWER CONSUMPTION ===========
 Host energy consumed: 1848038.3846250002
