@@ -107,19 +107,19 @@ The results have five parts.
 * Part 1 / 2) In our example, part 1 and 2 (for workload results) is not useful; because the workload is generated solely to make switches work for the whole lifetime of communicating VMs. 
 * Part 3 / 4)
 ```
-    Host #0: 29653.168930555563
-    0.0, 4000.0
-    0.0, 16000.0
-    0.0, 35200.0
-    0.0, 51200.0
-    2390.0, 55200.0
-    2423.0, 59200.0
-    ...
-    Switch #103: 27511.461264316662
-    22660.21001, 2
-    90180.21001, 3
-    502117.0, 2
-    1458312.66651, 0
+Host #0: 29653.168930555563
+0.0, 4000.0
+0.0, 16000.0
+0.0, 35200.0
+0.0, 51200.0
+2390.0, 55200.0
+2423.0, 59200.0
+...
+Switch #103: 27511.461264316662
+22660.21001, 2
+90180.21001, 3
+502117.0, 2
+1458312.66651, 0
 ```
 Part 3 and 4 shows the detailed power consumption and utilization level of each host or switch. 
 For Host #0, it consumed 29,653 Wh which hosted 4 VMs at the time 0. From the time 0 until 2390, the host utilized 51200 MIPS. 
@@ -137,11 +137,6 @@ Part 5 is the main result of this example. Using MFF policy, total energy consum
  
 To compare with the result of LFF policy, run the same program with 'LFF' parameter instead of 'MFF'. The result shows that 2,508,871Wh was consumed with LFF policy.
  
-## Enclosed batch files
-
-1. ```run_example_LFF``` / ```run_example_MFF``` : Compare different VM placement policy to save energy
-2. ```run_example_priority_shared``` / ```run_example_priority_special``` : Use different virtual network to ensure faster response time
-
 ## Generate different scenarios
 1. Use topology generators (org.cloudbus.cloudsim.sdn.example.topogenerators) to create more complex scenario in larger scale.
 2. Implement different VM allocation policy to test different VM placement algorithms
