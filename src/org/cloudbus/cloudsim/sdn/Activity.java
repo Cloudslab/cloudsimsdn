@@ -16,4 +16,6 @@ package org.cloudbus.cloudsim.sdn;
  * @since CloudSimSDN 1.0
  */
 public interface Activity {
+	public abstract double getExpectedTime();
+	public abstract double getServeTime();
 }

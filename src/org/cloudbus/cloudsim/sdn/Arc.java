@@ -17,11 +17,13 @@ package org.cloudbus.cloudsim.sdn;
  */
 public class Arc {
 
-	int srcId;
-	int dstId;
-	int flowId;
-	long requiredBandwidth;
-	double requiredLatency;
+	private int srcId;
+	private int dstId;
+	private int flowId;
+	private long requiredBandwidth;
+	private double requiredLatency;
+	
+	private String name=null;
 	
 	public Arc(int srcId, int dstId, int flowId, long reqBW, double reqLatency) {
 		super();
@@ -49,5 +51,17 @@ public class Arc {
 
 	public double getLatency() {
 		return requiredLatency;
+	}
+	
+	public void setName(String flowName) {
+		this.name = flowName;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public String toString() {
+		return "Arc:"+getName()+"... "+getSrcId()+" -> "+getDstId()+" : "+getFlowId();
 	}
 }

@@ -13,7 +13,6 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterCharacteristics;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
@@ -23,13 +22,11 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.sdn.NetworkOperatingSystem;
 import org.cloudbus.cloudsim.sdn.SDNDatacenter;
 import org.cloudbus.cloudsim.sdn.Switch;
-import org.cloudbus.cloudsim.sdn.example.policies.VmAllocationPolicyCombinedLeastFullFirst;
-import org.cloudbus.cloudsim.sdn.example.policies.VmAllocationPolicyCombinedMostFullFirst;
-import org.cloudbus.cloudsim.sdn.example.policies.VmAllocationPolicyMipsLeastFullFirst;
-import org.cloudbus.cloudsim.sdn.example.policies.VmAllocationPolicyMipsMostFullFirst;
-import org.cloudbus.cloudsim.sdn.overbooking.OverbookingNetworkOperatingSystem;
-import org.cloudbus.cloudsim.sdn.overbooking.VmAllocationPolicyOverbooking;
-import org.cloudbus.cloudsim.sdn.power.PowerUtilizationMaxHostInterface;
+import org.cloudbus.cloudsim.sdn.vmallocation.VmAllocationPolicyCombinedLeastFullFirst;
+import org.cloudbus.cloudsim.sdn.vmallocation.VmAllocationPolicyCombinedMostFullFirst;
+import org.cloudbus.cloudsim.sdn.vmallocation.VmAllocationPolicyMipsLeastFullFirst;
+import org.cloudbus.cloudsim.sdn.vmallocation.VmAllocationPolicyMipsMostFullFirst;
+import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 
 /**
  * CloudSimSDN example main program. It loads physical topology file, application
@@ -130,12 +127,12 @@ public class SDNExample {
 				};
 				snos = new SimpleNetworkOperatingSystem(physicalTopologyFile);
 				break;
-			case Overbooking:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyOverbooking(hostList); }
-				};
-				snos = new OverbookingNetworkOperatingSystem(physicalTopologyFile);
-				break;
+//			case Overbooking:
+//				vmAllocationFac = new VmAllocationPolicyFactory() {
+//					public VmAllocationPolicy create(List<? extends Host> hostList) { return new OverbookingVmAllocationPolicy(hostList); }
+//				};
+//				snos = new OverbookingNetworkOperatingSystem(physicalTopologyFile);
+//				break;
 			default:
 				System.err.println("Choose proper VM placement polilcy!");
 				printUsage();
@@ -166,15 +163,9 @@ public class SDNExample {
 			Log.printLine(finishTime+": ========== EXPERIMENT FINISHED ===========");
 			
 			// Print results when simulation is over
-			//*
-			List<Cloudlet> newList = broker.getCloudletReceivedList();
-			
-			if(SDNExample.logEnabled) 
-				LogPrinter.printCloudletList(newList);
-			
 			List<Workload> wls = broker.getWorkloads();
-			LogPrinter.printWorkloadList(wls);
-			//*/
+			if(wls != null)
+				LogPrinter.printWorkloadList(wls);
 			
 			// Print hosts' and switches' total utilization.
 			List<Host> hostList = nos.getHostList();

@@ -80,4 +80,24 @@ public class Request {
 	public List<Activity> getRemovedActivities() {
 		return this.removedActivites;
 	}
+	
+	private Transmission getLastTransmission() {
+		for(int i=activities.size()-1; i>=0; i--) {
+			Activity act = activities.get(i);
+			if(act instanceof Transmission)
+				return (Transmission) act;
+		}
+		return null;
+	}
+
+	public Request getTerminalRequest() {
+		// The request that processes at last.
+		Transmission t= getLastTransmission();
+		if(t == null)
+			return this;
+		
+		Packet p = t.getPacket();
+		Request lastReq = p.getPayload();
+		return lastReq.getTerminalRequest();
+	}
 }

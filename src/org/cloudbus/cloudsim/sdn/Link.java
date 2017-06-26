@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cloudbus.cloudsim.Log;
+import org.cloudbus.cloudsim.sdn.monitor.MonitoringValues;
 
 /**
  * This is physical link between hosts and switches to build physical topology.
@@ -23,11 +24,11 @@ import org.cloudbus.cloudsim.Log;
  */
 public class Link {
 	// bi-directional link (one link = both ways)
-	Node highOrder;
-	Node lowOrder;
-	double upBW;	// low -> high
-	double downBW;	// high -> low
-	double latency;
+	private Node highOrder;
+	private Node lowOrder;
+	private double upBW;	// low -> high
+	private double downBW;	// high -> low
+	private double latency;	// in milliseconds, need to *0.001 to transform in seconds.
 	
 	private List<Channel> upChannels;
 	private List<Channel> downChannels;
@@ -92,6 +93,10 @@ public class Link {
 
 	public double getLatency() {
 		return latency;
+	}
+	
+	public double getLatencyInSeconds() {
+		return latency*0.001;
 	}
 	
 	private List<Channel> getChannels(Node from) {
@@ -206,6 +211,41 @@ public class Link {
 			return true;
 
 		return false;
+		
+	}
+	
+	// For monitor
+	private MonitoringValues mvUp = new MonitoringValues(MonitoringValues.ValueType.Utilization_Percentage);
+	private MonitoringValues mvDown = new MonitoringValues(MonitoringValues.ValueType.Utilization_Percentage);
+	private long monitoringProcessedBytesPerUnitUp = 0;
+	private long monitoringProcessedBytesPerUnitDown = 0;
+	
+	public void updateMonitor(double logTime, double timeUnit) {
+		long capacity = (long) (this.getBw() * timeUnit);
+		double utilization = (double)monitoringProcessedBytesPerUnitUp / capacity;
+		mvUp.add(utilization, logTime);
+		monitoringProcessedBytesPerUnitUp = 0;
+		
+		LogWriter log = LogWriter.getLogger("link_utilization_up.csv");
+		log.printLine(this.lowOrder+","+logTime+","+utilization);
+		
+		utilization = (double)monitoringProcessedBytesPerUnitDown / capacity;
+		mvDown.add(utilization, logTime);
+		monitoringProcessedBytesPerUnitDown = 0;
+	}
+	
+	public MonitoringValues getMonitoringValuesLinkUtilizationDown() { 
+		return mvDown;
+	}
+	public MonitoringValues getMonitoringValuesLinkUtilizationUp() { 
+		return mvUp;
+	}
+
+	public void increaseProcessedBytes(Node from, long processedBytes) {
+		if(isUplink(from))
+			this.monitoringProcessedBytesPerUnitUp += processedBytes;
+		else
+			this.monitoringProcessedBytesPerUnitDown += processedBytes;
 		
 	}
 }

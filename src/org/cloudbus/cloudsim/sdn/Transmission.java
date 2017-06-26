@@ -21,25 +21,27 @@ package org.cloudbus.cloudsim.sdn;
  * @since CloudSimSDN 1.0
  */
 public class Transmission implements Activity {
-	Package pkg;
+	Packet pkt;
 	long amountToBeProcessed;
-	
+
+	private double requestedBw =0;
+
 	public Transmission(int origin, int destination, long size, int flowId, Request payload) {
-		this.pkg = new Package(origin, destination, size, flowId, payload);
-		this.amountToBeProcessed=pkg.getSize();
+		this.pkt = new Packet(origin, destination, size, flowId, payload);
+		this.amountToBeProcessed=pkt.getSize();
 	}
 	
-	public Transmission(Package pkg){
-		this.pkg = pkg;
-		this.amountToBeProcessed=pkg.getSize();
+	public Transmission(Packet pkt){
+		this.pkt = pkt;
+		this.amountToBeProcessed=pkt.getSize();
 	}
 	
 	public long getSize(){
 		return amountToBeProcessed;
 	}
 	
-	public Package getPackage(){
-		return pkg;
+	public Packet getPacket(){
+		return pkt;
 	}
 	
 	/**
@@ -60,6 +62,28 @@ public class Transmission implements Activity {
 	}
 	
 	public String toString() {
-		return "Transmission:"+this.pkg.toString();
+		return "Transmission:"+this.pkt.toString();
 	}
+
+	public void setRequestedBW(double bw) {
+		this.requestedBw = bw;
+	}
+	public double getExpectedDuration() {
+		double time = Double.POSITIVE_INFINITY;
+		if(requestedBw != 0)
+			time = pkt.getSize() / requestedBw;
+		return time;
+	}
+
+	@Override
+	public double getExpectedTime() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getServeTime() {
+		return getPacket().getFinishTime() - getPacket().getStartTime();
+	}
+
 }

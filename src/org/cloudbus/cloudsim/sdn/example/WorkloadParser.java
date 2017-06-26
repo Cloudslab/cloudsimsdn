@@ -20,6 +20,7 @@ import java.util.Queue;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.UtilizationModel;
+import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.Processing;
 import org.cloudbus.cloudsim.sdn.Request;
 import org.cloudbus.cloudsim.sdn.Transmission;
@@ -36,6 +37,8 @@ import org.cloudbus.cloudsim.sdn.Transmission;
  */
 
 public class WorkloadParser {
+	private static final int NUM_PARSE_EACHTIME = 100;
+	
 	private final Map<String, Integer> vmNames;
 	private final Map<String, Integer> flowNames;
 	private String file;
@@ -43,9 +46,15 @@ public class WorkloadParser {
 	private static int cloudletId = 0;
 	private int userId;
 	private UtilizationModel utilizationModel;
-	private List<Workload> workloads;
-	private List<Cloudlet> lastCloudlets;
-	private List<Cloudlet> allCloudlets;
+	
+	private List<Workload> parsedWorkloads;
+	private List<Cloudlet> parsedCloudlets;
+	
+	private WorkloadResultWriter resultWriter = null;
+	
+	private int workloadNum = 0;
+	
+	private BufferedReader bufReader = null;
 	
 	public WorkloadParser(String file, int userId, UtilizationModel cloudletUtilModel, 
 			Map<String, Integer> vmNameIdMap, Map<String, Integer> flowNameIdMap) {
@@ -55,21 +64,28 @@ public class WorkloadParser {
 		this.vmNames = vmNameIdMap;
 		this.flowNames = flowNameIdMap;
 		
-		startParsing();
+		resultWriter = new WorkloadResultWriter("result_"+this.file);
+		openFile();
 	}
 	
-	public List<Workload> getWorkloads() {
-		return this.workloads;
+	public void parseNextWorkloads() {
+		this.parsedWorkloads = new ArrayList<Workload>();
+		this.parsedCloudlets = new ArrayList<Cloudlet>();
+		parseNext(NUM_PARSE_EACHTIME);
 	}
 	
-	public List<Cloudlet> getLastCloudlets() {
+	public List<Workload> getParsedWorkloads() {
+		return this.parsedWorkloads;
+	}
+	
+
+	public List<Cloudlet> getParsedCloudlets() {
 		// Returns cloudlets that is done at last for each workload
-		return this.lastCloudlets;
+		return this.parsedCloudlets;
 	}
 	
-	public List<Cloudlet> getAllCloudlets() {
-		// Returns cloudlets that is done at last for each workload
-		return this.allCloudlets;
+	public WorkloadResultWriter getResultWriter() {
+		return resultWriter;
 	}
 	
 	
@@ -105,7 +121,7 @@ public class WorkloadParser {
 
 		Request req = new Request(reqId++, userId);
 		Cloudlet cl = generateCloudlet(fromVmId, (int) cloudletLen);
-		this.allCloudlets.add(cl);
+		this.parsedCloudlets.add(cl);
 		
 		Processing proc = new Processing(cl);
 		req.addActivity(proc);
@@ -130,34 +146,33 @@ public class WorkloadParser {
 			req.addActivity(trans);
 		} else {
 			// this is the last request.
-			this.lastCloudlets.add(cl);
 		}
 		return req;
 	}
 	
-	private void startParsing() {
-		this.workloads = new ArrayList<Workload>();
-		this.lastCloudlets = new ArrayList<Cloudlet>();
-		this.allCloudlets = new ArrayList<Cloudlet>();
-		
-		BufferedReader br = null;
+	private void openFile() {
 		try {
-			br = new BufferedReader(new FileReader(file));
+			bufReader = new BufferedReader(new FileReader(Configuration.workingDirectory+file));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		String line;
 		try {
 			@SuppressWarnings("unused")
-			String head=br.readLine();
-			//System.out.println("Headline: "+ head);
-			
-			while ((line = br.readLine()) != null) {
+			String head=bufReader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void parseNext(int numRequests) {
+		String line;
+		
+		try {
+			while (((line = bufReader.readLine()) != null)
+					&& (parsedWorkloads.size() < numRequests) ){
 				//System.out.println("parsing:"+line);
-				
-				Workload tr = new Workload();
+				Workload tr = new Workload(workloadNum++, this.resultWriter);
 				
 				String[] splitLine = line.split(",");
 				Queue<String> lineitems = new LinkedList<String>(Arrays.asList(splitLine));
@@ -171,17 +186,31 @@ public class WorkloadParser {
 				
 				tr.request = parseRequest(tr.submitVmId, lineitems);
 				
-				workloads.add(tr);
+				parsedWorkloads.add(tr);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		try {
-			br.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			bufReader.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+	}
+	
+	/*
+	private String getOutputFilename(String filename) {
+		String ext = LogWriter.getExtension(this.file);
+		String dir = LogWriter.getPath(this.file);
+		String name = "result_"+LogWriter.getBaseName(this.file);
+		System.err.println(dir+"/"+name+"."+ext);
+		return dir+"/"+name+"."+ext;
+	}
+	*/
+	
+	public int getWorkloadNum() {
+		return workloadNum;
 	}
 }

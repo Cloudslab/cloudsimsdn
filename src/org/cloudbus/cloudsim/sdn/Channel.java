@@ -13,13 +13,14 @@ import java.util.List;
 
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.sdn.monitor.MonitoringValues;
 
 /** 
  * This class represents a channel for transmission of data between switches.
  * It controls sharing of available bandwidth. Relation between
  * Transmission and Channel is the same as Cloudlet and CloudletScheduler,
  * but here we consider only the time shared case, representing a shared
- * channel among different simultaneous package transmissions.
+ * channel among different simultaneous packet transmissions.
  *
  * This is logical channel. One physical link (class Link) can hold more than one logical channels (class Channel).
  * Channel is directional. It is one way.
@@ -43,7 +44,12 @@ public class Channel {
 	private final int chId;
 	private final double requestedBandwidth;	// Requested by user
 	
-	public Channel(int chId, int srcId, int dstId, List<Node> nodes, List<Link> links, double bandwidth) {
+	private double totalLatency = 0;
+	
+	private SDNVm srcVm;
+//	private SDNVm dstVm;
+	
+	public Channel(int chId, int srcId, int dstId, List<Node> nodes, List<Link> links, double bandwidth, SDNVm srcVm, SDNVm dstVm) {
 		this.chId = chId;
 		this.srcId = srcId;
 		this.dstId = dstId;
@@ -53,6 +59,9 @@ public class Channel {
 		this.requestedBandwidth = bandwidth;
 		this.inTransmission = new LinkedList<Transmission>();
 		this.completed = new LinkedList<Transmission>();
+		
+		this.srcVm = srcVm;
+//		this.dstVm = dstVm;
 	}
 	
 	public void initialize() {
@@ -64,12 +73,15 @@ public class Channel {
 			link.addChannel(from, this);
 			
 			from.updateNetworkUtilization();
+			
+			this.totalLatency += link.getLatencyInSeconds();
 		}
+		
 		nodes.get(nodes.size()-1).updateNetworkUtilization();
 	}
 	
 	public void terminate() {
-		// Assign BW to all links
+		// Remove this channel from all links and nodes
 		for(int i=0; i<nodes.size()-1; i++) {
 			Link link = links.get(i);
 			
@@ -79,6 +91,18 @@ public class Channel {
 			node.updateNetworkUtilization();
 		}
 		nodes.get(nodes.size()-1).updateNetworkUtilization();
+	}
+	
+	public void updateRoute(List<Node> nodes, List<Link> links) {
+		// Remove this channel from old route
+		terminate();
+		
+		// Change the nodes and links
+		this.nodes = nodes;
+		this.links = links;
+		
+		// Initialize with the new route
+		initialize();
 	}
 	
 	private double getLowestSharedBandwidth() {
@@ -169,9 +193,14 @@ public class Channel {
 		if (newBandwidth == allocatedBandwidth)
 			return false; //nothing changed
 		
-		boolean isChanged = this.updatePackageProcessing();
+		boolean isChanged = this.updatePacketProcessing();
 		this.allocatedBandwidth=newBandwidth;
 		
+		if(this.allocatedBandwidth == Double.NEGATIVE_INFINITY || this.allocatedBandwidth == Double.POSITIVE_INFINITY)
+		{
+			System.err.println("Allocated bandwidth infinity!!");
+			System.exit(1);
+		}
 		return isChanged;
 	}
 	
@@ -197,15 +226,18 @@ public class Channel {
 	 * @return delay to next transmission completion or
 	 *         Double.POSITIVE_INFINITY if there is no pending transmissions
 	 */
-	public boolean updatePackageProcessing(){
+	public boolean updatePacketProcessing(){
 		double currentTime = CloudSim.clock();
-		double timeSpent = NetworkOperatingSystem.round(currentTime - this.previousTime);
+		double timeSpent = currentTime - this.previousTime;//NetworkOperatingSystem.round(currentTime - this.previousTime);
 		
 		if(timeSpent <= 0 || inTransmission.size() == 0)
 			return false;	// Nothing changed
 
 		//update the amount of transmission 
 		long processedThisRound =  Math.round(timeSpent*getAllocatedBandwidthPerTransmission());
+		long processedTotal = processedThisRound*inTransmission.size();
+		
+		this.increaseProcessedBytes(processedTotal);
 		
 		//update transmission table; remove finished transmission
 		LinkedList<Transmission> completedTransmissions = new LinkedList<Transmission>();
@@ -214,15 +246,16 @@ public class Channel {
 			
 			if (transmission.isCompleted()){
 				completedTransmissions.add(transmission);
-				this.completed.add(transmission);
+				//this.completed.add(transmission);
 			}	
 		}
 		
+		this.completed.addAll(completedTransmissions);
 		this.inTransmission.removeAll(completedTransmissions);
 		previousTime=currentTime;
 
-		Log.printLine(CloudSim.clock() + ": Channel.updatePackageProcessing() ("+this.toString()+"):Time spent:"+timeSpent+
-				", BW/host:"+getAllocatedBandwidthPerTransmission()+", Processed:"+processedThisRound);
+//		Log.printLine(CloudSim.clock() + ": Channel.updatePacketProcessing() ("+this.toString()+"):Time spent:"+timeSpent+
+//				", BW/host:"+getAllocatedBandwidthPerTransmission()+", Processed:"+processedThisRound);
 		
 		if(completedTransmissions.isEmpty())
 			return false;	// Nothing changed
@@ -258,14 +291,6 @@ public class Channel {
 		else if(delay < 0) {
 			throw new IllegalArgumentException("Channel.nextFinishTime: delay"+delay);
 		}
-
-		delay=NetworkOperatingSystem.round(delay);
-
-		if (delay < NetworkOperatingSystem.getMinTimeBetweenNetworkEvents()) { 
-			//Log.printLine(CloudSim.clock() + ":Channel: delay is too short: "+ delay);
-			delay = NetworkOperatingSystem.getMinTimeBetweenNetworkEvents();
-		}
-		
 		return delay;
 	}
 
@@ -295,10 +320,10 @@ public class Channel {
 	}
 
 	/**
-	 * @return list of Packages whose transmission finished, or empty
-	 *         list if no package arrived.
+	 * @return list of Packets whose transmission finished, or empty
+	 *         list if no packet arrived.
 	 */
-	public LinkedList<Transmission> getArrivedPackages(){
+	public LinkedList<Transmission> getArrivedPackets(){
 		LinkedList<Transmission> returnList = new LinkedList<Transmission>();
 
 		if (!completed.isEmpty()){
@@ -337,5 +362,44 @@ public class Channel {
 
 	public double getRequestedBandwidth() {
 		return requestedBandwidth;
+	}
+	
+	// For monitor
+	private MonitoringValues mv = new MonitoringValues(MonitoringValues.ValueType.DataRate_BytesPerSecond);
+	private long monitoringProcessedBytesPerUnit = 0;
+		
+	public void updateMonitor(double logTime, double timeUnit) {
+		//long capacity = (long) (this.getBw() * timeUnit);
+		
+		double dataRate = (double)monitoringProcessedBytesPerUnit / timeUnit;
+		mv.add(dataRate, logTime);
+		
+		monitoringProcessedBytesPerUnit = 0;
+		
+		LogWriter log = LogWriter.getLogger("channel_bw_utilization.csv");
+		log.printLine(this+","+logTime+","+dataRate);
+	}
+	
+	public MonitoringValues getMonitoringValuesLinkUtilization() { 
+		return mv;
+	}
+
+	private void increaseProcessedBytes(long processedThisRound) {
+		this.monitoringProcessedBytesPerUnit += processedThisRound;
+		
+		// Add processed bytes to each link.
+		for(int i=0; i<nodes.size()-1; i++) {
+			Node from = nodes.get(i);
+			Link link = links.get(i);
+			
+			link.increaseProcessedBytes(from, processedThisRound);
+		}
+		
+		// Add processed bytes to each VM
+		srcVm.increaseProcessedBytes(processedThisRound);
+	}
+
+	public double getTotalLatency() {
+		return this.totalLatency;
 	}
 }

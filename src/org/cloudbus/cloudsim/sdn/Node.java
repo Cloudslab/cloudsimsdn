@@ -18,8 +18,7 @@ import java.util.List;
  * @since CloudSimSDN 1.0
  */
 public interface Node {
-	
-	int getAddress();
+	public int getAddress();
 	public long getBandwidth();
 	public void setRank(int rank);
 	public int getRank();

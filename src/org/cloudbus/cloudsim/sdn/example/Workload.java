@@ -16,10 +16,27 @@ import org.cloudbus.cloudsim.sdn.Request;
  * @author Jungmin Son
  * @since CloudSimSDN 1.0
  */
-public class Workload {
+public class Workload implements Comparable<Workload> {
+	public int workloadId;
 	public int appId;
 	public double time;
 	public int submitVmId;
 	public int submitPktSize;
-	public Request request;	
+	public Request request;
+	
+	public WorkloadResultWriter resultWriter;
+	
+	public Workload(int workloadId, WorkloadResultWriter writer) {
+		this.workloadId = workloadId;
+		this.resultWriter = writer;
+	}
+	
+	public void writeResult() {
+		this.resultWriter.writeResult(this);
+	}
+
+	@Override
+	public int compareTo(Workload that) {
+		return this.workloadId - that.workloadId;
+	}
 }

@@ -11,24 +11,24 @@ package org.cloudbus.cloudsim.sdn;
 
 /**
  * Network data packet to transfer from source to destination.
- * Payload of Package will have a list of activities. 
+ * Payload of Packet will have a list of activities. 
  *  
  * @author Jungmin Son
  * @author Rodrigo N. Calheiros
  * @since CloudSimSDN 1.0
  */
-public class Package {
+public class Packet {
 	
-	int origin;
-	int destination;
-	long size;
-	int flowId;
+	final int origin;			// origin VM adress (vm.getId())
+	final int destination;	// destination VM adress (vm.getId())
+	final long size;
+	final int flowId;
 	Request payload;
 
 	private double startTime=-1;
 	private double finishTime=-1;
 	
-	public Package(int origin, int destination, long size, int flowId, Request payload) {
+	public Packet(int origin, int destination, long size, int flowId, Request payload) {
 		this.origin = origin;
 		this.destination = destination;
 		this.size = size;

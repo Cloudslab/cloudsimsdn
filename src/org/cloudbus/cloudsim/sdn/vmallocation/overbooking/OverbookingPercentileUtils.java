@@ -17,6 +17,7 @@ import java.util.HashMap;
 import org.cloudbus.cloudsim.sdn.Configuration;
 
 public class OverbookingPercentileUtils {
+	public static String PERCENTILE_FILE_NAME = "percentiles.csv";
 	
 	// This function returns calculated percentage from the percentile input.
 	public static double translateToPercentage(String vmName, double percentile) {
@@ -81,7 +82,7 @@ public class OverbookingPercentileUtils {
 		BufferedReader bufReader = null;
 		try {
 			bufReader = new BufferedReader(new FileReader(
-					Configuration.workingDirectory+Configuration.PERCENTILE_FILE_NAME));
+					Configuration.workingDirectory+PERCENTILE_FILE_NAME));
 			
 			String line=bufReader.readLine();	// Skip the title line
 

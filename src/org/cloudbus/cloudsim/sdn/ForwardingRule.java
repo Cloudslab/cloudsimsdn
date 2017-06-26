@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.cloudbus.cloudsim.Log;
+import org.cloudbus.cloudsim.core.CloudSim;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -47,11 +48,14 @@ public class ForwardingRule {
 	
 	public void removeRule(int src, int dest, int flowId){
 		Map<Integer, Node> map = table.get(src, dest);
-		map.remove(flowId);
-		if(map.isEmpty())
-			table.remove(src, dest);
-		else
-			table.put(src, dest, map);
+		
+		if(map != null) {
+			map.remove(flowId);
+			if(map.isEmpty())
+				table.remove(src, dest);
+			else
+				table.put(src, dest, map);
+		}
 	}
 
 	public Node getRoute(int src, int dest, int flowId) {
@@ -71,21 +75,21 @@ public class ForwardingRule {
 				for(Integer flowId:nodes.keySet()) {
 					Node node = nodes.get(flowId);
 					if(node instanceof SDNHost) {
-						Log.printLine(thisNode + ": "+
-								NetworkOperatingSystem.debugVmIdName.get(rowK) + "->" + 
-								NetworkOperatingSystem.debugVmIdName.get(colK) + "->"+"(flow:"+flowId+")" + 
-								((SDNHost) node).getName());
+						Log.printLine(CloudSim.clock() + ": Forwarding table of " + thisNode + ": "+
+								NetworkOperatingSystem.debugVmIdName.get(rowK) + "|"+rowK+"->" + 
+								NetworkOperatingSystem.debugVmIdName.get(colK) + "|"+colK+"->"+"(flow:"+flowId+")==> " + 
+								node.toString());
 					}
 					else if(node instanceof Switch) {
-						Log.printLine(thisNode + ": "+
-								NetworkOperatingSystem.debugVmIdName.get(rowK) + "->" + 
-								NetworkOperatingSystem.debugVmIdName.get(colK) + "->"+"(flow:"+flowId+")" + 
+						Log.printLine(CloudSim.clock() + ": Forwarding table of " + thisNode + ": "+
+								NetworkOperatingSystem.debugVmIdName.get(rowK) + "|"+rowK+"->" +  
+								NetworkOperatingSystem.debugVmIdName.get(colK) + "|"+colK+"->"+"(flow:"+flowId+")==> " + 
 								((Switch) node).getName());
 					}
 					else {
-						Log.printLine(thisNode + ": "+
-								NetworkOperatingSystem.debugVmIdName.get(rowK) + "->" + 
-								NetworkOperatingSystem.debugVmIdName.get(colK) + "->"+"(flow:"+flowId+")" + 
+						Log.printLine(CloudSim.clock() + ": Forwarding table of " + thisNode + ": "+
+								NetworkOperatingSystem.debugVmIdName.get(rowK) + "|"+rowK+"->" +  
+								NetworkOperatingSystem.debugVmIdName.get(colK) + "|"+colK+"->"+"(flow:"+flowId+")==> " + 
 								node.getAddress());
 					}
 				}
