@@ -198,7 +198,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 				}
 				this.updateVmMonitor(CloudSim.clock());
 				
-				if(CloudSim.getNumFutureEvents() > 0) {
+				if(CloudSimEx.getNumFutureEvents() > 0) {
 					//System.err.println(CloudSim.clock() + ": more events..");
 					send(this.getId(), Configuration.monitoringTimeInterval, Constants.MONITOR_UPDATE_UTILIZATION);
 				}

@@ -142,7 +142,7 @@ public class SDNDatacenter extends Datacenter {
 	}
 
 	public void processUpdateProcessing() {
-		updateCloudletProcessing(false); // Force Processing - TRUE!
+		updateCloudletProcessing(); // Force Processing - TRUE!
 		checkCloudletCompletion();
 	}
 	
@@ -152,7 +152,7 @@ public class SDNDatacenter extends Datacenter {
 		Cloudlet cl = (Cloudlet) ev.getData();
 		
 		// Clear out the processed data for the previous time slot before Cloudlet submitted
-		updateCloudletProcessing(false);
+		updateCloudletProcessing();
 
 		try {
 			// checks whether this Cloudlet has finished or not
@@ -361,7 +361,7 @@ public class SDNDatacenter extends Datacenter {
 				migrationAttempted += migrationMap.size();
 				
 				// Process cloudlets before migration because cloudlets are processed during migration process..
-				updateCloudletProcessing(false);
+				updateCloudletProcessing();
 				checkCloudletCompletion();
 
 				for (Map<String, Object> migrate : migrationMap) {
