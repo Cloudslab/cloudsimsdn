@@ -1,35 +1,37 @@
 /*
- * Title:        CloudSim Toolkit
- * Description:  CloudSim (Cloud Simulation) Toolkit for Modeling and Simulation of Clouds
+ * Title:        CloudSimSDN
+ * Description:  SDN extension for CloudSim
  * Licence:      GPL - http://www.gnu.org/copyleft/gpl.html
  *
- * Copyright (c) 2009-2012, The University of Melbourne, Australia
+ * Copyright (c) 2015, The University of Melbourne, Australia
  */
 
-package org.cloudbus.cloudsim.sdn.overbooking;
+package org.cloudbus.cloudsim.sdn.policies;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.cloudbus.cloudsim.Pe;
-import org.cloudbus.cloudsim.VmSchedulerTimeSharedOverSubscription;
+import org.cloudbus.cloudsim.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.sdn.power.PowerUtilizationHistoryEntry;
-import org.cloudbus.cloudsim.sdn.power.PowerUtilizationInterface;
+import org.cloudbus.cloudsim.sdn.monitor.MonitoringValues;
+import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationHistoryEntry;
+import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationInterface;
 
 /**
- * VmSchedulerSpaceShared is a VMM allocation policy that allocates one or more Pe to a VM, and
- * doesn't allow sharing of PEs. If there is no free PEs to the VM, allocation fails. Free PEs are
+ * VmSchedulerTimeSharedEnergy is a VMM allocation policy that allocates one or more Pe to a VM, and
+ * allows sharing of PEs by time. If there is no free PEs to the VM, allocation fails. Free PEs are
  * not allocated to VMs
  * 
  * @author Rodrigo N. Calheiros
  * @author Anton Beloglazov
- * @since CloudSim Toolkit 1.0
+ * @author Jungmin Son
+ *  * @since CloudSim Toolkit 1.0
  */
-public class VmSchedulerTimeSharedOverbookingEnergy extends VmSchedulerTimeSharedOverSubscription implements PowerUtilizationInterface{
+public class VmSchedulerTimeSharedEnergy extends VmSchedulerTimeShared implements PowerUtilizationInterface{
 
 	
-	public VmSchedulerTimeSharedOverbookingEnergy(List<? extends Pe> pelist) {
+	public VmSchedulerTimeSharedEnergy(List<? extends Pe> pelist) {
 		super(pelist);
 	}
 
@@ -55,23 +57,23 @@ public class VmSchedulerTimeSharedOverbookingEnergy extends VmSchedulerTimeShare
 		
 		double total=0;
 		double lastTime=0;
-		double lastMips=0;
+		double lastUtilPercentage=0;
 		if(this.utilizationHistories == null)
 			return 0;
 		
 		for(PowerUtilizationHistoryEntry h:this.utilizationHistories) {
 			double duration = h.startTime - lastTime;
-			double utilPercentage = lastMips/ getTotalMips();
+			double utilPercentage = lastUtilPercentage;
 			double power = calculatePower(utilPercentage);
 			double energyConsumption = power * duration;
 			
 			// Assume that the host is turned off when duration is long enough
-			if(duration > powerOffDuration && lastMips == 0)
+			if(duration > powerOffDuration && lastUtilPercentage == 0)
 				energyConsumption = 0;
 			
 			total += energyConsumption;
 			lastTime = h.startTime;
-			lastMips = h.usedMips;
+			lastUtilPercentage = h.utilPercentage;
 		}
 		return total/3600;	// transform to Whatt*hour from What*seconds
 	}
@@ -90,10 +92,20 @@ public class VmSchedulerTimeSharedOverbookingEnergy extends VmSchedulerTimeShare
 		}
 		if(utilizationHistories == null)
 			utilizationHistories = new ArrayList<PowerUtilizationHistoryEntry>();
-		this.utilizationHistories.add(new PowerUtilizationHistoryEntry(time, usingMips));
+		this.utilizationHistories.add(new PowerUtilizationHistoryEntry(time, usingMips/getTotalMips()));
 	}
 	
 	private double getTotalMips() {
 		return this.getPeList().size() * this.getPeCapacity();
 	}
+	
+	public MonitoringValues getMonitoringValuesCPUUtilization() {
+		MonitoringValues mv = new MonitoringValues(MonitoringValues.ValueType.Utilization_Percentage);
+		for(PowerUtilizationHistoryEntry entry:utilizationHistories) {
+			mv.add(entry.utilPercentage, entry.startTime);
+		}
+
+		return mv;
+	}
+
 }

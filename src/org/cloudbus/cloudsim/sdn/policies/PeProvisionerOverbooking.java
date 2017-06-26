@@ -6,7 +6,7 @@
  * Copyright (c) 2009-2012, The University of Melbourne, Australia
  */
 
-package org.cloudbus.cloudsim.sdn.overbooking;
+package org.cloudbus.cloudsim.sdn.policies;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class PeProvisionerOverbooking extends PeProvisioner {
 	public PeProvisionerOverbooking(double availableMips) {
 		super(availableMips);
 		
-		setAvailableMips(PeProvisionerOverbooking.getOverbookedMips(availableMips));
+		setAvailableMips(PeProvisionerOverbooking.getOverbookableMips(availableMips));
 
 		setPeTable(new HashMap<String, ArrayList<Double>>());
 	}
@@ -110,7 +110,7 @@ public class PeProvisionerOverbooking extends PeProvisioner {
 	public void deallocateMipsForAllVms() {
 		super.deallocateMipsForAllVms();
 		
-		setAvailableMips(PeProvisionerOverbooking.getOverbookedMips(getMips()));	//Overbooking
+		setAvailableMips(PeProvisionerOverbooking.getOverbookableMips(getMips()));	//Overbooking
 
 		getPeTable().clear();
 	}
@@ -193,7 +193,7 @@ public class PeProvisionerOverbooking extends PeProvisioner {
 		this.peTable = (Map<String, List<Double>>) peTable;
 	}
 
-	public static double getOverbookedMips(double availableMips) {
+	public static double getOverbookableMips(double availableMips) {
 		double overbookedMips = availableMips * PeProvisionerOverbooking.overbookingRatioMips;
 		return overbookedMips;		
 	}
