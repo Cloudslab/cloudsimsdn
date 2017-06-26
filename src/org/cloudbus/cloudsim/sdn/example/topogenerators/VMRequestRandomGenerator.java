@@ -83,15 +83,16 @@ public class VMRequestRandomGenerator {
 		ExponentialDistribution rStartTime = new ExponentialDistribution(new Well19937c(seed), startMean, ExponentialDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);	
 		ParetoDistribution rDuration = new ParetoDistribution(new Well19937c(seed), durScale, durShape);
 		
+		int vmGroup=0;
 		while(vmCount < totalVmNum) {
 			int vmsInGroup = rVmNum.nextInt(4)+2;
 			double duration = Math.floor(rDuration.sample());
 			
-			vmGenerator.generateVMGroup(vmsInGroup, lastStartTime, lastStartTime+duration, null);
+			vmGenerator.generateVMGroup(vmsInGroup, lastStartTime, lastStartTime+duration, null, vmGroup, -1);
 			lastStartTime += Math.floor(rStartTime.sample());
 			
 			vmCount += vmsInGroup;
-			
+			vmGroup++;			
 		}
 	}
 }

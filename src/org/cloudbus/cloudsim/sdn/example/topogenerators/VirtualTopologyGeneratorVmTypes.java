@@ -18,26 +18,53 @@ package org.cloudbus.cloudsim.sdn.example.topogenerators;
 public class VirtualTopologyGeneratorVmTypes extends VirtualTopologyGenerator{
 	
 	public static void main(String [] argv) {
-		int numVms = 10;
-		String jsonFileName = "virtual_ccgrid.json";
+//		int numVms = 10;
+		String jsonFileName = "wiki.virtual.constant.small.json";
 
 		VirtualTopologyGeneratorVmTypes vmGenerator = new VirtualTopologyGeneratorVmTypes();
-		vmGenerator.generate3TierTopology(numVms, jsonFileName);
+		//vmGenerator.generate3TierTopology(numVms, jsonFileName);
+		vmGenerator.generateWikiTopology(jsonFileName);
 	}
 	
-	public void generate3TierTopology(int num, String jsonFileName) {
+	public void generateWikiTopology(String jsonFileName) {
+		final int groupNum = 5;
+		final int groupSubNum = 21;
+		
 		final int TIER = 3;
 		final Long linkBW = (long) (125000000/3);
-		for(int i = 0;i < num; i++) {
-			generateVMGroup(TIER, -1, -1, linkBW); // Priority VMs
+		
+		for(int vmGroupId = 0;vmGroupId < groupNum; vmGroupId++) {
+			for(int vmGroupSubId = 0;vmGroupSubId < groupSubNum; vmGroupSubId++) {
+				generateVMGroup(TIER, -1, -1, linkBW, vmGroupId, vmGroupSubId); // Priority VMs
+			}
 		}
-		for(int i = 0;i < num*4; i++) {
-			generateVMGroup(TIER, -1, -1, null);
-		}
+		
+		// Create non-priority VMs.
+//		for(int i = 0;i < num*4; i++) {
+//			generateVMGroup(TIER, -1, -1, null);
+//		}
 		wrtieJSON(jsonFileName);
 	}
 	
-	int vmGroupId = 0;
+	public void generate3TierTopology(int num, String jsonFileName) {
+		int vmGroupId = 0;
+		int vmGroupSubId = -1;
+		
+		final int TIER = 3;
+		final Long linkBW = (long) (125000000/3);
+		
+		for(int i = 0;i < num; i++) {
+			generateVMGroup(TIER, -1, -1, linkBW, vmGroupId, vmGroupSubId); // Priority VMs
+			vmGroupId++;
+		}
+		
+		// Create non-priority VMs.
+//		for(int i = 0;i < num*4; i++) {
+//			generateVMGroup(TIER, -1, -1, null);
+//		}
+		wrtieJSON(jsonFileName);
+	}
+
 	int vmNum = 0;
 	
 	enum VMtype {
@@ -49,31 +76,35 @@ public class VirtualTopologyGeneratorVmTypes extends VirtualTopologyGenerator{
 	}
 	
 
-	public VMSpec createVM(VMtype vmtype, double startTime, double endTime) {
+	public VMSpec createVM(VMtype vmtype, double startTime, double endTime, int vmGroupId, int vmGroupSubId) {
 		String name = "vm";
 		int pes = 1;
 		long vmSize = 1000;
 		long mips=1000;
-		int vmRam = 512;
+		int vmRam = 256;
 		long vmBW=100000000;
 
 		switch(vmtype) {
 		case WebServer:
 			//m1.large
-			mips=mips*2;
-			pes=2;
+//			mips=mips*2;
+			mips=100;//2500;
+//			pes=2;
+			pes=1;
 			name="web";
 			break;
 		case AppServer:
 			//m2.xlarge
-			mips=(long) (mips*1.5);
-			pes=8;
+			mips=900;//(long) (mips*2.5);
+			mips=200;//(long) (mips*2.5);
+			pes=2;
 			name="app";
 			break;
 		case DBServer:
 			//c1.xlarge
-			mips=(long) (mips*2.4);
-			pes=8;
+			mips=500;//(long) (mips*2.5);
+			mips=150;//(long) (mips*2.5);
+			pes=2;
 			name="db";
 			break;
 		case Proxy:
@@ -90,6 +121,9 @@ public class VirtualTopologyGeneratorVmTypes extends VirtualTopologyGenerator{
 			break;
 		}
 		name += vmGroupId;
+		if(vmGroupSubId != -1) {
+			name += "-" + vmGroupSubId;
+		}
 		vmNum++;
 
 		VMSpec vm = addVM(name, pes, mips, vmRam, vmSize, vmBW, startTime, endTime);
@@ -158,32 +192,32 @@ public class VirtualTopologyGeneratorVmTypes extends VirtualTopologyGenerator{
 	}
 	
 	
-	public void generateVMGroup(int numVMsInGroup, double startTime, double endTime, Long linkBw) {
+	public void generateVMGroup(int numVMsInGroup, double startTime, double endTime, Long linkBw, int groupId, int subGroupId) {
 		System.out.printf("Generating VM Group(%d): %f - %f\n", numVMsInGroup, startTime, endTime);
 		
 		switch(numVMsInGroup) {
 		case 2:
 		{
-			VMSpec web = this.createVM(VMtype.WebServer, startTime, endTime);
-			VMSpec app = this.createVM(VMtype.AppServer, startTime, endTime);
+			VMSpec web = this.createVM(VMtype.WebServer, startTime, endTime, groupId, subGroupId);
+			VMSpec app = this.createVM(VMtype.AppServer, startTime, endTime, groupId, subGroupId);
 			addLinkAutoNameBoth(web, app, linkBw);
 			break;
 		}
 		case 3:
 		{
-			VMSpec web = this.createVM(VMtype.WebServer, startTime, endTime);
-			VMSpec app = this.createVM(VMtype.AppServer, startTime, endTime);
-			VMSpec db = this.createVM(VMtype.DBServer, startTime, endTime);
+			VMSpec web = this.createVM(VMtype.WebServer, startTime, endTime, groupId, subGroupId);
+			VMSpec app = this.createVM(VMtype.AppServer, startTime, endTime, groupId, subGroupId);
+			VMSpec db = this.createVM(VMtype.DBServer, startTime, endTime, groupId, subGroupId);
 			addLinkAutoNameBoth(web, app, linkBw);
 			addLinkAutoNameBoth(app, db, linkBw);
 			break;
 		}
 		case 4:
 		{
-			VMSpec web = this.createVM(VMtype.WebServer, startTime, endTime);
-			VMSpec app = this.createVM(VMtype.AppServer, startTime, endTime);
-			VMSpec db = this.createVM(VMtype.DBServer, startTime, endTime);
-			VMSpec proxy = this.createVM(VMtype.Proxy, startTime, endTime);
+			VMSpec web = this.createVM(VMtype.WebServer, startTime, endTime, groupId, subGroupId);
+			VMSpec app = this.createVM(VMtype.AppServer, startTime, endTime, groupId, subGroupId);
+			VMSpec db = this.createVM(VMtype.DBServer, startTime, endTime, groupId, subGroupId);
+			VMSpec proxy = this.createVM(VMtype.Proxy, startTime, endTime, groupId, subGroupId);
 			addLinkAutoNameBoth(web, app, linkBw);
 			addLinkAutoNameBoth(app, db, linkBw);
 			addLinkAutoNameBoth(web, proxy, linkBw);
@@ -191,11 +225,11 @@ public class VirtualTopologyGeneratorVmTypes extends VirtualTopologyGenerator{
 		}
 		case 5:
 		{
-			VMSpec web = this.createVM(VMtype.WebServer, startTime, endTime);
-			VMSpec app = this.createVM(VMtype.AppServer, startTime, endTime);
-			VMSpec db = this.createVM(VMtype.DBServer, startTime, endTime);
-			VMSpec proxy = this.createVM(VMtype.Proxy, startTime, endTime);
-			this.createVM(VMtype.Firewall, startTime, endTime);
+			VMSpec web = this.createVM(VMtype.WebServer, startTime, endTime, groupId, subGroupId);
+			VMSpec app = this.createVM(VMtype.AppServer, startTime, endTime, groupId, subGroupId);
+			VMSpec db = this.createVM(VMtype.DBServer, startTime, endTime, groupId, subGroupId);
+			VMSpec proxy = this.createVM(VMtype.Proxy, startTime, endTime, groupId, subGroupId);
+			this.createVM(VMtype.Firewall, startTime, endTime, groupId, subGroupId);
 			addLinkAutoNameBoth(web, app, linkBw);
 			addLinkAutoNameBoth(app, db, linkBw);
 			addLinkAutoNameBoth(web, proxy, linkBw);
@@ -205,7 +239,6 @@ public class VirtualTopologyGeneratorVmTypes extends VirtualTopologyGenerator{
 			System.err.println("Unknown group number"+numVMsInGroup);
 			break;
 		}
-		vmGroupId ++;
 	}
 	
 }

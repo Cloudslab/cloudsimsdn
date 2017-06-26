@@ -11,6 +11,7 @@ package org.cloudbus.cloudsim.sdn.example.topogenerators;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -150,13 +151,33 @@ public class VirtualTopologyGenerator {
 		JSONArray vmList = new JSONArray();
 		JSONArray linkList = new JSONArray();
 		
-		for(VMSpec vm:vms) {
+		// Place VM in random order
+		ArrayList<Integer> indexes = new ArrayList<Integer>();
+		for(int i=0; i<vms.size();i++)
+			indexes.add(i);
+		Collections.shuffle(indexes);		
+
+		for(Integer i:indexes) {
+			VMSpec vm = vms.get(i);
 			vmList.add(vm.toJSON());
 		}
 		
+		// Shuffle virtual link order
+		indexes = new ArrayList<Integer>();
+		for(int i=0; i<links.size();i++)
+			indexes.add(i);
+		Collections.shuffle(indexes);		
+
+		for(Integer i:indexes) {
+			LinkSpec link = links.get(i);
+			linkList.add(link.toJSON());
+		}
+		
+		/*
 		for(LinkSpec link:links) {
 			linkList.add(link.toJSON());
 		}
+		*/
 		
 		obj.put("nodes", vmList);
 		obj.put("links", linkList);
