@@ -13,8 +13,10 @@ import java.util.List;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.SDNVm;
+import org.cloudbus.cloudsim.sdn.vmallocation.HostSelectionPolicy;
+import org.cloudbus.cloudsim.sdn.vmallocation.VmMigrationPolicy;
 
-public class OverbookingVmAllocationPolicyPowerNet extends OverbookingVmAllocationPolicyConsolidateCorrelated {
+public class OverbookingVmAllocationPolicyPowerNet extends OverbookingVmAllocationPolicyConsolidateConnected {
 	public OverbookingVmAllocationPolicyPowerNet(List<? extends Host> list,
 			HostSelectionPolicy hostSelectionPolicy,
 			VmMigrationPolicy vmMigrationPolicy) {

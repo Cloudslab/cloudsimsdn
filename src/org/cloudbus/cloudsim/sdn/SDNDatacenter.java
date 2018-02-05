@@ -23,6 +23,7 @@ import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEvent;
+import org.cloudbus.cloudsim.sdn.vmallocation.priority.VmAllocationPolicyPriorityFirst;
 
 /**
  * Extended class of Datacenter that supports processing SDN-specific events.
@@ -37,7 +38,7 @@ public class SDNDatacenter extends Datacenter {
 	private static final double PROCESSING_DELAY= 0.1;
 	NetworkOperatingSystem nos;
 	private HashMap<Integer,Request> requestsTable;
-	private static boolean isMigrateEnabled = true;
+	private static boolean isMigrateEnabled = false;
 	
 	public SDNDatacenter(String name, DatacenterCharacteristics characteristics, VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList, double schedulingInterval, NetworkOperatingSystem nos) throws Exception {
 		super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
@@ -46,6 +47,9 @@ public class SDNDatacenter extends Datacenter {
 		this.requestsTable = new HashMap<Integer, Request>();
 		
 		//nos.init();
+		if(vmAllocationPolicy instanceof VmAllocationPolicyPriorityFirst) {
+			((VmAllocationPolicyPriorityFirst)vmAllocationPolicy).setTopology(nos.getPhysicalTopology());
+		}
 	}
 	
 	public void addVm(Vm vm){
@@ -82,8 +86,8 @@ public class SDNDatacenter extends Datacenter {
 			} else {
 				data[2] = CloudSimTags.FALSE;
 			}
-			send(vm.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimTags.VM_CREATE_ACK, data);
-			send(nos.getId(), CloudSim.getMinTimeBetweenEvents(), CloudSimTags.VM_CREATE_ACK, vm);
+			send(vm.getUserId(), 0, CloudSimTags.VM_CREATE_ACK, data);
+			send(nos.getId(), 0, CloudSimTags.VM_CREATE_ACK, vm);
 		}
 
 		if (result) {
@@ -214,8 +218,8 @@ public class SDNDatacenter extends Datacenter {
 //				Log.printLine(getName() + ".processCloudletSubmit(): " + "Cloudlet is going to be processed at: "+(estimatedFinishTime + CloudSim.clock()));
 				
 				// gurantees a minimal interval before scheduling the event
-				if (estimatedFinishTime < CloudSim.getMinTimeBetweenEvents() + 0.01) {
-					estimatedFinishTime = CloudSim.getMinTimeBetweenEvents() + 0.01;
+				if (estimatedFinishTime < CloudSim.getMinTimeBetweenEvents()) {
+					estimatedFinishTime = CloudSim.getMinTimeBetweenEvents();
 				}				
 				send(getId(), estimatedFinishTime, CloudSimTags.VM_DATACENTER_EVENT);
 			}
@@ -329,6 +333,9 @@ public class SDNDatacenter extends Datacenter {
 		int userId = cl.getUserId();
 		int vmId = cl.getVmId();
 		Host host = getVmAllocationPolicy().getHost(vmId, userId);
+		if(host == null) {
+			throw new NullPointerException("Error! cannot find a host for Workload:"+ proc);
+		}
 		Vm vm = host.getVm(vmId, userId);
 		double mips = vm.getMips();
 		proc.setVmMipsPerPE(mips);
@@ -351,7 +358,7 @@ public class SDNDatacenter extends Datacenter {
 	
 	public void startMigrate() {
 		if (isMigrateEnabled) {
-			//Log.printLine(CloudSim.clock()+": Migration started..");
+			Log.printLine(CloudSim.clock()+": Migration started..");
 
 			List<Map<String, Object>> migrationMap = getVmAllocationPolicy().optimizeAllocation(
 					getVmList());

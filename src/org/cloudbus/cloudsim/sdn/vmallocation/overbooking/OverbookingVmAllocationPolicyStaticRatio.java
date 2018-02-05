@@ -13,6 +13,8 @@ import java.util.List;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.SDNVm;
+import org.cloudbus.cloudsim.sdn.vmallocation.HostSelectionPolicy;
+import org.cloudbus.cloudsim.sdn.vmallocation.VmMigrationPolicy;
 
 public class OverbookingVmAllocationPolicyStaticRatio extends OverbookingVmAllocationPolicy {
 	public OverbookingVmAllocationPolicyStaticRatio(List<? extends Host> list,

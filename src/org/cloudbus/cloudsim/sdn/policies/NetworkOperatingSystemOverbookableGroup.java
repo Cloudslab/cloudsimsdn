@@ -24,14 +24,14 @@ import org.cloudbus.cloudsim.sdn.Middlebox;
 import org.cloudbus.cloudsim.sdn.SDNVm;
 import org.cloudbus.cloudsim.sdn.VmGroup;
 
-public class OverbookingNetworkOperatingSystemGroup extends OverbookingNetworkOperatingSystem {
+public class NetworkOperatingSystemOverbookableGroup extends NetworkOperatingSystemOverbookable {
 
-	public OverbookingNetworkOperatingSystemGroup(String fileName) {
+	public NetworkOperatingSystemOverbookableGroup(String fileName) {
 		super(fileName);
 		// TODO Auto-generated constructor stub
 	}
 
-	private List<VmGroup> createVmGroup(Collection<Vm> vms, Collection<Arc> links) {
+	protected List<VmGroup> createVmGroup(Collection<Vm> vms, Collection<Arc> links) {
 		// Put VMs into separate group according to their connections 
 		List<VmGroup> groups = new ArrayList<VmGroup>();
 		List<Vm> vmPool = new ArrayList<Vm>(vms);

@@ -11,6 +11,7 @@ package org.cloudbus.cloudsim.sdn;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedList;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
@@ -26,6 +27,16 @@ import com.google.common.collect.Table;
  * @since CloudSimSDN 1.0
  */
 public class PhysicalTopology {
+	public enum NodeType {
+		Core,
+		Aggr,
+		Edge,
+		Host,
+	};
+	final int RANK_CORE = 0;
+	final int RANK_AGGR = 1;
+	final int RANK_EDGE = 2;
+	final int RANK_HOST = 3;
 	
 	Hashtable<Integer,Node> nodesTable;	// Address -> Node
 	Table<Integer, Integer, Link> linkTable; 	// From : To -> Link
@@ -54,13 +65,13 @@ public class PhysicalTopology {
 	public void addNode(Node node){
 		nodesTable.put(node.getAddress(), node);
 		if (node instanceof CoreSwitch){//coreSwitch is rank 0 (root)
-			node.setRank(0);
+			node.setRank(RANK_CORE);
 		} else if (node instanceof AggregationSwitch){//Hosts are on the bottom of hierarchy (leaf)
-			node.setRank(1);
+			node.setRank(RANK_AGGR);
 		} else if (node instanceof EdgeSwitch){//Edge switches are just before hosts in the hierarchy
-			node.setRank(2);
+			node.setRank(RANK_EDGE);
 		} else if (node instanceof SDNHost){//Hosts are on the bottom of hierarchy (leaf)
-			node.setRank(3);
+			node.setRank(RANK_HOST);
 		} else {
 			throw new IllegalArgumentException();
 		}
@@ -134,6 +145,49 @@ public class PhysicalTopology {
 
 	}
 	
+	public Collection<Node> getNodesType(NodeType tier) {
+		Collection<Node> allNodes = getAllNodes();
+		Collection<Node> nodes = new LinkedList<Node>();
+		for(Node node:allNodes) {
+			if(tier == NodeType.Core && node.getRank() == RANK_CORE) {
+				nodes.add(node);
+			}
+			else if(tier == NodeType.Aggr && node.getRank() == RANK_AGGR) {
+				nodes.add(node);
+			}
+			else if(tier == NodeType.Edge && node.getRank() == RANK_EDGE) {
+				nodes.add(node);
+			}
+			else if(tier == NodeType.Host && node.getRank() == RANK_HOST) {
+				nodes.add(node);
+			}
+		}
+		return nodes;
+	}
+	
+	public Collection<Node> getConnectedNodesLow(Node node) {
+		// Get the list of lower order
+		Collection<Node> nodes = new LinkedList<Node>();
+		Collection<Link> links = getAdjacentLinks(node);
+		for(Link l:links) {
+			if(l.getHighOrder().equals(node))
+				nodes.add(l.getLowOrder());
+		}
+		return nodes;
+	}
+
+	public Collection<Node> getConnectedNodesHigh(Node node) {
+		// Get the list of higher order
+		Collection<Node> nodes = new LinkedList<Node>();
+		Collection<Link> links = getAdjacentLinks(node);
+		for(Link l:links) {
+			if(l.getLowOrder().equals(node))
+				nodes.add(l.getHighOrder());
+		}
+		return nodes;
+	}
+
+	
 	public void buildDefaultRoutingFatTree() {
 		Collection<Node> nodes = getAllNodes();
 		
@@ -144,7 +198,7 @@ public class PhysicalTopology {
 		// For Edge: build path to SDN Host
 		// For Agg: build path to SDN Host through edge
 		for(Node sdnhost:nodes) {
-			if(sdnhost.getRank() == 3) {	// Rank3 = SDN Host
+			if(sdnhost.getRank() == RANK_HOST) {	// Rank3 = SDN Host
 				Collection<Link> links = getAdjacentLinks(sdnhost);
 				for(Link l:links) {
 					if(l.getLowOrder().equals(sdnhost)) {
@@ -166,7 +220,7 @@ public class PhysicalTopology {
 		}
 		// For Core: build path to SDN Host through agg
 		for(Node agg:nodes) {
-			if(agg.getRank() == 1) {	// Rank1 = Agg switch
+			if(agg.getRank() == RANK_AGGR) {	// Rank1 = Agg switch
 				Collection<Link> links = getAdjacentLinks(agg);
 				for(Link l:links) {
 					if(l.getLowOrder().equals(agg)) {
@@ -187,7 +241,7 @@ public class PhysicalTopology {
 		 ********************************************/
 		// For Edge: build path to aggregate switch
 		for(Node edge:nodes) {
-			if(edge.getRank() == 2) {	// Rank2 = Edge switch
+			if(edge.getRank() == RANK_EDGE) {	// Rank2 = Edge switch
 				Collection<Link> links = getAdjacentLinks(edge);
 				for(Link l:links) {
 					if(l.getLowOrder().equals(edge)) {
@@ -199,7 +253,7 @@ public class PhysicalTopology {
 		}
 		// For Agg: build path to core switch
 		for(Node agg:nodes) {
-			if(agg.getRank() == 1) {	// Rank1 = Agg switch
+			if(agg.getRank() == RANK_AGGR) {	// Rank1 = Agg switch
 				Collection<Link> links = getAdjacentLinks(agg);
 				for(Link l:links) {
 					if(l.getLowOrder().equals(agg)) {

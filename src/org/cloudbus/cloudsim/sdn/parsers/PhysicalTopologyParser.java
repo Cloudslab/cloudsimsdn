@@ -97,7 +97,7 @@ public class PhysicalTopologyParser {
 				} else {
 					int MAX_PORTS = 256;
 							
-					int bw = new BigDecimal((Long)node.get("bw")).intValueExact();
+					long bw = new BigDecimal((Long)node.get("bw")).longValueExact();
 					long iops = (Long) node.get("iops");
 					int upports = MAX_PORTS;
 					int downports = MAX_PORTS;

@@ -39,4 +39,9 @@ public class Workload implements Comparable<Workload> {
 	public int compareTo(Workload that) {
 		return this.workloadId - that.workloadId;
 	}
+	
+	@Override
+	public String toString() {
+		return "Workload (ID:"+workloadId+"/"+appId+", time:"+time+", VM:"+submitVmId;
+	}
 }

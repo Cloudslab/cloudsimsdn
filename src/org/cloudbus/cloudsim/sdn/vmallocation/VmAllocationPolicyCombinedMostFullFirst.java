@@ -128,14 +128,14 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 
 			// Check whether the host can hold this VM or not.
 			if( getFreeMips().get(idx) < requiredMips) {
-				//System.err.println("not enough MIPS");
+				System.err.println("not enough MIPS:"+getFreeMips().get(idx)+", req="+requiredMips);
 				//Cannot host the VM
 				continue;
 			}
 			if( getFreeBw().get(idx) < requiredBw) {
-				//System.err.println("not enough BW");
+				System.err.println("not enough BW:"+getFreeBw().get(idx)+", req="+requiredBw);
 				//Cannot host the VM
-				continue;
+				//continue;
 			}
 			
 			result = host.vmCreate(vm);

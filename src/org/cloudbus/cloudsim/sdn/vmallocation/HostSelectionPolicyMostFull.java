@@ -6,7 +6,7 @@
  * Copyright (c) 2017, The University of Melbourne, Australia
  */
 
-package org.cloudbus.cloudsim.sdn.vmallocation.overbooking;
+package org.cloudbus.cloudsim.sdn.vmallocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ public class HostSelectionPolicyMostFull extends HostSelectionPolicy {
 		return getMostFullHostsForVm(vm, hosts, vmAllocPolicy);
 	}
 
-	protected static List<Host> getMostFullHostsForVm(SDNVm vm, List<SDNHost> hosts, OverbookingVmAllocationPolicy vmAllocPolicy) {
+	public static List<Host> getMostFullHostsForVm(SDNVm vm, List<SDNHost> hosts, VmAllocationPolicyEx vmAllocPolicy) {
 		int numHosts = hosts.size();
 		List<Host> hostCandidates = new ArrayList<Host>();
 

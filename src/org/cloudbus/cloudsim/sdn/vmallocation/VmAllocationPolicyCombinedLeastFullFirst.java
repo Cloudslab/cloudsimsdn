@@ -107,7 +107,7 @@ public class VmAllocationPolicyCombinedLeastFullFirst extends VmAllocationPolicy
 			} 
 		}
 		if(!result) {
-			System.err.println("Cannot assign the VM to any host:"+"/"+numHosts);
+			System.err.println("Cannot assign this VM("+vm+") to any host. NumHosts="+numHosts);
 		}
 		logMaxNumHostsUsed();
 		return result;

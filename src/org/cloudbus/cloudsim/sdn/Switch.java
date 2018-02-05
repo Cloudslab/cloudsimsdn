@@ -27,7 +27,7 @@ public class Switch implements Node{
 	protected int address;
 	protected String name;
 	
-	protected int bw;
+	protected long bw;
 	protected long iops;
 	protected int rank = -1;
 	
@@ -38,7 +38,7 @@ public class Switch implements Node{
 	protected ForwardingRule forwardingTable;
 	protected RoutingTable routingTable;	
 	
-	public Switch(String name, int bw, long iops, int upports, int downports, NetworkOperatingSystem nos) {
+	public Switch(String name, long bw, long iops, int upports, int downports, NetworkOperatingSystem nos) {
 		address = NodeUtil.assignAddress();
 		
 		this.name = name;

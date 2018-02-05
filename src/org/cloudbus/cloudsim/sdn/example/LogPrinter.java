@@ -182,7 +182,7 @@ public class LogPrinter {
 			Log.print(String.format(LogPrinter.fInt, cloudlet.getVmId()));
 			Log.print(String.format(LogPrinter.fInt, cloudlet.getCloudletLength()));
 			Log.print(String.format(LogPrinter.fFloat, cloudlet.getActualCPUTime()));
-			Log.print(String.format(LogPrinter.fFloat, cloudlet.getExecStartTime()));
+			Log.print(String.format(LogPrinter.fFloat, cloudlet.getSubmissionTime()));
 			Log.print(String.format(LogPrinter.fFloat, cloudlet.getFinishTime()));
 			Log.print("\n");
 		}
@@ -198,7 +198,7 @@ public class LogPrinter {
 	private static double[] appIdFinishTime = new double[SDNBroker.lastAppId];
 	private static double totalTime = 0.0;
 	
-	public static void printWorkload(Workload wl) {
+	protected static void printWorkload(Workload wl) {
 		double serveTime;
 		
 		startTime = finishTime = -1;
@@ -326,7 +326,7 @@ public class LogPrinter {
 				Log.print(String.format(LogPrinter.fInt, pr.getCloudlet().getCloudletLength()));
 
 				Log.print(String.format(LogPrinter.fFloat, pr.getCloudlet().getActualCPUTime()));
-				Log.print(String.format(LogPrinter.fFloat, pr.getCloudlet().getExecStartTime()));
+				Log.print(String.format(LogPrinter.fFloat, pr.getCloudlet().getSubmissionTime()));
 				Log.print(String.format(LogPrinter.fFloat, pr.getCloudlet().getFinishTime()));
 
 				if(startTime == -1) startTime = pr.getCloudlet().getExecStartTime();
@@ -361,9 +361,9 @@ public class LogPrinter {
 		Log.printLine("workingDirectory :"+Configuration.workingDirectory);
 		
 		
-		Log.printLine("minTimeBetweenEvents: "+Configuration.minTimeBetweenEvents);
-		Log.printLine("resolutionPlaces:"+Configuration.resolutionPlaces);
-		Log.printLine("timeUnit:"+Configuration.timeUnit);
+		//Log.printLine("minTimeBetweenEvents: "+Configuration.minTimeBetweenEvents);
+		//Log.printLine("resolutionPlaces:"+Configuration.resolutionPlaces);
+		//Log.printLine("timeUnit:"+Configuration.timeUnit);
 		
 		Log.printLine("overbookingTimeWindowInterval:"+ Configuration.overbookingTimeWindowInterval);	// Time interval between points 
 

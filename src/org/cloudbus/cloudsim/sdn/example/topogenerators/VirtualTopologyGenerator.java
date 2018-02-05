@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -28,10 +29,50 @@ public class VirtualTopologyGenerator {
 	private List<VMSpec> vms = new ArrayList<VMSpec>();
 	private List<LinkSpec> links = new ArrayList<LinkSpec>();
 	private List<DummyWorkloadSpec> dummyWorkload = new ArrayList<DummyWorkloadSpec>();
+	
+	// For test //
+
+	public static void main(String [] argv) {
+		VirtualTopologyGenerator vmGenerator = new VirtualTopologyGenerator();
+		vmGenerator.generateTestVMs("virtual.test.json");
+	}
+	
+	public void generateTestVMs(String jsonFileName)
+	{
+		final int groupNum = 4;
+		final long flowBw = 100L;
+
+		for(int i=0; i< groupNum; i++) {
+			VMSpec v1 = createTestVM(i, 0);
+			VMSpec v2 = createTestVM(i, 1);
+			addLinkAutoNameBoth(v1, v2, flowBw);
+		}
+		wrtieJSON(jsonFileName);
+	}
+		
+	public VMSpec createTestVM(int vmGroupId, int vmGroupSubId) {
+		String name = "vm";
+		int pes = 1;
+		long vmStorage = 10;
+		long mips=100;
+		int vmRam = 256;
+		long vmBW=100;
+
+		name += vmGroupId;
+		if(vmGroupSubId != -1) {
+			name += "-" + vmGroupSubId;
+		}
+
+		VMSpec vm = addVM(name, pes, mips, vmRam, vmStorage, vmBW, -1, -1);
+		return vm;
+	}
+	
+	// APIs //
 
 	public VMSpec addVM(String name, VMSpec spec) {
 		return addVM(name, spec.pe, spec.mips, spec.ram, spec.size, spec.bw, spec.starttime, spec.endtime);
 	}
+	
 	public VMSpec addVM(String name, int pes, long mips, int ram, long storage, long bw, double starttime, double endtime) {
 		VMSpec vm = new VMSpec(pes, mips, ram, storage, bw, starttime, endtime);
 		vm.name = name;
@@ -47,6 +88,21 @@ public class VirtualTopologyGenerator {
 		
 		addWorkload(linkname, source, dest);
 		return link;
+	}
+	
+	public void addLinkAutoName(VMSpec src, VMSpec dest, Long bw) {
+		String linkName = "default";
+		addLink(linkName, src, dest, null);
+		
+		if(bw != null && bw > 0) {
+			linkName = src.name + dest.name;
+			addLink(linkName, src, dest, bw);
+		}
+	}
+	
+	public void addLinkAutoNameBoth(VMSpec vm1, VMSpec vm2, Long linkBw) {
+		addLinkAutoName(vm1, vm2, linkBw);
+		addLinkAutoName(vm2, vm1, linkBw);
 	}
 	
 	public void addWorkload(String linkname, VMSpec source, VMSpec dest) {
@@ -143,6 +199,7 @@ public class VirtualTopologyGenerator {
 	}
 	
 	int vmId = 0;
+	final int SEED = 10;
 	
 	@SuppressWarnings("unchecked")
 	public void wrtieJSON(String jsonFileName) {
@@ -155,7 +212,7 @@ public class VirtualTopologyGenerator {
 		ArrayList<Integer> indexes = new ArrayList<Integer>();
 		for(int i=0; i<vms.size();i++)
 			indexes.add(i);
-		Collections.shuffle(indexes);		
+		Collections.shuffle(indexes, new Random(SEED));		
 
 		for(Integer i:indexes) {
 			VMSpec vm = vms.get(i);
@@ -166,7 +223,7 @@ public class VirtualTopologyGenerator {
 		indexes = new ArrayList<Integer>();
 		for(int i=0; i<links.size();i++)
 			indexes.add(i);
-		Collections.shuffle(indexes);		
+		Collections.shuffle(indexes, new Random(SEED));		
 
 		for(Integer i:indexes) {
 			LinkSpec link = links.get(i);

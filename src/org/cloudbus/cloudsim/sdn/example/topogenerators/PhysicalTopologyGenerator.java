@@ -62,7 +62,7 @@ import org.json.simple.JSONObject;
 public class PhysicalTopologyGenerator {
 
 	public static void main(String [] argv) {
-		startConst();
+		startTest();
 	}
 	
 	public static void startConst() {		
@@ -83,15 +83,44 @@ public class PhysicalTopologyGenerator {
 		
 		PhysicalTopologyGenerator reqg = new PhysicalTopologyGenerator();
 		HostSpec hostSpec = reqg.createHostSpec(pe, mips, ram, storage, bw);
-//		reqg.createTopology(hostSpec, iops, bw, fanout, latency);
+//		reqg.createTreeTopology(hostSpec, iops, bw, fanout, latency);
 		reqg.createTopologyFatTree(hostSpec, iops, bw, numPods, latency);
 		reqg.wrtieJSON(jsonFileName);
 	}
-	public static void start() {		
-		String jsonFileName = "wiki.physical.fat.agg.json";
+	
+	
+	public static void startTest() {		
+		String jsonFileName = "physical.test.json";
 		
-//		int fanout = 2;
-		int numPods = 8;	// Total hosts = (numPods^3)/4
+		int fanout = 4;
+		int numPods = 2;	// Total hosts = (fanout^2) * numPods
+		int redundancy = 2;	// For aggr and core tier, how many switches are connected.
+		double latency = 0.1;
+		
+		long iops = 1000000000L;
+		
+		int pe = 1;
+		long mips = 100;//8000;
+		int ram = 10240;
+		long storage = 10000000;
+		//long bw = 125000000;
+		long bw = 100;
+		
+		PhysicalTopologyGenerator reqg = new PhysicalTopologyGenerator();
+		HostSpec hostSpec = reqg.createHostSpec(pe, mips, ram, storage, bw);
+		reqg.createTestTopology(hostSpec, iops, 
+				bw,bw,bw, 
+				latency, fanout, numPods, redundancy);
+		//reqg.createTopologyFatTree(hostSpec, iops, bw, numPods, latency);
+		reqg.wrtieJSON(jsonFileName);
+	}
+	
+	public static void startTree() {		
+		String jsonFileName = "wiki.physical.tree.json";
+		
+		int fanout = 4;
+		int numPods = 8;	// Total hosts = (fanout^2) * numPods
+		int redundancy = 2;	// For aggr and core tier, how many switches are connected.
 		double latency = 0.1;
 		
 		long iops = 1000000000L;
@@ -105,12 +134,15 @@ public class PhysicalTopologyGenerator {
 		
 		PhysicalTopologyGenerator reqg = new PhysicalTopologyGenerator();
 		HostSpec hostSpec = reqg.createHostSpec(pe, mips, ram, storage, bw);
-//		reqg.createTopology(hostSpec, iops, bw, fanout, latency);
-		reqg.createTopologyFatTree(hostSpec, iops, bw, numPods, latency);
+		reqg.createMultiLinkTreeTopology(hostSpec, iops, 
+				bw,bw,bw, 
+				latency, fanout, numPods, redundancy);
+		//reqg.createTopologyFatTree(hostSpec, iops, bw, numPods, latency);
 		reqg.wrtieJSON(jsonFileName);
 	}
 
-	public void createTopology(HostSpec hostSpec, long swIops, long swBw, int fanout, double latency) {
+
+	protected void createTreeTopology(HostSpec hostSpec, long swIops, long swBw, int fanout, double latency) {
 		// core, aggregation, edge
 		// Core switch
 		SwitchSpec c = addSwitch("c", "core", swBw, swIops);
@@ -127,7 +159,70 @@ public class PhysicalTopologyGenerator {
 		}
 	}
 	
-	public void createTopologyFatTree(HostSpec hostSpec, long swIops, long swBw, int numpods, double latency) {
+	// This creates a 3 layer cannonical tree topology with redundant links on aggr and core layers
+	// https://www.grotto-networking.com/figures/BBNetVirtualizationDataCenter/DCNetworkConventional.png
+	protected void createMultiLinkTreeTopology(HostSpec hostSpec, long swIops,
+			long coreBw, long aggrBw, long edgeBw,
+			double latency, int fanout, int numPods, int redundancy) {
+		// core, aggregation, edge
+		// Core switch
+		SwitchSpec [] c = new SwitchSpec [redundancy];
+		for(int i=0; i<redundancy; i++) {
+			c[i] = addSwitch("c_"+i, "core", coreBw, swIops);
+		}
+		
+		for(int pod=0; pod<numPods; pod++) {
+			SwitchSpec [] a = new SwitchSpec [redundancy];
+			
+			for(int i=0; i<redundancy; i++) {
+				a[i] = addSwitch("a"+pod+"_"+i, "aggregate", aggrBw, swIops);
+
+				// Add link between aggr - core
+				for(int j=0; j<redundancy; j++)
+					addLink(a[i], c[j], latency);
+			}
+
+			for(int i=0; i<fanout; i++) {
+				SwitchSpec e = addSwitch("e"+pod+"_"+i, "edge", edgeBw, swIops);
+				// Add link between aggr - edge
+				for(int j=0; j<redundancy; j++)
+					addLink(a[j], e, latency);
+				
+				for(int j=0; j<fanout; j++) {
+					String hostname = "h"+pod+"_" + i + "_" + j;
+					HostSpec h = addHost(hostname, hostSpec);
+					addLink(e, h, latency);
+				}
+			}
+		}
+	}
+	
+	protected void createTestTopology(HostSpec hostSpec, long swIops,
+			long coreBw, long aggrBw, long edgeBw,
+			double latency, int fanout, int numPods, int redundancy) {
+		// core, aggregation, edge
+		// Core switch
+		SwitchSpec [] c = new SwitchSpec [redundancy];
+		for(int i=0; i<redundancy; i++) {
+			c[i] = addSwitch("c_"+i, "core", coreBw, swIops);
+		}
+		
+		for(int pod=0; pod<numPods; pod++) {
+			SwitchSpec e = addSwitch("e"+pod, "edge", edgeBw, swIops);
+			// Add link between aggr - edge
+			for(int j=0; j<redundancy; j++)
+				addLink(c[j], e, latency);
+			
+			for(int j=0; j<fanout; j++) {
+				String hostname = "h"+pod+"_" + j;
+				HostSpec h = addHost(hostname, hostSpec);
+				addLink(e, h, latency);
+			}
+		}
+	}
+	
+	
+	protected void createTopologyFatTree(HostSpec hostSpec, long swIops, long swBw, int numpods, double latency) {
 		SwitchSpec [][] c = new SwitchSpec [numpods/2][numpods/2];
 		for(int i=0; i<numpods/2; i++) {
 			for(int j=0; j<numpods/2; j++) {

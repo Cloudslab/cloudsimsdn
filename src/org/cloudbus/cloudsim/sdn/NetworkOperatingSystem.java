@@ -8,8 +8,6 @@
 
 package org.cloudbus.cloudsim.sdn;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,29 +20,22 @@ import java.util.Set;
 
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
-import org.cloudbus.cloudsim.VmScheduler;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
-import org.cloudbus.cloudsim.provisioners.BwProvisioner;
-import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
-import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
-import org.cloudbus.cloudsim.provisioners.RamProvisioner;
-import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import org.cloudbus.cloudsim.sdn.monitor.MonitoringValues;
 import org.cloudbus.cloudsim.sdn.parsers.PhysicalTopologyParser;
 import org.cloudbus.cloudsim.sdn.parsers.VirtualTopologyParser;
-import org.cloudbus.cloudsim.sdn.policies.VmSchedulerTimeSharedEnergy;
+import org.cloudbus.cloudsim.sdn.policies.LinkSelectionPolicy;
 import org.cloudbus.cloudsim.sdn.vmallocation.overbooking.OverbookingVmAllocationPolicy;
 
 /**
  * NOS calculates and estimates network behaviour. It also mimics SDN Controller functions.  
- * It manages channels between switches, and assigns packages to channels and control their completion
+ * It manages channels between allSwitches, and assigns packages to channels and control their completion
  * Once the transmission is completed, forward the packet to the destination.
  *  
  * @author Jungmin Son
@@ -53,16 +44,17 @@ import org.cloudbus.cloudsim.sdn.vmallocation.overbooking.OverbookingVmAllocatio
  */
 public abstract class NetworkOperatingSystem extends SimEntity {
 	protected SDNDatacenter datacenter;
+	protected LinkSelectionPolicy linkSelector;
 
 	// Physical topology
 	protected String physicalTopologyFileName; 
 	protected PhysicalTopology topology;
-	protected List<SDNHost> hostList;
-	protected List<Switch> switches;
+	protected List<SDNHost> allHosts;
+	protected List<Switch> allSwitches;
 	
 	// Virtual topology
-	protected LinkedList<Vm> vmList = new LinkedList<Vm>();
-	protected LinkedList<Arc> arcList = new LinkedList<Arc>();
+	protected LinkedList<Vm> allVms = new LinkedList<Vm>();
+	protected LinkedList<Arc> allArcs = new LinkedList<Arc>();
 	protected boolean isApplicationDeployed = false;
 	
 	// Mapping tables for searching
@@ -94,20 +86,21 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	protected abstract boolean deployApplication(List<Vm> vms, List<Middlebox> middleboxes, List<Arc> links);
 	protected abstract Middlebox deployMiddlebox(String type, Vm vm);
 
-	public NetworkOperatingSystem(String fileName) {
+	public NetworkOperatingSystem(String physicalTopologyFilename) {
 		super("NOS");
 		
-		this.physicalTopologyFileName = fileName;
+		this.physicalTopologyFileName = physicalTopologyFilename;
 		this.channelTable = new Hashtable<String, Channel>();
 		
 		initPhysicalTopology();
 	}
 
 	public static double getMinTimeBetweenNetworkEvents() {
-	    return Configuration.minTimeBetweenEvents* Configuration.timeUnit;
+	    return CloudSim.getMinTimeBetweenEvents();
 	}
 	
 	public static double round(double value) {
+		/*
 		int places = Configuration.resolutionPlaces;
 	    if (places < 0) throw new IllegalArgumentException();
 
@@ -116,13 +109,22 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	    BigDecimal bd = new BigDecimal(value);
 	    bd = bd.setScale(places, RoundingMode.CEILING);
 	    return bd.doubleValue();
-	    //return value;
+	    */
+	    return value;
 	}
 	
 	private boolean monitorEnabled = true;
 	
 	public void setMonitorEnable(boolean monitorEnable) {
 		monitorEnabled = monitorEnable;
+	}
+	
+	public void setLinkSelectionPolicy(LinkSelectionPolicy linkSelectionPolicy) {
+		this.linkSelector = linkSelectionPolicy;
+	}
+	
+	public LinkSelectionPolicy getLinkSelectionPolicy() {
+		return this.linkSelector;
 	}
 
 	
@@ -163,7 +165,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			System.err.print(mv);			
 		}
 
-		for(Vm vm:vmList) {
+		for(Vm vm:allVms) {
 			SDNVm tvm = (SDNVm)vm;
 			System.err.println(tvm);
 			MonitoringValues mv = tvm.getMonitoringValuesVmCPUUtilization();
@@ -199,8 +201,16 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 				this.updateVmMonitor(CloudSim.clock());
 				
 				if(CloudSimEx.getNumFutureEvents() > 0) {
-					//System.err.println(CloudSim.clock() + ": more events..");
-					send(this.getId(), Configuration.monitoringTimeInterval, Constants.MONITOR_UPDATE_UTILIZATION);
+					double nextMonitorDelay = Configuration.monitoringTimeInterval;
+					double nextEventDelay = CloudSimEx.getNextEventTime() - CloudSim.clock();
+					
+					// If there's no event between now and the next monitoring time, skip monitoring until the next event time. 
+					if(nextEventDelay > nextMonitorDelay) {
+						nextMonitorDelay = nextEventDelay;	
+					}
+					
+					System.err.println(CloudSim.clock() + ": Elasped time="+ CloudSimEx.getElapsedTimeString()+", "+CloudSimEx.getNumFutureEvents()+" more events, next monitoring in "+nextMonitorDelay);
+					send(this.getId(), nextMonitorDelay, Constants.MONITOR_UPDATE_UTILIZATION);
 				}
 				break;
 			default: System.out.println("Unknown event received by "+super.getName()+". Tag:"+ev.getTag());
@@ -213,34 +223,19 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 //		vm.setSDNHost(host);
 	}
 	
+	// Migrate network flow from previous routing
 	protected void processVmMigrate(Vm vm, SDNHost oldHost, SDNHost newHost) {
 		// Find the virtual route associated with the migrated VM
 		// VM is already migrated to the new host
-		for(Arc arc:arcList) {
+		for(Arc arc:allArcs) {
 			if(arc.getSrcId() == vm.getId()
 					|| arc.getDstId() == vm.getId() )
 			{
-				List<Node> oldNodes = new ArrayList<Node>();
-				List<Link> oldLinks = new ArrayList<Link>();
-				
-				SDNHost sender = findHost(arc.getSrcId());	// After migrated
+				SDNHost sender = findHost(arc.getSrcId());	// Sender will be the new host after migrated
 				if(arc.getSrcId() == vm.getId())
-					sender = oldHost;
+					sender = oldHost;	// In such case, sender should be changed to the old host
 				
-				buildNodesLinks(arc.getSrcId(), arc.getDstId(), 
-						arc.getFlowId(), sender, oldNodes, oldLinks);
-				
-				// Remove the old routes.
-				for(Node node:oldNodes) {
-					//System.err.println("Removing routes for: "+node + "("+arc+")");
-					node.removeVMRoute(arc.getSrcId(), arc.getDstId(), arc.getFlowId());
-				}
-				
-				// Build a forwarding table for the new route.
-				if(buildForwardingTable(arc) == false) {
-					System.err.println("NetworkOperatingSystem.processVmMigrate: cannot build a new forwarding table!!");
-					System.exit(0);
-				}
+				rebuildForwardingTable(arc.getSrcId(), arc.getDstId(), arc.getFlowId(), sender);
 			}
 		}
 		
@@ -256,7 +251,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	protected void processVmDestroyAck(SimEvent ev) {
 		Vm destroyedVm = (Vm) ev.getData();
 		// remove all channels transferring data from or to this vm.
-		for(Vm vm:this.vmList) {
+		for(Vm vm:this.allVms) {
 			Channel ch = this.findChannel(vm.getId(), destroyedVm.getId(), -1);
 			if(ch != null) {
 				this.removeChannel(getKey(vm.getId(), destroyedVm.getId(), -1));
@@ -273,23 +268,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		
 	}
 
-	protected Link selectLink(List<Link> links, int flowId, Node src, Node dest) {
-		if(dest != null) {
-			return links.get(dest.getAddress() % links.size());
-		}
-		
-		if(flowId == -1)
-			return links.get(0);
-		else
-			return links.get(1 % links.size());
-			
-	}
-	
-	protected boolean buildForwardingTable(Arc arc) {
-		int srcVm = arc.getSrcId();
-		int dstVm = arc.getDstId();
-		int flowId = arc.getFlowId();
-		
+	protected boolean buildForwardingTable(int srcVm, int dstVm, int flowId) {
 		SDNHost srchost = (SDNHost) findHost(srcVm);
 		SDNHost dsthost = (SDNHost) findHost(dstVm);
 		if(srchost == null || dsthost == null) {
@@ -302,10 +281,10 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		}
 		else {
 			Log.printLine(CloudSim.clock() + ": " + getName() + ": VMs are in different hosts:"+ srchost+ "("+srcVm+")->"+dsthost+"("+dstVm+")");
-			boolean findRoute = buildForwardingTable(srchost, srcVm, dstVm, flowId, null);
+			boolean findRoute = buildForwardingTableRec(srchost, srcVm, dstVm, flowId);
 			
 			if(!findRoute) {
-				System.err.println("SimpleNetworkOperatingSystem.deployFlow: Could not find route!!" + 
+				System.err.println("NetworkOperatingSystem.deployFlow: Could not find route!!" + 
 						NetworkOperatingSystem.debugVmIdName.get(srcVm) + "->"+NetworkOperatingSystem.debugVmIdName.get(dstVm));
 				return false;
 			}
@@ -313,8 +292,8 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		return true;
 	}
 	
-	protected boolean buildForwardingTable(Node node, int srcVm, int dstVm, int flowId, Node prevNode) {
-		// There are many links. Determine which hop to go.
+	protected boolean buildForwardingTableRec(Node node, int srcVm, int dstVm, int flowId) {
+		// There are multiple links. Determine which hop to go.
 		SDNHost desthost = findHost(dstVm);
 		if(node.equals(desthost))
 			return true;
@@ -325,16 +304,68 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			throw new IllegalArgumentException();
 		}
 		
-		// Let's choose the first link. make simple
-		Link nextLink = selectLink(nextLinkCandidates, flowId, findHost(srcVm), desthost);
+		// Choose which link to follow
+		Link nextLink = linkSelector.selectLink(nextLinkCandidates, flowId, findHost(srcVm), desthost, node);
 		Node nextHop = nextLink.getOtherNode(node);
 		
 		node.addVMRoute(srcVm, dstVm, flowId, nextHop);
-		buildForwardingTable(nextHop, srcVm, dstVm, flowId, null);
+		buildForwardingTableRec(nextHop, srcVm, dstVm, flowId);
 		
 		return true;
 	}
-
+	
+	// This function rebuilds the forwarding table only for the specific VM
+	protected void rebuildForwardingTable(int srcVmId, int dstVmId, int flowId, Node srcHost) {
+		// Remove the old routes.
+		List<Node> oldNodes = new ArrayList<Node>();
+		List<Link> oldLinks = new ArrayList<Link>();
+		buildNodesLinks(srcVmId, dstVmId, flowId, srcHost, oldNodes, oldLinks);
+		
+		for(Node node:oldNodes) {
+			//System.err.println("Removing routes for: "+node + "("+arc+")");
+			node.removeVMRoute(srcVmId, dstVmId, flowId);
+		}
+		
+		// Build a forwarding table for the new route.
+		if(buildForwardingTable(srcVmId, dstVmId, flowId) == false) {
+			System.err.println("NetworkOperatingSystem.processVmMigrate: cannot build a new forwarding table!!");
+			System.exit(0);
+		}
+	}
+	
+	private boolean updateDynamicForwardingTableRec(Node node, int srcVm, int dstVm, int flowId, boolean isNewRoute) {
+		// There are multiple links. Determine which hop to go.
+		SDNHost desthost = findHost(dstVm);
+		if(node.equals(desthost))
+			return false;	// Nothing changed
+		
+		List<Link> nextLinkCandidates = node.getRoute(desthost);
+		
+		if(nextLinkCandidates == null) {
+			throw new IllegalArgumentException();
+		}
+		
+		// Choose which link to follow
+		Link nextLink = linkSelector.selectLink(nextLinkCandidates, flowId, findHost(srcVm), desthost, node);
+		Node nextHop = nextLink.getOtherNode(node);
+		
+		Node oldNextHop = node.getVMRoute(srcVm, dstVm, flowId);
+		if(isNewRoute || !nextHop.equals(oldNextHop)) {
+			// Create a new route
+			//node.removeVMRoute(srcVm, dstVm, flowId);
+			node.addVMRoute(srcVm, dstVm, flowId, nextHop);
+			//Log.printLine(CloudSim.clock() + ": " + getName() + ": Updating VM route for flow:"+srcVm+"->"+dstVm+"("+flowId+") From="+node+", Old="+oldNextHop+", New="+nextHop);
+			
+			updateDynamicForwardingTableRec(nextHop, srcVm, dstVm, flowId, true);
+			return true;
+		}
+		else {
+			// Nothing changed for this node.
+			return updateDynamicForwardingTableRec(nextHop, srcVm, dstVm, flowId, false);
+		}
+	}
+	
+	
 	public void addPacketToChannel(Packet pkt) {
 		int src = pkt.getOrigin();
 		int dst = pkt.getDestination();
@@ -409,10 +440,12 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 				delay = NetworkOperatingSystem.getMinTimeBetweenNetworkEvents();
 			}
 
-			//Log.printLine(CloudSim.clock() + ": " + getName() + ".sendInternalEvent(): next finish time: "+ delay);
+			//Log.printLine(CloudSim.clock() + ": " + getName() + ".sendInternalEvent(): delay for next event="+ delay);
 
 			if((nextEventTime > CloudSim.clock() + delay) || nextEventTime <= CloudSim.clock() ) 
 			{
+				//Log.printLine(CloudSim.clock() + ": " + getName() + ".sendInternalEvent(): next event time changed! old="+ nextEventTime+", new="+(CloudSim.clock()+delay));
+				
 				CloudSim.cancelAll(getId(), new PredicateType(Constants.SDN_INTERNAL_PACKET_PROCESS));
 				send(this.getId(), delay, Constants.SDN_INTERNAL_PACKET_PROCESS);
 				nextEventTime = CloudSim.clock()+delay;
@@ -442,11 +475,19 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		
 		LinkedList<Channel> completeChannels = new LinkedList<Channel>();
 		
+		// Check every channel
 		for(Channel ch:channelTable.values()){
 			boolean isCompleted = ch.updatePacketProcessing();
 			
 			if(isCompleted) {
 				completeChannels.add(ch);
+				
+				if(ch.getActiveTransmissionNum() != 0)
+				{
+					// There are more transmissions even after completing some transmissions.
+					needSendEvent = true;
+				}
+
 			} else {
 				// Something is not completed. Need to send an event. 
 				needSendEvent = true;
@@ -565,6 +606,10 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	}
 	
 	private Channel createChannel(int src, int dst, int flowId, Node srcNode) {
+		// For dynamic routing, rebuild forwarding table (select which link to use).
+		if(linkSelector.isDynamicRoutingEnabled())
+			updateDynamicForwardingTableRec(srcNode, src, dst, flowId, false);
+		
 		List<Node> nodes = new ArrayList<Node>();
 		List<Link> links = new ArrayList<Link>();
 		
@@ -572,9 +617,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		Node dest = origin.getVMRoute(src, dst, flowId);
 		
 		if(dest==null) {
-			Node destDebug = origin.getVMRoute(src, dst, flowId);
-			System.err.println("createChannel() Cannot create channel!"+destDebug);
-			return null;
+			throw new IllegalArgumentException("createChannel(): dest is null, cannot create channel! "+findVm(src)+"->"+findVm(dst)+"|"+flowId);
 		}
 		
 		double lowestBw = Double.POSITIVE_INFINITY;
@@ -588,6 +631,8 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		
 		while(true) {
 			Link link = this.topology.getLink(origin.getAddress(), dest.getAddress());
+			//Log.printLine(CloudSim.clock() + ": createChannel() :(" +getKey(src,dst,flowId)+"): "+link);
+			
 			links.add(link);
 			nodes.add(dest);
 			
@@ -605,13 +650,13 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		if(flowId != -1 && lowestBw < reqBw) {
 			// free bandwidth is less than required one.
 			// Cannot make channel.
-//			Log.printLine(CloudSim.clock() + ": " + getName() + ": Free bandwidth is less than required.("+getKey(src,dst,flowId)+"): ReqBW="+ reqBw + "/ Free="+lowestBw);
+			//Log.printLine(CloudSim.clock() + ": " + getName() + ": Free bandwidth is less than required.("+getKey(src,dst,flowId)+"): ReqBW="+ reqBw + "/ Free="+lowestBw);
 			//return null;
 		}
 		
 		Channel channel=new Channel(flowId, src, dst, nodes, links, reqBw, 
 				(SDNVm)findVm(src), (SDNVm)findVm(dst));
-//		Log.printLine(CloudSim.clock() + ": " + getName() + ".createChannel:"+channel);
+		//Log.printLine(CloudSim.clock() + ": " + getName() + ".createChannel:"+channel);
 
 		return channel;
 	}
@@ -671,7 +716,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 //	}
 
 	public List<Switch> getSwitchList() {
-		return this.switches;
+		return this.allSwitches;
 	}
 
 	public boolean isApplicationDeployed() {
@@ -679,7 +724,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	}
 
 	protected Vm findVm(int vmId) {
-		for(Vm vm:vmList) {
+		for(Vm vm:allVms) {
 			if(vm.getId() == vmId)
 				return vm;
 		}
@@ -729,36 +774,25 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 //		return sdnhost.getAddress();
 //	}
 	
-	public SDNHost createHost(int ram, long bw, long storage, long pes, double mips) {
-		LinkedList<Pe> peList = new LinkedList<Pe>();
-		int peId=0;
-		for(int i=0;i<pes;i++) peList.add(new Pe(peId++,new PeProvisionerSimple(mips)));
-		
-		RamProvisioner ramPro = new RamProvisionerSimple(ram);
-		BwProvisioner bwPro = new BwProvisionerSimple(bw);
-		VmScheduler vmScheduler = new VmSchedulerTimeSharedEnergy(peList);		
-		SDNHost newHost = new SDNHost(ramPro, bwPro, storage, peList, vmScheduler, this);
-		
-		return newHost;		
-	}
+	public abstract SDNHost createHost(int ram, long bw, long storage, long pes, double mips);
 	
 	protected void initPhysicalTopology() {
 		this.topology = new PhysicalTopology();
 //		this.hosts = new ArrayList<Host>();
-		this.hostList = new ArrayList<SDNHost>();
-		this.switches= new ArrayList<Switch>();
+		this.allHosts = new ArrayList<SDNHost>();
+		this.allSwitches= new ArrayList<Switch>();
 		
 		PhysicalTopologyParser parser = new PhysicalTopologyParser(this.physicalTopologyFileName, this);
 		
 		for(SDNHost sdnHost: parser.getHosts()) {
 			topology.addNode(sdnHost);
 //			this.hosts.add(sdnHost);
-			this.hostList.add(sdnHost);
+			this.allHosts.add(sdnHost);
 		}
 		
 		for(Switch sw:parser.getSwitches()) {
 			topology.addNode(sw);
-			this.switches.add(sw);
+			this.allSwitches.add(sw);
 		}
 
 		for(Link link:parser.getLinks()) {
@@ -794,7 +828,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 				Middlebox m = deployMiddlebox(vm.getMiddleboxType(), vm);
 				mbList.add(m);
 			} else {
-				vmList.add(vm);
+				allVms.add(vm);
 			}
 			
 			deployVmNameToIdTable.put(vm.getName(), vm.getId());
@@ -802,7 +836,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		}
 		
 		for(Arc arc:parser.getArcList()) {
-			arcList.add(arc);
+			allArcs.add(arc);
 			
 			deployFlowNameToIdTable.put(arc.getName(), arc.getFlowId());
 			if(arc.getFlowId() != -1) {
@@ -810,7 +844,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			}
 		}
 			
-		boolean result = deployApplication(vmList, mbList, parser.getArcList());
+		boolean result = deployApplication(allVms, mbList, parser.getArcList());
 		
 		isApplicationDeployed = result;		
 		return result;
@@ -818,11 +852,14 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	
 	// for monitoring
 	private void updateBWMonitor(double monitoringTimeUnit2) {
+		double highest=0;
 		// Update utilization of all links
 		Set<Link> links = new HashSet<Link>(this.topology.getAllLinks());
 		for(Link l:links) {
-			l.updateMonitor(CloudSim.clock(), monitoringTimeUnit2);
+			double util = l.updateMonitor(CloudSim.clock(), monitoringTimeUnit2);
+			if(util > highest) highest=util;
 		}
+		System.err.println(CloudSim.clock()+": Highest utilization of Links = "+highest);
 		
 		// Update bandwidth consumption of all channels
 		for(Channel ch:channelTable.values()) {
@@ -839,7 +876,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	private void updateVmMonitor(double logTime) {
 		VmAllocationPolicy vmAlloc = datacenter.getVmAllocationPolicy();
 		if(vmAlloc instanceof OverbookingVmAllocationPolicy) {
-			for(Vm v: this.vmList) {
+			for(Vm v: this.allVms) {
 				SDNVm vm = (SDNVm)v;
 				double mipsOBR = ((OverbookingVmAllocationPolicy)vmAlloc).getCurrentOverbookingRatioMips((SDNVm) vm);
 				LogWriter log = LogWriter.getLogger("vm_OBR_mips.csv");
@@ -855,6 +892,10 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 
 	@SuppressWarnings("unchecked")
 	public <T extends Host> List<T> getHostList() {
-		return (List<T>)hostList;
+		return (List<T>)allHosts;
+	}
+	
+	public PhysicalTopology getPhysicalTopology() {
+		return this.topology;
 	}
 }

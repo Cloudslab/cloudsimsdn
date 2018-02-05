@@ -11,7 +11,6 @@ package org.cloudbus.cloudsim.sdn;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.sdn.monitor.MonitoringValues;
 
 /**
@@ -116,7 +115,7 @@ public class Link {
 		double totalRequested = getRequestedBandwidthForDedicatedChannels(from);
 		
 		if(totalRequested > this.getBw()) {
-			Log.printLine("Link.getDedicatedChannelAdjustFactor() Exceeds link bandwidth. Reduce requested bandwidth");
+			//Log.printLine("Link.getDedicatedChannelAdjustFactor() Exceeds link bandwidth. Reduce requested bandwidth");
 			factor = this.getBw() / totalRequested;
 		}
 		return factor;
@@ -185,7 +184,14 @@ public class Link {
 		double bw = this.getBw(from);
 		double dedicatedBw = getAllocatedBandwidthForDedicatedChannels(from);
 		
-		return bw-dedicatedBw;
+		double freeBw = bw-dedicatedBw;
+		
+		if(freeBw <0) {
+			System.err.println("This link has no free BW, all occupied by dedicated channels!"+this);
+			freeBw=0;
+		}
+		
+		return freeBw;
 	}
 
 	public double getFreeBandwidthForDedicatedChannel(Node from) {
@@ -195,9 +201,12 @@ public class Link {
 		return bw-dedicatedBw;
 	}
 
-	public double getSharedBandwidthPerChannel(Node from, Node to) {
+	public double getSharedBandwidthPerChannel(Node from) {
 		double freeBw = getFreeBandwidth(from);
 		double sharedBwEachChannel = freeBw / getSharedChannelCount(from);
+		
+		if(sharedBwEachChannel < 0)
+			System.err.println("Negative BW on link:"+this);
 		
 		return sharedBwEachChannel;
 	}
@@ -220,18 +229,22 @@ public class Link {
 	private long monitoringProcessedBytesPerUnitUp = 0;
 	private long monitoringProcessedBytesPerUnitDown = 0;
 	
-	public void updateMonitor(double logTime, double timeUnit) {
+	public double updateMonitor(double logTime, double timeUnit) {
 		long capacity = (long) (this.getBw() * timeUnit);
-		double utilization = (double)monitoringProcessedBytesPerUnitUp / capacity;
-		mvUp.add(utilization, logTime);
+		double utilization1 = (double)monitoringProcessedBytesPerUnitUp / capacity;
+		mvUp.add(utilization1, logTime);
 		monitoringProcessedBytesPerUnitUp = 0;
 		
 		LogWriter log = LogWriter.getLogger("link_utilization_up.csv");
-		log.printLine(this.lowOrder+","+logTime+","+utilization);
+		log.printLine(this.lowOrder+","+logTime+","+utilization1);
 		
-		utilization = (double)monitoringProcessedBytesPerUnitDown / capacity;
-		mvDown.add(utilization, logTime);
+		double utilization2 = (double)monitoringProcessedBytesPerUnitDown / capacity;
+		mvDown.add(utilization2, logTime);
 		monitoringProcessedBytesPerUnitDown = 0;
+		LogWriter logDown = LogWriter.getLogger("link_utilization_down.csv");
+		logDown.printLine(this.highOrder+","+logTime+","+utilization2);		
+		
+		return Double.max(utilization1, utilization2);
 	}
 	
 	public MonitoringValues getMonitoringValuesLinkUtilizationDown() { 

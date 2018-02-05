@@ -6,7 +6,7 @@
  * Copyright (c) 2017, The University of Melbourne, Australia
  */
 
-package org.cloudbus.cloudsim.sdn.vmallocation.overbooking;
+package org.cloudbus.cloudsim.sdn.vmallocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +21,12 @@ public class HostSelectionPolicyFirstFit extends HostSelectionPolicy {
 		return getFirstFitHostsForVm(vm, hosts, vmAllocPolicy);
 	}
 
-	public static List<Host> getFirstFitHostsForVm(SDNVm vm, List<SDNHost> hosts, OverbookingVmAllocationPolicy vmAllocPolicy) {
+	public static List<Host> getFirstFitHostsForVm(SDNVm vm, List<SDNHost> hosts, VmAllocationPolicyEx vmAllocPolicy) {
 		int numHosts = hosts.size();
 		List<Host> hostCandidates = new ArrayList<Host>();
 		boolean result = false;
 		
-		// Find the most full host, with available resource. 
+		// Find the fit host for VM 
 		for(int idx = 0; result == false && idx < numHosts; idx++) {
 			SDNHost host = hosts.get(idx);
 			if(vmAllocPolicy.isResourceAllocatable(host, vm)) {

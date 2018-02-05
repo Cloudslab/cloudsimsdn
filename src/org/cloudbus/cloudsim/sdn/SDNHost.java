@@ -249,6 +249,10 @@ public class SDNHost extends Host implements Node {
 	public long getBandwidth() {
 		return getBw();
 	}
+	
+	public long getAvailableBandwidth() {
+		return getBwProvisioner().getAvailableBw();
+	}
 
 	@Override
 	public void clearVMRoutingTable(){

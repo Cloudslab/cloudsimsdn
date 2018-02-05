@@ -16,6 +16,8 @@ import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.sdn.SDNHost;
 import org.cloudbus.cloudsim.sdn.SDNVm;
+import org.cloudbus.cloudsim.sdn.vmallocation.HostSelectionPolicyMostFull;
+import org.cloudbus.cloudsim.sdn.vmallocation.VmMigrationPolicy;
 
 public class VmMigrationPolicyUnderutilizedMostFull extends VmMigrationPolicy{
 

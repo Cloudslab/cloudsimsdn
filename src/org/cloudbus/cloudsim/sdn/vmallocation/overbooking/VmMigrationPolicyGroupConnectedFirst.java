@@ -18,6 +18,8 @@ import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.sdn.SDNHost;
 import org.cloudbus.cloudsim.sdn.SDNVm;
 import org.cloudbus.cloudsim.sdn.VmGroup;
+import org.cloudbus.cloudsim.sdn.vmallocation.HostSelectionPolicyMostFull;
+import org.cloudbus.cloudsim.sdn.vmallocation.VmMigrationPolicy;
 
 public class VmMigrationPolicyGroupConnectedFirst extends VmMigrationPolicy implements VmMigrationPolicyGroupInterface {
 	/** VmGroups to decide whether consolidate or not */

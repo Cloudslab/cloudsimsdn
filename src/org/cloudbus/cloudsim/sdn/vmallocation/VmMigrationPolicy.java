@@ -6,7 +6,7 @@
  * Copyright (c) 2017, The University of Melbourne, Australia
  */
 
-package org.cloudbus.cloudsim.sdn.vmallocation.overbooking;
+package org.cloudbus.cloudsim.sdn.vmallocation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudbus.cloudsim.Host;
+import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.sdn.Configuration;
@@ -25,13 +26,13 @@ import org.cloudbus.cloudsim.sdn.SDNVm;
 public abstract class VmMigrationPolicy {
 	protected abstract Map<Vm, Host> buildMigrationMap(List<SDNHost> hosts);
 
-	protected OverbookingVmAllocationPolicy vmAllocationPolicy = null;
+	protected VmAllocationPolicyEx vmAllocationPolicy = null;
 	
 	public VmMigrationPolicy() {
 	}
 	
-	public void setVmAllocationPolicy(OverbookingVmAllocationPolicy vmAllocation) {
-		vmAllocationPolicy = vmAllocation;
+	public void setVmAllocationPolicy(VmAllocationPolicyEx vmAllocationPolicyEx) {
+		vmAllocationPolicy = vmAllocationPolicyEx;
 	}
 	
 	public List<Map<String, Object>> getMigrationMap(List<SDNHost> hosts) {
@@ -103,12 +104,12 @@ public abstract class VmMigrationPolicy {
 		
 		for(SDNHost host:hosts) {
 			// Re-adjust each VM's allocated resource applying historical utilization data 
-			vmAllocationPolicy.redistributeOverbookedResource(host);
+			vmAllocationPolicy.updateResourceAllocation(host);
 			
 			// Criteria to decided overloaded hosts
 			// 1. Host's utilization level should be higher than threshold
 			// 2. Each VMs in the Host are also overheaded
-			if(OverbookingVmAllocationPolicy.isHostOverloaded(host, startTime, endTime)) {
+			if(isHostOverloaded(host, startTime, endTime)) {
 				overHosts.add(host);
 			}
 		}
@@ -148,4 +149,39 @@ public abstract class VmMigrationPolicy {
 
 		return migrationOverVMList;
 	}
+
+	private static boolean isHostOverloaded(SDNHost host, double startTime, double endTime) {
+
+		/*
+		double hostCPUUtil = host.getMonitoringValuesHostCPUUtilization().getAverageValue(startTime, endTime);
+		
+		if(hostCPUUtil > Configuration.OVERLOAD_THRESHOLD) {
+//			double hostOverRatio = getCurrentHostOverbookingRatio(host);
+//			for(SDNVm vm:host.<SDNVm>getVmList()) {
+//				double vmUtil = vm.getMonitoringValuesVmCPUUtilization().getAverageValue(startTime, endTime);
+//				if(vmUtil < hostOverRatio - Configuration.OVERLOAD_THRESHOLD_ERROR) {
+//					return false;
+//				}
+//			}
+			return true;
+		}
+		/*/
+		double overloadPercentile = host.getMonitoringValuesOverloadMonitor().getOverUtilizedPercentile(startTime, endTime, 1.0);
+		if(overloadPercentile > Configuration.OVERLOAD_HOST_PERCENTILE_THRESHOLD) {
+			Log.printLine(CloudSim.clock() + ": isHostOverloaded() CPU "+host+":  " + overloadPercentile);
+			return true;
+		}
+		
+		//*/
+		
+		double hostBwUsage = host.getMonitoringValuesHostBwUtilization().getAverageValue(startTime, endTime);
+		if(hostBwUsage > Configuration.OVERLOAD_THRESHOLD_BW_UTIL) {
+			Log.printLine(CloudSim.clock() + ": isHostOverloaded() "+host+": BW " + hostBwUsage);
+//			System.err.println(host+" BW is overloaded:"+hostBwUsage);
+			return true;
+		}
+		return false;
+	}
+
+
 }

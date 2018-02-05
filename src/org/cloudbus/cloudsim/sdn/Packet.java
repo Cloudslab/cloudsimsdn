@@ -71,6 +71,10 @@ public class Packet {
 		return this.startTime;
 	}
 	public double getFinishTime() {
+		if(finishTime < 0) {
+			throw new IllegalArgumentException("Finish time is negative. This workload might not be completed yet!!"+this);
+		}
+		
 		return this.finishTime;
 	}
 }

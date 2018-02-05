@@ -6,7 +6,7 @@
  * Copyright (c) 2017, The University of Melbourne, Australia
  */
 
-package org.cloudbus.cloudsim.sdn.vmallocation.overbooking;
+package org.cloudbus.cloudsim.sdn.vmallocation;
 
 import java.util.List;
 
@@ -15,10 +15,10 @@ import org.cloudbus.cloudsim.sdn.SDNHost;
 import org.cloudbus.cloudsim.sdn.SDNVm;
 
 public abstract class HostSelectionPolicy {
-	protected OverbookingVmAllocationPolicy vmAllocPolicy=null;
+	protected VmAllocationPolicyEx vmAllocPolicy=null;
 	
-	public void setVmAllocationPolicy(OverbookingVmAllocationPolicy vmAllocation) {
-		vmAllocPolicy=vmAllocation;
+	public void setVmAllocationPolicy(VmAllocationPolicyEx vmAllocationPolicyEx) {
+		vmAllocPolicy=vmAllocationPolicyEx;
 	}
 
 	public abstract List<Host> selectHostForVm(SDNVm vm, List<SDNHost> hosts);

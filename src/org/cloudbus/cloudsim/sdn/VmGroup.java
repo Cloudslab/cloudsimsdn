@@ -65,6 +65,14 @@ public class VmGroup implements Comparable<VmGroup> {
 	public int compareTo(VmGroup o) {
 		return (int) (this.requiredMips - o.requiredMips);
 	}
+	
+	@Override
+	public String toString() {
+		String str = "VMGroup: Req BW="+getRequiredBw() + " / MIP="+this.requiredMips+"\n";
+		for(Vm v:vms)
+			str+= v.toString() + "\n";
+		return str;
+	}
 
 	public static void classifyGroupByArcList(List<Arc> sortedArcPool, List<Vm> vmPool, List<VmGroup> groups) {
 		// Put VMs connected in large bandwidth requirement into the same group
@@ -117,7 +125,7 @@ public class VmGroup implements Comparable<VmGroup> {
 		}
 	}
 
-	private static int findVm(List<Vm> vms, int idToFind) {
+	protected static int findVm(List<Vm> vms, int idToFind) {
 		for(int i=0; i<vms.size(); i++) {
 			Vm vm = vms.get(i);
 			if(vm.getId() == idToFind)
@@ -127,7 +135,7 @@ public class VmGroup implements Comparable<VmGroup> {
 		return -1;
 	}
 
-	private static VmGroup findVmGroup(List<VmGroup> vmGroups, int vmIdToFind) {
+	protected static VmGroup findVmGroup(List<VmGroup> vmGroups, int vmIdToFind) {
 		for(VmGroup vmGr:vmGroups) {
 			if(vmGr.findVm(vmIdToFind) != -1)
 				return vmGr;

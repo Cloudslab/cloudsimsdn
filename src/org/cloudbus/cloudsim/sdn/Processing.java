@@ -70,6 +70,7 @@ public class Processing implements Activity {
 
 	@Override
 	public double getServeTime() {
-		return getCloudlet().getActualCPUTime();
+		//return getCloudlet().getActualCPUTime();
+		return getCloudlet().getFinishTime() - getCloudlet().getSubmissionTime();
 	}
 }

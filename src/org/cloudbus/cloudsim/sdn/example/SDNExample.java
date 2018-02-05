@@ -27,6 +27,9 @@ import org.cloudbus.cloudsim.sdn.vmallocation.VmAllocationPolicyCombinedMostFull
 import org.cloudbus.cloudsim.sdn.vmallocation.VmAllocationPolicyMipsLeastFullFirst;
 import org.cloudbus.cloudsim.sdn.vmallocation.VmAllocationPolicyMipsMostFullFirst;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
+import org.cloudbus.cloudsim.sdn.policies.LinkSelectionPolicy;
+import org.cloudbus.cloudsim.sdn.policies.LinkSelectionPolicyDestinationAddress;
+import org.cloudbus.cloudsim.sdn.policies.NetworkOperatingSystemSimple;
 
 /**
  * CloudSimSDN example main program. It loads physical topology file, application
@@ -99,33 +102,38 @@ public class SDNExample {
 			CloudSim.init(num_user, calendar, trace_flag);
 			
 			VmAllocationPolicyFactory vmAllocationFac = null;
-			NetworkOperatingSystem snos = null;
+			NetworkOperatingSystem nos = null;
+			LinkSelectionPolicy ls = null;
 			switch(vmAllocPolicy) {
 			case CombMFF:
 			case MFF:
 				vmAllocationFac = new VmAllocationPolicyFactory() {
 					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedMostFullFirst(hostList); }
 				};
-				snos = new SimpleNetworkOperatingSystem(physicalTopologyFile);
+				nos = new NetworkOperatingSystemSimple(physicalTopologyFile);
+				ls = new LinkSelectionPolicyDestinationAddress();
 				break;
 			case CombLFF:
 			case LFF:
 				vmAllocationFac = new VmAllocationPolicyFactory() {
 					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedLeastFullFirst(hostList); }
 				};
-				snos = new SimpleNetworkOperatingSystem(physicalTopologyFile);
+				nos = new NetworkOperatingSystemSimple(physicalTopologyFile);
+				ls = new LinkSelectionPolicyDestinationAddress();
 				break;
 			case MipMFF:
 				vmAllocationFac = new VmAllocationPolicyFactory() {
 					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsMostFullFirst(hostList); }
 				};
-				snos = new SimpleNetworkOperatingSystem(physicalTopologyFile);
+				nos = new NetworkOperatingSystemSimple(physicalTopologyFile);
+				ls = new LinkSelectionPolicyDestinationAddress();
 				break;
 			case MipLFF:
 				vmAllocationFac = new VmAllocationPolicyFactory() {
 					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsLeastFullFirst(hostList); }
 				};
-				snos = new SimpleNetworkOperatingSystem(physicalTopologyFile);
+				nos = new NetworkOperatingSystemSimple(physicalTopologyFile);
+				ls = new LinkSelectionPolicyDestinationAddress();
 				break;
 //			case Overbooking:
 //				vmAllocationFac = new VmAllocationPolicyFactory() {
@@ -138,9 +146,12 @@ public class SDNExample {
 				printUsage();
 				System.exit(1);
 			}
+			
+			// Set LinkSelectionPolicy
+			nos.setLinkSelectionPolicy(ls);
 
 			// Create a Datacenter
-			SDNDatacenter datacenter = createSDNDatacenter("Datacenter_0", physicalTopologyFile, snos, vmAllocationFac);
+			SDNDatacenter datacenter = createSDNDatacenter("Datacenter_0", physicalTopologyFile, nos, vmAllocationFac);
 
 			// Broker
 			SDNBroker broker = createBroker();

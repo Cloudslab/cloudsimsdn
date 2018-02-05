@@ -118,6 +118,7 @@ public class WorkloadParser {
 		}
 		
 		long cloudletLen = Long.parseLong(lineitems.poll());
+		cloudletLen*=Configuration.CPU_SIZE_MULTIPLY;
 
 		Request req = new Request(reqId++, userId);
 		Cloudlet cl = generateCloudlet(fromVmId, (int) cloudletLen);
@@ -139,6 +140,7 @@ public class WorkloadParser {
 			int toVmId = getVmId(vmName);
 			
 			long pktSize = Long.parseLong(lineitems.poll());
+			pktSize*=Configuration.NETWORK_PACKET_SIZE_MULTIPLY;
 			
 			Request nextReq = parseRequest(toVmId, lineitems);
 			
@@ -212,5 +214,16 @@ public class WorkloadParser {
 	
 	public int getWorkloadNum() {
 		return workloadNum;
+	}
+	
+	public int getGroupId() {
+		String first_word = this.file.split("_")[0];
+		int groupId = 0;
+		try {
+			groupId = Integer.parseInt(first_word);
+		} catch (NumberFormatException e) {
+			// Do nothing
+		}
+		return groupId;
 	}
 }

@@ -141,7 +141,7 @@ public class WorkloadResultWriter {
 				print(String.format(LogPrinter.fInt, pr.getCloudlet().getCloudletLength()));
 
 				print(String.format(LogPrinter.fFloat, serveTime));
-				print(String.format(LogPrinter.fFloat, pr.getCloudlet().getExecStartTime()));
+				print(String.format(LogPrinter.fFloat, pr.getCloudlet().getSubmissionTime()));
 				print(String.format(LogPrinter.fFloat, pr.getCloudlet().getFinishTime()));
 			}
 		}
@@ -225,7 +225,7 @@ public class WorkloadResultWriter {
 		for(Activity act:acts) {
 			if(act instanceof Processing) {
 				Processing pr=(Processing)act;
-				return pr.getCloudlet().getExecStartTime();
+				return pr.getCloudlet().getSubmissionTime();
 			}
 		}
 		return -1;
@@ -278,8 +278,8 @@ public class WorkloadResultWriter {
 				expectedTime = NetworkOperatingSystem.getMinTimeBetweenNetworkEvents();
 		}
 		else {
-			if(expectedTime < CloudSim.getMinTimeBetweenEvents() + 0.01)
-				expectedTime = CloudSim.getMinTimeBetweenEvents() + 0.01;
+			if(expectedTime < CloudSim.getMinTimeBetweenEvents())
+				expectedTime = CloudSim.getMinTimeBetweenEvents();
 		}
 		return expectedTime;
 	}

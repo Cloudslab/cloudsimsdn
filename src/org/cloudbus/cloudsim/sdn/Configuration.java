@@ -12,9 +12,9 @@ public class Configuration {
 	public static String workingDirectory = "./";
 	public static String experimentName="";
 	
-	public static double minTimeBetweenEvents = 0.01;//0.01;	// in sec
-	public static int resolutionPlaces = 1;
-	public static int timeUnit = 1;	// 1: sec, 1000: msec\
+	//public static double minTimeBetweenEvents = 0.01;//0.01;	// in sec
+	//public static int resolutionPlaces = 1;
+	//public static int timeUnit = 1;	// 1: sec, 1000: msec\
 
 	// Monitoring setup
 	
@@ -80,10 +80,14 @@ public class Configuration {
 
 	//*/
 	//////////////////////////// Default value
+	public static final double CPU_SIZE_MULTIPLY = 1;	// Multiply all the CPU size for scale. Default =1 (No amplify) 
+	public static final double NETWORK_PACKET_SIZE_MULTIPLY = 1;	// Multiply all the network packet size. Default =1 (No amplify) 
+	
 	public static final double monitoringTimeInterval = 180000; // every 1800 seconds, polling utilization.
 	
 	public static final double overbookingTimeWindowInterval = monitoringTimeInterval;	// Time interval between points 
-	public static final double overbookingTimeWindowNumPoints = 10;	// How many points to track
+	public static final double overbookingTimeWindowNumPoints = Double.POSITIVE_INFINITY;	// No migration. How many points to track
+//	public static final double overbookingTimeWindowNumPoints = 10;	// How many points to track
 	
 	public static final double migrationTimeInterval = overbookingTimeWindowInterval*overbookingTimeWindowNumPoints; // every 1 seconds, polling utilization.
 	

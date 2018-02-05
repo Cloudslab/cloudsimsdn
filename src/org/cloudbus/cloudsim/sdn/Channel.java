@@ -11,7 +11,6 @@ package org.cloudbus.cloudsim.sdn;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.sdn.monitor.MonitoringValues;
 
@@ -111,11 +110,11 @@ public class Channel {
 
 		for(int i=0; i<nodes.size()-1; i++) {
 			Node from = nodes.get(i);
-			Node to = nodes.get(i+1);
+			//Node to = nodes.get(i+1);
 			Link link = links.get(i);
 			
-			if(lowestSharedBw > link.getSharedBandwidthPerChannel(from, to))
-				lowestSharedBw = link.getSharedBandwidthPerChannel(from, to);
+			if(lowestSharedBw > link.getSharedBandwidthPerChannel(from))
+				lowestSharedBw = link.getSharedBandwidthPerChannel(from);
 		}
 		return lowestSharedBw;
 		
@@ -145,8 +144,8 @@ public class Channel {
 		double factor = this.getAdjustedRequestedBandwidth(); 
 		double adjustedBandwidth = this.getRequestedBandwidth() * factor;
 		if(factor < 1.0) {
-			Log.printLine("Link.adjustDedicatedBandwidthAlongLink(): Cannot allocate requested amount of BW"
-					+adjustedBandwidth+"/"+this.getRequestedBandwidth());
+			//Log.printLine("Link.adjustDedicatedBandwidthAlongLink(): Cannot allocate requested amount of BW"
+			//		+adjustedBandwidth+"/"+this.getRequestedBandwidth());
 		}			
 
 		// Find the slowest link (low bw) among all links where this channel is passing through
@@ -181,7 +180,13 @@ public class Channel {
 
 		// Get the lowest bandwidth along links in the channel
 		double lowestLinkBw = getLowestSharedBandwidth();
-
+		
+		if(lowestLinkBw <0 )
+		{
+			System.err.println("Allocated bandwidth negative!!");
+			System.exit(1);
+		}
+		
 		if(this.allocatedBandwidth != lowestLinkBw) {
 			changeBandwidth(lowestLinkBw);
 			return true;
@@ -201,6 +206,13 @@ public class Channel {
 			System.err.println("Allocated bandwidth infinity!!");
 			System.exit(1);
 		}
+		
+		if(this.allocatedBandwidth <0 )
+		{
+			System.err.println("Allocated bandwidth negative!!");
+			System.exit(1);
+		}
+		
 		return isChanged;
 	}
 	
@@ -220,11 +232,11 @@ public class Channel {
 	public int getActiveTransmissionNum() {
 		return inTransmission.size();
 	}
+	
 	/**
 	 * Updates processing of transmissions taking place in this Channel.
 	 * @param currentTime current simulation time (in seconds)
-	 * @return delay to next transmission completion or
-	 *         Double.POSITIVE_INFINITY if there is no pending transmissions
+	 * @return true if any tranmission has completed in this time, false if none is completed.
 	 */
 	public boolean updatePacketProcessing(){
 		double currentTime = CloudSim.clock();
