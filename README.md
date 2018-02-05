@@ -142,5 +142,6 @@ To compare with the result of LFF policy, run the same program with 'LFF' parame
 2. Implement different VM allocation policy to test different VM placement algorithms
 3. Implement different NetworkOperatingSystem to test different network policies.
 
-
-
+## Publication
+Please cite this paper:
+* Jungmin Son, Amir Vahid Dastjerdi, Rodrigo N. Calheiros, Xiaohui Ji, Young Yoon, and Rajkumar Buyya, ["CloudSimSDN: Modeling and Simulation of Software-Defined Cloud Data Centers"](http://ieeexplore.ieee.org/document/7152513/), Proceedings of the 15th IEEE/ACM International Symposium on Cluster, Cloud and Grid Computing (CCGrid 2015), Shenzhen, China, May 4-7, 2015. doi:10.1109/CCGrid.2015.87
