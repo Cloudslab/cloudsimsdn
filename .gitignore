@@ -1,7 +1,10 @@
-*.class
+#IntelliJ IDEA Project Files
+*.iml
+.idea
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+*.out
+*.class
+target/
 
 # Package Files #
 *.jar
