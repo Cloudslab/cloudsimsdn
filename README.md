@@ -1,4 +1,5 @@
 # CloudSimSDN
+
 CloudSimSDN: SDN extension of CloudSim project.
 
 ## Introduction
@@ -8,10 +9,10 @@ CloudSimSDN: SDN extension of CloudSim project.
 CloudSimSDN supports calculating power consumption by both hosts and switches. For instance, network-aware VM placement policies can be evaluated using CloudSimSDN. As an example, we will present energy savings in SDN-enabled cloud data center via VM consolidation. If VMs are consolidated to the minimum number of hosts, the unused hosts and switches can be powered off to save more power. We will show two different VM placement policies: Best Fit (MFF, Most Full First) and Worst Fit (LFF, Least Full First).
 
 ## Program dependencies
-* [CloudSim (cloudsim-3.0.3)](https://code.google.com/p/cloudsim/)
-* [Apache Commons Math](http://commons.apache.org/proper/commons-math/download_math.cgi)
-* [JSON Simple (json-simple-1.1.1)](https://code.google.com/p/json-simple/)
-* [Google Guava (guava-17.0)](https://code.google.com/p/guava-libraries/)
+You have to download [CloudSim (cloudsim-3.0.3)](https://github.com/Cloudslab/cloudsim/releases/tag/cloudsim-3.0.3),
+enter the project's root directory and execute `mvn clean install` to install the jar packages into your local maven repository.
+
+Other dependencies are already included.
 
 ## Package components
 1. org.cloudbus.cloudsim.sdn
@@ -77,10 +78,11 @@ Workload file has a long packet transmission between VMs in a same virtual netwo
   9. ... (repeat v ~ viii)
 
 ## Simulation execution
-To execute the example, use the following command.
+You have to build the project using your IDE or typing `mvn clean install` at the project's root directory.
+After that, to execute the example, enter the project's `target` directory and use the following command:
 
 ```
-java -cp ./*:. org/cloudbus/cloudsim/sdn/example/SDNExample <LFF|MFF> [physical.json] [virtual.json] [workload1.csv] [workload2.csv] [...]
+java -cp cloudsimsdn-1.0-with-dependencies.jar org.cloudbus.cloudsim.sdn.example.SDNExample <LFF|MFF> [physical.json] [virtual.json] [workload1.csv] [workload2.csv] [...]
 ```
 
 * ```<LFF | MFF>```: Choose VM placement policy. LFF(Least Full First) or MFF(Most Full First)
@@ -90,10 +92,11 @@ java -cp ./*:. org/cloudbus/cloudsim/sdn/example/SDNExample <LFF|MFF> [physical.
 
 ### EXAMPLE:
 ```
-java -cp ./*:. org/cloudbus/cloudsim/sdn/example/SDNExample MFF dataset-energy/energy-physical.json dataset-energy/energy-virtual.json dataset-energy/energy-workload.csv > results.out
+java -cp cloudsimsdn-1.0-with-dependencies.jar org.cloudbus.cloudsim.sdn.example.SDNExample MFF ../dataset-energy/energy-physical.json ../dataset-energy/energy-virtual.json ../dataset-energy/energy-workload.csv > results.out
 ```
 
 This command will run the simulation using MFF algorithm, and the output is redirected to results.out file.
+
 ## Simulation results
 The results have five parts.
 
