@@ -1,0 +1,31 @@
+{
+  "nodes" : [
+    {
+      "name" : "vm01",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512,
+	  "datacenter": "dc1",
+    },
+    {
+      "name": "vm02",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512,
+	  "datacenter": "dc2",
+    },
+
+  ],
+  "links" : [
+    { "name": "default", "source" : "vm01" , "destination" : "vm02" },
+    { "name": "default", "source" : "vm02" , "destination" : "vm01" },
+	
+    { "name": "l12", "source" : "vm01" , "destination" : "vm02", "bandwidth" : 50000	},    
+    { "name": "l21", "source" : "vm02" , "destination" : "vm01", "bandwidth" : 50000	},    
+	
+  ],
+}

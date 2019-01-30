@@ -297,57 +297,7 @@ public class VirtualTopologyGeneratorVmTypes extends VirtualTopologyGenerator{
 		VMSpec vm = addVM(name, pes, mips, vmRam, vmSize, vmBW, startTime, endTime);
 		return vm;
 	}
-	/*
-	public VMSpec createVM(VMtype vmtype, double startTime, double endTime) {
-		String name = "vm";
-		int pes = 1;
-		long vmSize = 1000;
-		long mips=10000000;
-		int vmRam = 512;
-		long vmBW=100000;
-
-		switch(vmtype) {
-		case WebServer:
-			//m1.large
-			mips=mips*2;
-			pes=2;
-			name="web";
-			break;
-		case AppServer:
-			//m2.xlarge
-			mips=(long) (	*1.5);
-			pes=8;
-			name="app";
-			break;
-		case DBServer:
-			//c1.xlarge
-			mips=(long) (mips*2.4);
-			pes=8;
-			name="db";
-			break;
-		case Proxy:
-			mips=mips*2;
-			pes=8;
-			vmBW=vmBW*5;
-			name="proxy";
-			break;
-		case Firewall:
-			mips=mips*3;
-			pes=8;
-			vmBW=vmBW*5;
-			name="firewall";
-			break;
-		}
-		name += vmGroupId;
-		vmNum++;
-
-		VMSpec vm = addVM(name, pes, mips, vmRam, vmSize, vmBW, startTime, endTime);
-		return vm;
-	}
-	*/
-
 	
-
 	public void generateVMGroupComplex(int numWeb, int numApp, int numDB, TimeGen startTime, TimeGen endTime, Long linkBw, int groupId) {
 		System.out.printf("Generating VM Group(%d)\n", groupId);
 		VMSpec [] webs = new VMSpec[numWeb];

@@ -17,6 +17,8 @@ public class MonitoringValues {
 	public enum ValueType {
 		Utilization_Percentage,
 		DataRate_BytesPerSecond,
+		General_Float,
+		Time_Second,
 	}
 	
 	private ValueType valueType;
@@ -24,13 +26,13 @@ public class MonitoringValues {
 	/**
 	 * The values of the monitoring metric
 	 */
-	private ArrayList<Float> values;
+	private ArrayList<Double> values;
 	/**
 	 * The timestamps of the monitoring metric
 	 */
-	private ArrayList<Float> timestamps;
+	private ArrayList<Double> timestamps;
 	
-	private float maxDurationToKeep;
+	private double maxDurationToKeep;
 
 	/**
 	 * The constuctor of the class.
@@ -40,22 +42,22 @@ public class MonitoringValues {
 	 * @param timestamp
 	 *            the timestamps
 	 */
-	public MonitoringValues(ValueType type, float maxDurationToKeep) {
-		values = new ArrayList<Float>();
-		timestamps = new ArrayList<Float>();
+	public MonitoringValues(ValueType type, double maxDurationToKeep) {
+		values = new ArrayList<Double>();
+		timestamps = new ArrayList<Double>();
 		this.valueType = type;
 		this.maxDurationToKeep = maxDurationToKeep;
 	}
 	
 	public MonitoringValues(ValueType type) {
-		this(type, (float)Configuration.migrationTimeInterval*2);
+		this(type, Configuration.migrationTimeInterval*2);
 	}
 	
-	private void removeOutdatedPoints(float currentTime) {
-		float timeToRemove = currentTime - this.maxDurationToKeep;
+	private void removeOutdatedPoints(double currentTime) {
+		double timeToRemove = currentTime - this.maxDurationToKeep;
 		
 		while(timestamps.size() > 1) {
-			float nextTime = timestamps.get(1);
+			double nextTime = timestamps.get(1);
 			if(nextTime < timeToRemove) {
 				timestamps.remove(0);
 				values.remove(0);
@@ -79,7 +81,7 @@ public class MonitoringValues {
 	 *            the timestamps
 	 */
 	public void add(double value, double timestamp) {
-		removeOutdatedPoints((float) timestamp);
+		removeOutdatedPoints(timestamp);
 		
 		if(values.size() >= 1 && values.get(values.size()-1) == value)
 		{
@@ -91,8 +93,8 @@ public class MonitoringValues {
 //		if(value > 1.5) {
 //			System.err.println("Too high value!");
 //		}
-		values.add((float)value);
-		timestamps.add((float)timestamp);
+		values.add(value);
+		timestamps.add(timestamp);
 	}
 	
 
@@ -101,7 +103,7 @@ public class MonitoringValues {
 	 * 
 	 * @return the value arrayList.
 	 */
-	public List<Float> getValues() {
+	public List<Double> getValues() {
 		return values;
 	}
 
@@ -130,7 +132,7 @@ public class MonitoringValues {
 					if(t > endInterval) {
 						t = endInterval;
 					}
-					float v = values.get(i);
+					double v = values.get(i);
 					sum += v * (t-t_prev);
 					totalDuration += (t-t_prev);
 					t_prev = t;
@@ -159,7 +161,7 @@ public class MonitoringValues {
 	 * 
 	 * @return the timestamps arrayList.
 	 */
-	public List<Float> getTimestamps() {
+	public List<Double> getTimestamps() {
 		return timestamps;
 	}
 
@@ -169,7 +171,7 @@ public class MonitoringValues {
 	 * @param values
 	 *            the value arrayList.
 	 */
-	public void setValues(ArrayList<Float> values) {
+	public void setValues(ArrayList<Double> values) {
 		this.values = values;
 	}
 
@@ -179,7 +181,7 @@ public class MonitoringValues {
 	 * @param timestamps
 	 *            the timestamps arrayList.
 	 */
-	public void setTimestamps(ArrayList<Float> timestamps) {
+	public void setTimestamps(ArrayList<Double> timestamps) {
 		this.timestamps = timestamps;
 	}
 
@@ -190,6 +192,9 @@ public class MonitoringValues {
 				sb.append(String.format("%.0f:%.2f%%\n", timestamps.get(i), values.get(i)*100));
 			else if(valueType == ValueType.DataRate_BytesPerSecond) {
 				sb.append(String.format("%.0f:%.2f KBytesPerSeconds\n", timestamps.get(i), values.get(i)/1000));
+			}
+			else {
+				sb.append(String.format("%.0f:%.2f\n", timestamps.get(i), values.get(i)));
 			}
 			
 		}

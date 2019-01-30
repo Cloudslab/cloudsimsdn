@@ -1,0 +1,9 @@
+Exec: org.cloudbus.cloudsim.sdn.example.SDNExampleInterCloud
+
+
+
+* InterSDNExampleSFC
+LFF intercloud.physical.json intercloud.virtual.json intercloud-example-workload.csv intercloud-example-workload2.csv
+
+* InterSDNExampleSFC.Simple
+LFF intercloud.physical.json intercloud.virtual.simple.json intercloud-example-workload.simple.csv

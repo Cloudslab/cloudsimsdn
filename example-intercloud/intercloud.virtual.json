@@ -1,0 +1,108 @@
+{
+  "nodes" : [
+    {
+      "name" : "vm01",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512,
+	  "datacenter": "dc1",
+    },
+    {
+      "name": "vm02",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512,
+	  "datacenter": "dc2",
+    },
+    {
+      "name": "vm03",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512,
+	  "datacenter": "dc1",
+    },
+    {
+      "name": "vnf1",
+      "type" : "firewall",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+	  "mipoper": 250,
+      "ram"  : 512,
+	  "datacenter": "dc2",
+    },
+	{
+      "name" : "vm012",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512,
+	  "datacenter": "dc1",
+    },
+    {
+      "name": "vm022",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512,
+	  "datacenter": "dc2",
+    },
+    {
+      "name": "vm032",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512,
+	  "datacenter": "dc1",
+    },
+    {
+      "name": "vnf12",
+      "type" : "firewall",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+	  "mipoper": 250,
+      "ram"  : 512,
+	  "datacenter": "dc2",
+    },
+
+  ],
+  "links" : [
+    { "name": "default", "source" : "vm01" , "destination" : "vm02" },
+    { "name": "default", "source" : "vm02" , "destination" : "vm01" },
+    { "name": "default", "source" : "vm02" , "destination" : "vm03" },
+    { "name": "default", "source" : "vm03" , "destination" : "vm02" },
+	
+    { "name": "l12", "source" : "vm01" , "destination" : "vm02", "bandwidth" : 50000	},    
+	
+    { "name": "intervm", "source" : "vm01" , "destination" : "vm022", "bandwidth" : 50000	},    
+	
+    { "name": "default", "source" : "vm012" , "destination" : "vm022" },
+    { "name": "default", "source" : "vm022" , "destination" : "vm012" },
+    { "name": "default", "source" : "vm022" , "destination" : "vm032" },
+    { "name": "default", "source" : "vm032" , "destination" : "vm022" },
+	
+    { "name": "l122", "source" : "vm012" , "destination" : "vm022", "bandwidth" : 50000	},    
+  ],
+  "policies" : [
+    {
+	  "name" : "policy1",
+      "source" : "vm01",
+      "destination" : "vm02",
+      "flowname": "l12",
+	  "sfc": [
+	    "vnf1"
+	  ],
+	  "expected_time": 0.7
+    }
+  ]  
+}

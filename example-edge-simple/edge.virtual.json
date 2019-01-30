@@ -1,0 +1,100 @@
+{
+  "nodes" : [
+    {
+      "name" : "user1",
+      "type" : "vm",
+      "size" : 100,
+      "pes": 1,
+      "mips" : 1000,
+      "ram"  : 10,
+	  "datacenter": "edgedc",
+	  "host": "edgeuser1"
+    },
+    {
+      "name": "user2",
+      "type" : "vm",
+      "size" : 100,
+      "pes": 1,
+      "mips" : 1000,
+      "ram"  : 10,
+	  "datacenter": "edgedc",
+	  "host": "edgeuser2"
+    },
+    {
+      "name": "webserver",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+      "ram"  : 512,
+	  "datacenter": "internet",
+	  "host": "internethost"	  
+    },
+    {
+      "name": "webserver2",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+      "ram"  : 512,
+	  "datacenter": "internet",
+	  "host": "internethost"	  
+    },
+    {
+      "name": "vnf1",
+      "type" : "firewall",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+	  "mipoper": 1000,
+      "ram"  : 512,
+	  "datacenter": "edgedc",
+	  "subdatacenters": ["netcloud"],
+    },
+    {
+      "name": "vnf2",
+      "type" : "firewall",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+	  "mipoper": 1000,
+      "ram"  : 512,
+	  "datacenter": "edgedc",
+	  "subdatacenters": ["netcloud"],
+    },
+
+  ],
+  "links" : [
+    { "name": "default", "source" : "user1" , "destination" : "webserver" },
+    { "name": "default", "source" : "webserver" , "destination" : "user1" },
+    { "name": "default", "source" : "user2" , "destination" : "webserver2" },
+    { "name": "default", "source" : "webserver2" , "destination" : "user2" },
+	
+    { "name": "user11", "source" : "user1" , "destination" : "webserver", "bandwidth" : 50000	},    
+    { "name": "user12", "source" : "webserver" , "destination" : "user1", "bandwidth" : 50000	},    
+    { "name": "user21", "source" : "user2" , "destination" : "webserver2", "bandwidth" : 50000	},    
+    { "name": "user22", "source" : "webserver2" , "destination" : "user2", "bandwidth" : 50000	},    
+  ],
+  "policies" : [
+    {
+	  "name" : "policy1",
+      "source" : "user1",
+      "destination" : "webserver",
+      "flowname": "user11",
+	  "sfc": [
+	    "vnf1", "vnf2"
+	  ],
+	  "expected_time": 3.0
+    }
+    {
+	  "name" : "policy2",
+      "source" : "user2",
+      "destination" : "webserver2",
+      "flowname": "user21",
+	  "sfc": [
+	    "vnf1", "vnf2"
+	  ],
+	  "expected_time": 5.0
+    }
+  ]  
+}

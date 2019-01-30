@@ -66,7 +66,7 @@ public class PhysicalTopologyGenerator {
 	}
 	
 	public static void startConst() {		
-		String jsonFileName = "wiki.physical.constant.short.json";
+		String jsonFileName = "physical.fattree.json";
 		
 //		int fanout = 2;
 		int numPods = 8;	// Total hosts = (numPods^3)/4
@@ -78,8 +78,8 @@ public class PhysicalTopologyGenerator {
 		long mips = 400;//8000;
 		int ram = 10240;
 		long storage = 10000000;
-		//long bw = 125000000;
-		long bw = 1000000000;
+		long bw = 125000000; //125MB = 1Gb
+		//long bw = 1000000000;
 		
 		PhysicalTopologyGenerator reqg = new PhysicalTopologyGenerator();
 		HostSpec hostSpec = reqg.createHostSpec(pe, mips, ram, storage, bw);

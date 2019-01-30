@@ -83,13 +83,13 @@ public class Configuration {
 	public static final double CPU_SIZE_MULTIPLY = 1;	// Multiply all the CPU size for scale. Default =1 (No amplify) 
 	public static final double NETWORK_PACKET_SIZE_MULTIPLY = 1;	// Multiply all the network packet size. Default =1 (No amplify) 
 	
-	public static final double monitoringTimeInterval = 180000; // every 1800 seconds, polling utilization.
+	public static double monitoringTimeInterval = 5; // every 1800 seconds, polling utilization.
 	
 	public static final double overbookingTimeWindowInterval = monitoringTimeInterval;	// Time interval between points 
-	public static final double overbookingTimeWindowNumPoints = Double.POSITIVE_INFINITY;	// No migration. How many points to track
+	public static final double overbookingTimeWindowNumPoints = 1;//Double.POSITIVE_INFINITY;	// No migration. How many points to track
 //	public static final double overbookingTimeWindowNumPoints = 10;	// How many points to track
 	
-	public static final double migrationTimeInterval = overbookingTimeWindowInterval*overbookingTimeWindowNumPoints; // every 1 seconds, polling utilization.
+	public static double migrationTimeInterval = overbookingTimeWindowInterval*overbookingTimeWindowNumPoints; // every 1 seconds, polling utilization.
 	
 	public static final double OVERBOOKING_RATIO_MAX = 1.0; 
 	public static final double OVERBOOKING_RATIO_MIN = 1.0;	// No overbooking
@@ -100,8 +100,8 @@ public class Configuration {
 	public static final double OVERLOAD_THRESHOLD_BW_UTIL = 1.0;
 	
 	public static final double UNDERLOAD_THRESHOLD_HOST = 0;
-	public static final double UNDERLOAD_THRESHOLD_HOST_BW = 0;
-	public static final double UNDERLOAD_THRESHOLD_VM = 0;
+	public static final double UNDERLOAD_THRESHOLD_HOST_BW = 0.3;
+	public static final double UNDERLOAD_THRESHOLD_VM = 0.3;
 	
 	public static final double DECIDE_SLA_VIOLATION_GRACE_ERROR = 1.0; // Expected time + 5% is accepted as SLA provided
 	
@@ -112,7 +112,27 @@ public class Configuration {
 	
 	public static final double HOST_ACTIVE_AVERAGE_UTIL_THRESHOLD = 0;
 	
-	//*/	
+	public static final double SFC_OVERLOAD_THRESHOLD_VM = 0.7;
+	public static final double SFC_OVERLOAD_THRESHOLD_BW = 0.7;
+	public static final double SFC_UNDERLOAD_THRESHOLD_BW = 0.4;
+	public static final double SFC_UNDERLOAD_THRESHOLD_VM = 0.4;
 	
+	public static final double TIME_OUT = 10; //Double.POSITIVE_INFINITY; // 
+	
+	public static boolean ENABLE_SFC = true;
+	
+	public static boolean SFC_LATENCY_AWARE_ENABLE;
+	
+	public static boolean SFC_AUTOSCALE_ENABLE = true;
+	public static boolean SFC_AUTOSCALE_ENABLE_BW = true;
+	public static boolean SFC_AUTOSCALE_ENABLE_VM = true;
+	public static boolean SFC_AUTOSCALE_ENABLE_SCALE_DOWN_BW = true;
+	public static boolean SFC_AUTOSCALE_ENABLE_SCALE_DOWN_VM = false;
+	public static boolean SFC_AUTOSCALE_ENABLE_VM_VERTICAL = true;
+	
+	public static boolean DEBUG_RESULT_WRITE_DETAIL = true;
+	public static boolean DEBUG_PRINT_DETAIL_SIZE_TIME = true;
+	public static boolean DEBUG_CHECK_OVER_TIME_REQUESTS = false;
 
+	//*/	
 }

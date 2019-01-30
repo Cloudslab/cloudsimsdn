@@ -6,7 +6,7 @@
  * Copyright (c) 2017, The University of Melbourne, Australia
  */
  
- package org.cloudbus.cloudsim.sdn;
+package org.cloudbus.cloudsim.sdn;
 
 import java.util.Iterator;
 
@@ -39,15 +39,36 @@ public class CloudSimEx extends CloudSim {
 	}
 	
 	public static int getNumFutureEvents() {
-		return future.size();
+		return future.size() + deferred.size();
+	}
+	
+	public static boolean hasMoreEvent(int excludeEventTag) {
+		if(future.size() > 0) {
+			Iterator<SimEvent> fit = future.iterator();
+			while(fit.hasNext()) {
+				SimEvent ev = fit.next();
+				if(ev.getTag() != excludeEventTag)
+					return true;
+			}
+		}
+		if(deferred.size() > 0) {
+			Iterator<SimEvent> fit = deferred.iterator();
+			while(fit.hasNext()) {
+				SimEvent ev = fit.next();
+				if(ev.getTag() != excludeEventTag)
+					return true;
+			}
+		}
+		return false;
 	}
 	
 	public static double getNextEventTime() {
-		Iterator<SimEvent> fit = future.iterator();
-		SimEvent first = fit.next();
-		if(first != null)
-			return first.eventTime();
-		
+		if(future.size() > 0) {
+			Iterator<SimEvent> fit = future.iterator();
+			SimEvent first = fit.next();
+			if(first != null)
+				return first.eventTime();
+		}
 		return -1;
 	}
 }

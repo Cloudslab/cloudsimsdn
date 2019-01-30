@@ -13,17 +13,18 @@ import java.util.List;
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.sdn.Activity;
 import org.cloudbus.cloudsim.sdn.Configuration;
-import org.cloudbus.cloudsim.sdn.Processing;
-import org.cloudbus.cloudsim.sdn.Request;
-import org.cloudbus.cloudsim.sdn.SDNDatacenter;
-import org.cloudbus.cloudsim.sdn.SDNHost;
-import org.cloudbus.cloudsim.sdn.SDNVm;
-import org.cloudbus.cloudsim.sdn.Switch;
-import org.cloudbus.cloudsim.sdn.Transmission;
-import org.cloudbus.cloudsim.sdn.Switch.HistoryEntry;
+import org.cloudbus.cloudsim.sdn.SDNBroker;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationHistoryEntry;
+import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNDatacenter;
+import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
+import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.Switch;
+import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
+import org.cloudbus.cloudsim.sdn.workload.Activity;
+import org.cloudbus.cloudsim.sdn.workload.Processing;
+import org.cloudbus.cloudsim.sdn.workload.Request;
+import org.cloudbus.cloudsim.sdn.workload.Transmission;
+import org.cloudbus.cloudsim.sdn.workload.Workload;
 
 /**
  * This class is to print out logs into console.
@@ -69,8 +70,8 @@ public class LogPrinter {
 		
 		Log.printLine("========== SWITCH POWER CONSUMPTION AND DETAILED UTILIZATION ===========");
 		for(Switch sw:switchList) {
-			sw.addUtilizationEntryTermination(finishTime);
-			double energy = sw.getUtilizationEnergyConsumption();
+			//sw.addUtilizationEntryTermination(finishTime);
+			double energy = sw.getConsumedEnergy();
 			Log.printLine("Switch:"+sw.getName()+": "+energy);
 			switchEnergyConsumption+= energy;
 
@@ -136,12 +137,6 @@ public class LogPrinter {
 				Log.printLine(h.startTime+", "+h.utilPercentage);
 			}
 	}
-	protected static void printSwitchUtilizationHistory(List<HistoryEntry> utilizationHisotry) {
-		if(utilizationHisotry != null)
-			for(HistoryEntry h:utilizationHisotry) {
-				Log.printLine(h.startTime+", "+h.numActivePorts);
-			}
-	}
 	
 	static public String indent = ",";
 	static public String tabSize = "10";
@@ -176,7 +171,7 @@ public class LogPrinter {
 	private static void printCloudlet(Cloudlet cloudlet) {
 		Log.print(String.format(LogPrinter.fInt, cloudlet.getCloudletId()));
 
-		if (cloudlet.getCloudletStatus() == Cloudlet.SUCCESS) {
+		if (cloudlet.getStatus() == Cloudlet.SUCCESS) {
 			Log.print(String.format(LogPrinter.fString, "SUCCESS"));
 			Log.print(String.format(LogPrinter.fInt, cloudlet.getResourceId()));
 			Log.print(String.format(LogPrinter.fInt, cloudlet.getVmId()));

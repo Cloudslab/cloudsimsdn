@@ -29,6 +29,7 @@ public class VirtualTopologyGenerator {
 	private List<VMSpec> vms = new ArrayList<VMSpec>();
 	private List<LinkSpec> links = new ArrayList<LinkSpec>();
 	private List<DummyWorkloadSpec> dummyWorkload = new ArrayList<DummyWorkloadSpec>();
+	private List<SFCPolicySpec> policies = new ArrayList<SFCPolicySpec>();
 	
 	// For test //
 
@@ -74,15 +75,53 @@ public class VirtualTopologyGenerator {
 	}
 	
 	public VMSpec addVM(String name, int pes, long mips, int ram, long storage, long bw, double starttime, double endtime) {
-		VMSpec vm = new VMSpec(pes, mips, ram, storage, bw, starttime, endtime);
+		VMSpec vm = new VMSpec(pes, mips, ram, storage, bw, starttime, endtime, null, null, null);
 		vm.name = name;
 		
 		vms.add(vm);
 		return vm;
 	}
 	
+	public VMSpec addVM(String name, String datacenter, String host, int pes, long mips, int ram, long storage, long bw, double starttime, double endtime) {
+		VMSpec vm = new VMSpec(pes, mips, ram, storage, bw, starttime, endtime, datacenter, null, host);
+		vm.name = name;
+		
+		vms.add(vm);
+		return vm;
+	}
 	
+	public SFSpec addSF(String name, int pes, long mips, int ram, long storage, long bw, double starttime, double endtime, long miPerOperation, String type) {
+		return addSF(name, null, null, pes, mips, ram, storage, bw, starttime, endtime, miPerOperation, type);
+	}
+	
+	public SFSpec addSF(String name, String datacenter, List<String> subdatacenter, int pes, long mips, int ram, long storage, long bw, double starttime, double endtime, long miPerOperation, String type) {
+		SFSpec vm = new SFSpec(pes, mips, ram, storage, bw, starttime, endtime, miPerOperation, type, datacenter, subdatacenter);
+		vm.name = name;
+		
+		vms.add(vm);
+		return vm;
+	}
+	
+	public SFCPolicySpec addSFCPolicy(String policyname, VMSpec source, VMSpec dest, String linkname, List<SFSpec> sfChain, double expectedTime ) {
+		SFCPolicySpec policy = new SFCPolicySpec(policyname, source.name, dest.name, linkname, sfChain, expectedTime);
+		policies.add(policy);
+		
+		return policy;
+	}
+	
+	private void validateLinkNameDuplicate(String newName) {
+		if("default".equals(newName)) 
+			return;
+		for(LinkSpec link:this.links) {
+			if(link.name.equals(newName)) {
+				throw new RuntimeException("Same name!"+newName);
+			}
+		}
+		
+	}
 	public LinkSpec addLink(String linkname, VMSpec source, VMSpec dest, Long bw) {
+		validateLinkNameDuplicate(linkname);
+		
 		LinkSpec link = new LinkSpec(linkname, source.name,dest.name, bw);
 		links.add(link);
 		
@@ -95,9 +134,14 @@ public class VirtualTopologyGenerator {
 		addLink(linkName, src, dest, null);
 		
 		if(bw != null && bw > 0) {
-			linkName = src.name + dest.name;
+			linkName = getAutoLinkName(src, dest);
 			addLink(linkName, src, dest, bw);
 		}
+	}
+	
+	protected static String getAutoLinkName(VMSpec src, VMSpec dest) {
+		String linkName = src.name + dest.name;
+		return linkName;		
 	}
 	
 	public void addLinkAutoNameBoth(VMSpec vm1, VMSpec vm2, Long linkBw) {
@@ -111,12 +155,15 @@ public class VirtualTopologyGenerator {
 	}
 	
 	public VMSpec createVmSpec(int pe, long mips, int ram, long storage, long bw, double starttime, double endtime) {
-		return new VMSpec(pe, mips, ram, storage, bw, starttime, endtime);
+		return new VMSpec(pe, mips, ram, storage, bw, starttime, endtime, null, null, null);
 	}
 
 	class VMSpec {
 		String name;
 		String type;
+		String datacenter = null;
+		List<String> subdatacenter = null;
+		String host = null;
 		long size;
 		int pe;
 		long mips;
@@ -125,7 +172,7 @@ public class VirtualTopologyGenerator {
 		double starttime = -1;
 		double endtime = -1;
 		
-		public VMSpec(int pe, long mips, int ram, long storage, long bw,double starttime,double endtime) {
+		public VMSpec(int pe, long mips, int ram, long storage, long bw,double starttime,double endtime, String datacenter, List<String> subdatacenter, String host) {
 			this.pe = pe;
 			this.mips = mips;
 			this.ram = ram;
@@ -134,6 +181,9 @@ public class VirtualTopologyGenerator {
 			this.type = "vm";
 			this.starttime = starttime;
 			this.endtime = endtime;
+			this.datacenter = datacenter;
+			this.subdatacenter = subdatacenter;
+			this.host = host;
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -141,19 +191,78 @@ public class VirtualTopologyGenerator {
 			VMSpec vm = this;
 			JSONObject obj = new JSONObject();
 			obj.put("name", vm.name);
-			obj.put("type", vm.type);
-			obj.put("size", vm.size);
 			obj.put("pes", vm.pe);
 			obj.put("mips", vm.mips);
-			obj.put("ram", new Integer(vm.ram));
 			obj.put("bw", vm.bw);
+			obj.put("size", vm.size);
+			obj.put("ram", new Integer(vm.ram));
+			obj.put("type", vm.type);
 			if(vm.starttime != -1)
 				obj.put("starttime", vm.starttime);
 			if(vm.endtime != -1)
 				obj.put("endtime", vm.endtime);
+			if(vm.datacenter != null)
+				obj.put("datacenter", vm.datacenter);
+			if(vm.subdatacenter != null)
+				obj.put("subdatacenters", vm.subdatacenter);
+			if(vm.host != null)
+				obj.put("host", vm.host);
 
 			return obj;
 		}
+	}
+	
+	class SFSpec extends VMSpec {
+		long mipsPerOperation;
+
+		public SFSpec(int pe, long mips, int ram, long storage, long bw, double starttime, double endtime, long mipOper, String type, String datacenter, List<String> subdatacenter) {
+			super(pe, mips, ram, storage, bw, starttime, endtime, datacenter, subdatacenter, null);
+			this.mipsPerOperation = mipOper;
+			this.type = type;
+		}
+		
+		@SuppressWarnings("unchecked")
+		JSONObject toJSON() {
+			JSONObject obj = super.toJSON();
+			obj.put("mipoper", this.mipsPerOperation);
+			return obj;
+		}
+	}
+	
+	class SFCPolicySpec {
+		String name;
+		String source;
+		String destination;
+		String linkname;
+		List<SFSpec> sfChain;
+		double expectTime;
+		
+		public SFCPolicySpec(String name,String source,String destination,String linkname, List<SFSpec> sfChain, double expectedTime) {
+			this.name = name;
+			this.source = source;
+			this.destination = destination;
+			this.linkname = linkname;
+			this.sfChain = sfChain;
+			this.expectTime = expectedTime;
+		}
+		@SuppressWarnings("unchecked")
+		JSONObject toJSON() {
+			SFCPolicySpec policy = this;
+			JSONObject obj = new JSONObject();
+			obj.put("name", policy.name);
+			obj.put("source", policy.source);
+			obj.put("destination", policy.destination);
+			obj.put("flowname", policy.linkname);
+			obj.put("expected_time", policy.expectTime);
+			
+			JSONArray jsonChain = new JSONArray();
+			for(SFSpec sf:sfChain) {
+				jsonChain.add(sf.name);
+			}
+			obj.put("sfc", jsonChain);
+			return obj;
+		}
+
 	}
 
 	class DummyWorkloadSpec {
@@ -238,7 +347,16 @@ public class VirtualTopologyGenerator {
 		
 		obj.put("nodes", vmList);
 		obj.put("links", linkList);
-	 
+		
+		// Add SFC Policies to the json.
+		if(policies.size() != 0) {
+			JSONArray policyList = new JSONArray();
+			for(SFCPolicySpec policy:policies) {
+				policyList.add(policy.toJSON());
+			}
+			obj.put("policies", policyList);
+		}
+		
 		try {
 	 
 			FileWriter file = new FileWriter(jsonFileName);

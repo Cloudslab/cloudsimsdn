@@ -13,7 +13,14 @@ import java.io.PrintStream;
 import java.util.HashMap;
 
 public class LogWriter {
+	private PrintStream out = null;
+
 	private static HashMap<String,LogWriter> map = new HashMap<String,LogWriter>();
+	
+	private LogWriter(String name) {
+		out = openfile(name);
+	}
+	
 	public static LogWriter getLogger(String name) {
 		String exName = Configuration.workingDirectory+Configuration.experimentName+name;
 		LogWriter writer = map.get(exName);
@@ -44,11 +51,6 @@ public class LogWriter {
 		out.println(s);
 	}
 		
-	private PrintStream out = null;
-	private LogWriter(String name) {
-		out = openfile(name);
-	}
-	
 	private PrintStream openfile(String name) {
 		PrintStream out = null;
 		try {
