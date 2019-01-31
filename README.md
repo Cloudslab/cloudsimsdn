@@ -9,7 +9,7 @@ CloudSimSDN: SDN extension of CloudSim project.
 CloudSimSDN supports calculating power consumption by both hosts and switches. For instance, network-aware VM placement policies can be evaluated using CloudSimSDN. As an example, we will present energy savings in SDN-enabled cloud data center via VM consolidation. If VMs are consolidated to the minimum number of hosts, the unused hosts and switches can be powered off to save more power. We will show two different VM placement policies: Best Fit (MFF, Most Full First) and Worst Fit (LFF, Least Full First).
 
 ## Program dependencies
-You have to download [CloudSim (cloudsim-3.0.3)](https://github.com/Cloudslab/cloudsim/releases/tag/cloudsim-3.0.3),
+You have to download [CloudSim (cloudsim-4.0)](https://github.com/Cloudslab/cloudsim/releases/tag/cloudsim-4.0),
 enter the project's root directory and execute `mvn clean install` to install the jar packages into your local maven repository.
 
 Other dependencies are already included.
