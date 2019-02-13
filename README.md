@@ -6,7 +6,7 @@ CloudSimSDN: SDN extension of CloudSim project. Version 2.0 is now availalbe.
 
 * Resource provisioning for NFV in the edge computing environment;
 * Simulation framework for NFV in edge and cloud computing (inter cloud data centers);
-* Policies support of Network link selection, VM allocation, Virtual Network Function(VNF) placement, and SFC auto-scaling algorithms;
+* Policy supports of Network link selection, VM allocation, Virtual Network Function(VNF) placement, and SFC auto-scaling algorithms;
 * Performance evaluation of the framework with use case scenarios.
 
 ## Introduction
