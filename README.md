@@ -68,7 +68,7 @@ Other dependencies are already included.
   
  11. org.cloudbus.cloudsim.sdn.virtualcomponents
  
-  Flows created in VMs (SDNVM.java) through channel(Channel.java) based on corresponding Flow configuration(FlowConfig.java) are forwared according to rules(ForwardingRule.java) in SDN-enabled switches. VirtualNetworkMapper includes the main APIs for network traffic forwarding.
+  Flows created in VMs (SDNVM.java) through channel(Channel.java) based on corresponding Flow configuration(FlowConfig.java) are forwarded according to rules(ForwardingRule.java) in SDN-enabled switches. VirtualNetworkMapper includes the main APIs for network traffic forwarding.
   
  12. org.cloudbus.cloudsim.sdn.workload
  
