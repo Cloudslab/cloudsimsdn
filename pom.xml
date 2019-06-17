@@ -86,7 +86,7 @@
         <dependency>
             <groupId>org.cloudbus.cloudsim</groupId>
             <artifactId>cloudsim</artifactId>
-            <version>3.0.3</version>
+            <version>4.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -63,7 +63,7 @@ public class VmAllocationPolicyCombinedMostFullFirst extends VmAllocationPolicy 
 		
 		for (Host host : getHostList()) {
 			getFreePes().add(host.getNumberOfPes());
-			getFreeMips().add(host.getTotalMips());
+			getFreeMips().add((long) host.getTotalMips());
 			getFreeBw().add(host.getBw());
 		}
 		if(list == null || list.size() == 0)

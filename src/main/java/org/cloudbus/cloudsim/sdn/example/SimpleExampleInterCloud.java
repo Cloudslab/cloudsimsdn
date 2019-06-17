@@ -209,7 +209,8 @@ public class SimpleExampleInterCloud {
 	private static List<Host> getAllHostList(Collection<SDNDatacenter> dcs) {
 		List<Host> allHosts = new ArrayList<Host>();
 		for(SDNDatacenter dc:dcs) {
-			allHosts.addAll(dc.getNOS().getHostList());
+			if(dc.getNOS().getHostList()!=null)
+				allHosts.addAll(dc.getNOS().getHostList());
 		}
 		
 		return allHosts;

@@ -7,3 +7,12 @@ LFF intercloud.physical.json intercloud.virtual.json intercloud-example-workload
 
 * InterSDNExampleSFC.Simple
 LFF intercloud.physical.json intercloud.virtual.simple.json intercloud-example-workload.simple.csv
+
+
+* Outside the directory:
+* InterSDNExampleSFC
+LFF example-intercloud/intercloud.physical.json example-intercloud/intercloud.virtual.json example-intercloud/intercloud-example-workload.csv example-intercloud/intercloud-example-workload2.csv
+
+
+* InterSDNExampleSFC.Simple
+LFF example-intercloud/intercloud.physical.json example-intercloud/intercloud.virtual.simple.json example-intercloud/intercloud-example-workload.simple.csv
