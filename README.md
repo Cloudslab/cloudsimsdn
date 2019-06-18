@@ -15,14 +15,27 @@ CloudSimSDN: SDN extension of CloudSim project. Version 2.0 is now availalbe.
 **CloudSimSDN** is an add-on package to [CloudSim](http://www.cloudbus.org/cloudsim/), thus it is highly recommended to learn how to use CloudSim before using CloudSimSDN.
 CloudSimSDN supports calculating power consumption by both hosts and switches. For instance, network-aware VM placement policies can be evaluated using CloudSimSDN. As an example, we will present energy savings in SDN-enabled cloud data center via VM consolidation. If VMs are consolidated to the minimum number of hosts, the unused hosts and switches can be powered off to save more power. We will show two different VM placement policies: Best Fit (MFF, Most Full First) and Worst Fit (LFF, Least Full First).
 
-## Program dependencies
+## Program Dependencies📄
 You can download cloudsim-4.0.jar here (https://github.com/Cloudslab/cloudsimsdn/releases/tag/v2.0.1-beta)
 or clone [CloudSim (cloudsim-4.0)] src code (https://github.com/Cloudslab/cloudsim), either include all src code or export the jar of the newest version (bugs fixed to support cloudsimsdn-nfv) and
 enter the project's root directory and execute `mvn clean install` to install the jar packages into your local maven repository.
 
 Other dependencies are already included.
 
-## Package components
+## Quick Start⚡️
+After the mvn build, you could simply run the project's example in IDE's Run Configurations by adding commands in the Arguments:
+
+* For example, to start the simulation example of SimpleExampleInterCloud:
+````
+LFF example-intercloud/intercloud.physical.json example-intercloud/intercloud.virtual.json example-intercloud/intercloud-example-workload.csv example-intercloud/intercloud-example-workload2.csv
+````
+
+* To run StartExperimentSFCEdge:
+````
+LFF 0 example-edge/edge.physical.json example-edge/edge.virtual.json example-edge/ edge.workload_host1.csv edge.workload_host2.csv
+````
+
+## Package Components
 1. org.cloudbus.cloudsim.sdn
 
   Main components of CloudSimSDN. Core functions are implemented in this package source codes.
@@ -129,7 +142,7 @@ Workload file has a long packet transmission between VMs in a same virtual netwo
   8. Computational workload for VM2
   9. ... (repeat v ~ viii)
 
-## Simulation execution
+## Simulation Execution
 You have to build the project using your IDE or typing `mvn clean install` at the project's root directory.
 After that, to execute the example, enter the project's `target` directory and use the following command:
 
