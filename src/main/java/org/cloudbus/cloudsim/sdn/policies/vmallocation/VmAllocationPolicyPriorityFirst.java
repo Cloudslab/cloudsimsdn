@@ -121,7 +121,7 @@ public class VmAllocationPolicyPriorityFirst extends VmAllocationPolicyGroupConn
 		for(Node e: edges) {
 			HostGroup hg = new HostGroup();
 			hg.edge = (EdgeSwitch) e;
-			hg.hosts  = new ArrayList<SDNHost>((Collection<? extends SDNHost>)topology.getConnectedNodesLow(e));
+			hg.hosts  = new ArrayList<SDNHost>((Collection<? extends SDNHost>)(Collection<? extends Node>)topology.getConnectedNodesLow(e));
 			for(SDNHost h:hg.hosts) {
 				hg.numHosts++;
 				hg.availableMips += h.getAvailableMips();
