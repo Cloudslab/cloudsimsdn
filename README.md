@@ -34,6 +34,11 @@ LFF example-intercloud/intercloud.physical.json example-intercloud/intercloud.vi
 ````
 LFF 0 example-edge/edge.physical.json example-edge/edge.virtual.json example-edge/ edge.workload_host1.csv edge.workload_host2.csv
 ````
+* To run StartExperimentSFC:
+1 for enable SFC auto-scaling
+````
+LFF 1 example-sfc/sfc-example-physical.json example-sfc/sfc-example-scale-virtual.json example-sfc/ sfc-example-scale-workload.csv
+````
 
 ## Package Components
 1. org.cloudbus.cloudsim.sdn
