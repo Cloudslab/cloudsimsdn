@@ -1,0 +1,107 @@
+{
+  "nodes" : [
+    {
+      "name" : "vm01",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 3000,
+      "ram"  : 512
+    },
+    {
+      "name": "vm02",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 3000,
+      "ram"  : 512
+    },
+    {
+      "name": "vm03",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 3000,
+      "ram"  : 512
+    },
+    {
+      "name": "vnf1",
+      "type" : "firewall",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 2000,
+	  "mipoper": 1000,
+      "ram"  : 512,
+    },
+    {
+      "name": "vnf2",
+      "type" : "IDS",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+	  "mipoper": 1000,
+      "ram"  : 512
+    },
+    {
+      "name": "vnf3",
+      "type" : "loadbalancer",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+	  "mipoper": 1000,
+      "ram"  : 512
+    },
+    {
+      "name": "vnf4",
+      "type" : "NAT",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 3000,
+	  "mipoper": 1000,
+      "ram"  : 512
+    }
+  ],
+  "links" : [
+    { "name": "l32", "source" : "vm03" , "destination" : "vm02" , "bandwidth" : 660000},
+    { "name": "l21", "source" : "vm02" , "destination" : "vm01" , "bandwidth" : 660000},
+
+    { "name": "default", "source" : "vm01" , "destination" : "vm02" },
+    { "name": "default", "source" : "vm02" , "destination" : "vm01" },
+    { "name": "default", "source" : "vm02" , "destination" : "vm03" },
+    { "name": "default", "source" : "vm03" , "destination" : "vm02" },
+    
+  ],
+  "policies" : [
+    {
+	  "name" : "policy1",
+      "source" : "vm01",
+      "destination" : "vm02",
+      "flowname": "default",
+	  "sfc": [
+	    "vnf1",
+		"vnf2"
+	  ]
+    },
+    {
+	  "name" : "policy2",
+      "source" : "vm01",
+      "destination" : "vm03",
+      "flowname": "default",
+	  "sfc": [
+	    "vnf3",
+		"vnf4"
+	  ]
+    },
+    {
+	  "name" : "policy3",
+      "source" : "vm02",
+      "destination" : "vm01",
+      "flowname": "default",
+	  "sfc": [
+	    "vnf2",
+	    "vnf3",
+		"vnf4"
+	  ]
+    }
+  ]  
+}

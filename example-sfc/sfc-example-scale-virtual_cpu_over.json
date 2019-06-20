@@ -1,0 +1,94 @@
+{
+  "nodes" : [
+    {
+      "name" : "vm01",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512
+    },
+    {
+      "name": "vm02",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512
+    },
+    {
+      "name": "vm03",
+      "type" : "vm",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 500,
+      "ram"  : 512
+    },
+    {
+      "name": "vnf1",
+      "type" : "firewall",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+	  "mipoper": 250,
+      "ram"  : 512,
+    },
+    {
+      "name": "vnf2",
+      "type" : "IDS",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+	  "mipoper": 25,
+      "ram"  : 512
+    },
+    {
+      "name": "vnf3",
+      "type" : "loadbalancer",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+	  "mipoper": 100,
+      "ram"  : 512
+    },
+    {
+      "name": "vnf4",
+      "type" : "NAT",
+      "size" : 1000,
+      "pes": 1,
+      "mips" : 1000,
+	  "mipoper": 100,
+      "ram"  : 512
+    }
+  ],
+  "links" : [
+    { "name": "default", "source" : "vm01" , "destination" : "vm02" },
+    { "name": "default", "source" : "vm02" , "destination" : "vm01" },
+    { "name": "default", "source" : "vm02" , "destination" : "vm03" },
+    { "name": "default", "source" : "vm03" , "destination" : "vm02" },
+	
+    { "name": "l12", "source" : "vm01" , "destination" : "vm02", "bandwidth" : 50000	},    
+  ],
+  "policies" : [
+    {
+	  "name" : "policy1",
+      "source" : "vm01",
+      "destination" : "vm02",
+      "flowname": "l12",
+	  "sfc": [
+	    "vnf1"
+	  ],
+	  "expected_time": 1.0
+    },
+    {
+	  "name" : "policy2",
+      "source" : "vm02",
+      "destination" : "vm03",
+      "flowname": "default",
+	  "sfc": [
+	    "vnf1",
+		"vnf2"
+	  ]
+    }
+  ]  
+}
