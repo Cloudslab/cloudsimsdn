@@ -32,7 +32,8 @@ public class CloudSimTagsSDN {
 	public static final int REQUEST_COMPLETED = SDN_BASE + 11;
 	public static final int REQUEST_OFFER_MORE = SDN_BASE + 12;
 	public static final int REQUEST_FAILED = SDN_BASE + 13;
-	
+	public static final int REQUEST_SUBMIT_TO_DC = SDN_BASE + 27;
+
 	public static final int APPLICATION_SUBMIT = SDN_BASE + 20;	// Broker -> Datacenter.
 	public static final int APPLICATION_SUBMIT_ACK = SDN_BASE + 21;
 

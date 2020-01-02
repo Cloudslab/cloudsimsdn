@@ -27,11 +27,7 @@ import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
-import org.cloudbus.cloudsim.sdn.CloudSimEx;
-import org.cloudbus.cloudsim.sdn.CloudSimTagsSDN;
-import org.cloudbus.cloudsim.sdn.Configuration;
-import org.cloudbus.cloudsim.sdn.LogWriter;
-import org.cloudbus.cloudsim.sdn.Packet;
+import org.cloudbus.cloudsim.sdn.*;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Link;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Node;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.PhysicalTopology;
@@ -183,9 +179,9 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 				
 				if(CloudSim.clock() >= lastMigration + Configuration.migrationTimeInterval && this.datacenter != null) {
 					sfcScaler.scaleSFC();	// Start SFC Auto Scaling
-					
+
 					this.datacenter.startMigrate(); // Start Migration
-					
+
 					lastMigration = CloudSim.clock(); 
 				}
 				this.updateVmMonitor(CloudSim.clock());
@@ -344,7 +340,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			for (Transmission tr:ch.getArrivedPackets()){
 				Packet pkt = tr.getPacket();
 				int vmId = pkt.getDestination(); 
-				Datacenter dc = SDNDatacenter.findDatacenterGlobal(vmId);
+				Datacenter dc = SDNBroker.getDataCenterByVmID(vmId);
 				
 				//Log.printLine(CloudSim.clock() + ": " + getName() + ": Packet completed: "+pkt +". Send to destination:"+ch.getLastNode());
 				sendPacketCompleteEvent(dc, pkt, ch.getTotalLatency());
@@ -583,7 +579,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		// VM is in another data center. Find the host!
 		vm = findVmGlobal(vmId);
 		if(vm != null) {
-			Datacenter dc = SDNDatacenter.findDatacenterGlobal(vmId);
+			Datacenter dc = SDNBroker.getDataCenterByVmID(vmId);
 			if(dc != null)
 				return (SDNHost)dc.getVmAllocationPolicy().getHost(vm);
 		}

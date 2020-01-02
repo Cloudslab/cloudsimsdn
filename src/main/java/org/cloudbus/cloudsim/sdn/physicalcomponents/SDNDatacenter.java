@@ -11,21 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudbus.cloudsim.Cloudlet;
-import org.cloudbus.cloudsim.CloudletScheduler;
-import org.cloudbus.cloudsim.Datacenter;
-import org.cloudbus.cloudsim.DatacenterCharacteristics;
-import org.cloudbus.cloudsim.Host;
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Storage;
-import org.cloudbus.cloudsim.Vm;
-import org.cloudbus.cloudsim.VmAllocationPolicy;
+import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.sdn.CloudSimTagsSDN;
 import org.cloudbus.cloudsim.sdn.CloudletSchedulerMonitor;
 import org.cloudbus.cloudsim.sdn.Packet;
+import org.cloudbus.cloudsim.sdn.SDNBroker;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationInGroup;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyPriorityFirst;
@@ -77,6 +70,10 @@ public class SDNDatacenter extends Datacenter {
 		getVmList().add(vm);
 		if (vm.isBeingInstantiated()) vm.setBeingInstantiated(false);
 		vm.updateVmProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(vm).getVmScheduler().getAllocatedMipsForVm(vm));
+	}
+
+	public void setIsMigrateEnabled(boolean isMigrateEnabled) {
+		SDNDatacenter.isMigrateEnabled = isMigrateEnabled;
 	}
 		
 	@Override
@@ -184,6 +181,55 @@ public class SDNDatacenter extends Datacenter {
 		super.processVmMigrate(ev, ack);
 		
 		nos.processVmMigrate(vm, (SDNHost)oldHost, (SDNHost)newHost);
+
+		// Changes required to facilitate INTER-DC migrations
+		String srcDC = oldHost.getDatacenter().getName();
+		String destDC = newHost.getDatacenter().getName();
+		if (!srcDC.equals(destDC)) {
+			// updating vm-dc mapping in broker
+			SDNBroker.updateVmDCMapping(vm.getId(), (SDNDatacenter) newHost.getDatacenter());
+
+			// updating request tables for inter-dc migrations
+			while (vm.getCloudletScheduler().isFinishedCloudlets()) {
+				Cloudlet cl = vm.getCloudletScheduler().getNextFinishedCloudlet();
+				if (cl != null) {
+					int cloudletId = cl.getCloudletId();
+					Request req = SDNBroker.getDataCenterByName(srcDC).requestsTable.remove(cloudletId);
+					SDNBroker.getDataCenterByName(destDC).requestsTable.put(cloudletId, req);
+				}
+			}
+
+			for (ResCloudlet resCloudlet: vm.getCloudletScheduler().getCloudletExecList()) {
+				Cloudlet cl = resCloudlet.getCloudlet();
+				if (cl != null) {
+					int cloudletId = cl.getCloudletId();
+					Request req = SDNBroker.getDataCenterByName(srcDC).requestsTable.remove(cloudletId);
+					SDNBroker.getDataCenterByName(destDC).requestsTable.put(cloudletId, req);
+				}
+			}
+
+			for (ResCloudlet resCloudlet: vm.getCloudletScheduler().getCloudletWaitingList()) {
+				Cloudlet cl = resCloudlet.getCloudlet();
+				if (cl != null) {
+					int cloudletId = cl.getCloudletId();
+					Request req = SDNBroker.getDataCenterByName(srcDC).requestsTable.remove(cloudletId);
+					SDNBroker.getDataCenterByName(destDC).requestsTable.put(cloudletId, req);
+				}
+			}
+
+			for (ResCloudlet resCloudlet: vm.getCloudletScheduler().getCloudletPausedList()) {
+				Cloudlet cl = resCloudlet.getCloudlet();
+				if (cl != null) {
+					int cloudletId = cl.getCloudletId();
+					Request req = SDNBroker.getDataCenterByName(srcDC).requestsTable.remove(cloudletId);
+					SDNBroker.getDataCenterByName(destDC).requestsTable.put(cloudletId, req);
+				}
+			}
+
+			// Add vm to host in destination DC
+			SDNBroker.getDataCenterByName(destDC).getVmAllocationPolicy().allocateHostForVm(vm, newHost);
+		}
+
 	}
 	
 	@Override
@@ -325,7 +371,8 @@ public class SDNDatacenter extends Datacenter {
 		for (int i = 0; i < list.size(); i++) {
 			Host host = list.get(i);
 			for (Vm vm : host.getVmList()) {
-				
+				if (vm.isInMigration()) // Cloudlets cannot process while the VM is in migration.
+					continue;
 				// Check all completed Cloudlets
 				while (vm.getCloudletScheduler().isFinishedCloudlets()) {
 					Cloudlet cl = vm.getCloudletScheduler().getNextFinishedCloudlet();

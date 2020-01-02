@@ -28,9 +28,7 @@ import org.cloudbus.cloudsim.sdn.sfc.ServiceFunction;
 import org.cloudbus.cloudsim.sdn.sfc.ServiceFunctionChainPolicy;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.FlowConfig;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
-import org.cloudbus.cloudsim.sdn.workload.Request;
-import org.cloudbus.cloudsim.sdn.workload.Workload;
-import org.cloudbus.cloudsim.sdn.workload.WorkloadResultWriter;
+import org.cloudbus.cloudsim.sdn.workload.*;
 
 /**
  * Broker class for CloudSimSDN example. This class represents a broker (Service Provider)
@@ -185,7 +183,10 @@ public class SDNBroker extends SimEntity {
 				break;
 			case CloudSimTagsSDN.REQUEST_OFFER_MORE:
 				requestOfferMode(ev);
-				break;					
+				break;
+			case CloudSimTagsSDN.REQUEST_SUBMIT_TO_DC:
+				submitRequestToDC(ev);
+				break;
 			default: 
 				System.out.println("Unknown event received by "+super.getName()+". Tag:"+ev.getTag());
 				break;
@@ -282,6 +283,11 @@ public class SDNBroker extends SimEntity {
 	public static SDNDatacenter getDataCenterByVmID(int vmId) {
 		return SDNBroker.vmIdToDc.get(vmId);
 	}
+
+	public static void updateVmDCMapping(int vmId, SDNDatacenter dc) {
+		SDNBroker.vmIdToDc.remove(vmId);
+		SDNBroker.vmIdToDc.put(vmId, dc);
+	}
 	
 	private void requestOfferMode(SimEvent ev) {
 		WorkloadParser wp = (WorkloadParser) ev.getData();
@@ -313,8 +319,8 @@ public class SDNBroker extends SimEntity {
 					continue;
 				}
 				wl.appId = workloadId;
-				SDNDatacenter dc = SDNBroker.vmIdToDc.get(wl.submitVmId);
-				send(dc.getId(), scehduleTime, CloudSimTagsSDN.REQUEST_SUBMIT, wl.request);
+				// Need to send workloads to the relevant DC in real time since migrations change the initial DCs of VMs
+				send(this.getId(), scehduleTime, CloudSimTagsSDN.REQUEST_SUBMIT_TO_DC, wl);
 				requestMap.put(wl.request.getTerminalRequest().getRequestId(), wl);
 			}
 			
@@ -325,6 +331,12 @@ public class SDNBroker extends SimEntity {
 			Workload lastWorkload = parsedWorkloads.get(parsedWorkloads.size()-1);
 			send(this.getId(), lastWorkload.time - CloudSim.clock(), CloudSimTagsSDN.REQUEST_OFFER_MORE, workParser);
 		}
+	}
+
+	private void submitRequestToDC(SimEvent ev) {
+		Workload workload = (Workload) ev.getData();
+		SDNDatacenter dc = SDNBroker.vmIdToDc.get(workload.submitVmId);
+		sendNow(dc.getId(), CloudSimTagsSDN.REQUEST_SUBMIT, workload.request);
 	}
 	
 	public List<Workload> getWorkloads() {
