@@ -71,7 +71,7 @@ public class PhysicalTopologyParser {
 		for(String dcName: dcNameType.keySet()) {
 			NetworkOperatingSystem nos;
 			nos = new NetworkOperatingSystemSimple("NOS_"+dcName);
-			
+
 			netOsList.put(dcName, nos);
 			parser.parseNode(dcName);
 		}

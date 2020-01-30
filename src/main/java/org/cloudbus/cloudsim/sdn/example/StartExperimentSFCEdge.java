@@ -368,12 +368,14 @@ public class StartExperimentSFCEdge {
 			HostSelectionPolicy hostSelectionPolicy,
 			VmMigrationPolicy vmMigrationPolicy) {
 		HashMap<NetworkOperatingSystem, SDNDatacenter> dcs = new HashMap<NetworkOperatingSystem, SDNDatacenter>();
-		// This funciton creates Datacenters and NOS inside the data cetner.
+		// This funciton creates Datacenters and NOS inside the data center.
 		Map<String, NetworkOperatingSystem> dcNameNOS = PhysicalTopologyParser.loadPhysicalTopologyMultiDC(physicalTopologyFile);
 		
 		for(String dcName:dcNameNOS.keySet()) {
 			NetworkOperatingSystem nos = dcNameNOS.get(dcName);
 			nos.setLinkSelectionPolicy(ls);
+			//if ("net".equals(dcName)) continue;
+			if (!nos.getPhysicalTopology().isCloudNode()) continue;
 			SDNDatacenter datacenter = createSDNDatacenter(dcName, nos, vmAllocationFac, hostSelectionPolicy,
 					vmMigrationPolicy);
 			

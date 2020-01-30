@@ -212,6 +212,15 @@ public abstract class PhysicalTopology {
 		}
 		return allSwitches;
 	}
+
+	public boolean isCloudNode(){
+
+		for(Node n:nodesTable.values()) {
+			if(n instanceof SDNHost)
+				return true;
+		}
+		return false;
+	}
 	
 	public Collection<SDNHost> getAllHosts() {
 		Collection<SDNHost> allHosts = new LinkedList<>();
