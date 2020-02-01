@@ -157,7 +157,7 @@ public abstract class PhysicalTopology {
 		int from = fromNode.getAddress();
 		int to = toNode.getAddress();
 		
-		long bw = (fromNode.getBandwidth()<toNode.getBandwidth())? fromNode.getBandwidth():toNode.getBandwidth();
+		long bw = Math.min(fromNode.getBandwidth(), toNode.getBandwidth());
 		
 		if(!nodesTable.containsKey(from)||!nodesTable.containsKey(to)){
 			throw new IllegalArgumentException("Unknown node on link:"+nodesTable.get(from).getAddress()+"->"+nodesTable.get(to).getAddress());

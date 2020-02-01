@@ -681,7 +681,7 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		if(vmAlloc instanceof OverbookingVmAllocationPolicy) {
 			for(Vm v: this.vmMapId2Vm.values()) {
 				SDNVm vm = (SDNVm)v;
-				double mipsOBR = ((OverbookingVmAllocationPolicy)vmAlloc).getCurrentOverbookingRatioMips((SDNVm) vm);
+				double mipsOBR = ((OverbookingVmAllocationPolicy)vmAlloc).getCurrentOverbookingRatioMips(vm);
 				LogWriter log = LogWriter.getLogger("vm_OBR_mips.csv");
 				log.printLine(vm.getName()+","+logTime+","+mipsOBR);
 				

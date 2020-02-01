@@ -136,15 +136,13 @@ public abstract class VmMigrationPolicy {
 		}
 		
 		// Sort the most utilized VMs
-		Collections.sort(migrationOverVMList, new Comparator<SDNVm>() {
-		    public int compare(SDNVm o1, SDNVm o2) {
-				double endTime = CloudSim.clock();
-				double startTime = endTime - Configuration.migrationTimeInterval;
-				
-		    	double o1util = o1.getMonitoringValuesVmCPUUtilization().getAverageValue(startTime, endTime);
-		    	double o2util = o2.getMonitoringValuesVmCPUUtilization().getAverageValue(startTime, endTime);
-		        return (int) (o1util - o2util);
-		    }
+		Collections.sort(migrationOverVMList, (o1, o2) -> {
+			double endTime = CloudSim.clock();
+			double startTime = endTime - Configuration.migrationTimeInterval;
+
+			double o1util = o1.getMonitoringValuesVmCPUUtilization().getAverageValue(startTime, endTime);
+			double o2util = o2.getMonitoringValuesVmCPUUtilization().getAverageValue(startTime, endTime);
+			return (int) (o1util - o2util);
 		});
 
 		return migrationOverVMList;

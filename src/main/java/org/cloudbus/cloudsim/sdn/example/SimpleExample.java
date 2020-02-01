@@ -93,7 +93,7 @@ public class SimpleExample {
 				workloads.add(args[i]);
 			}
 		else
-			workloads = (List<String>) Arrays.asList(workload_files);
+			workloads = Arrays.asList(workload_files);
 		
 		printArguments(physicalTopologyFile, deploymentFile, workloads);
 		Log.printLine("Starting CloudSim SDN...");
@@ -112,31 +112,23 @@ public class SimpleExample {
 			switch(vmAllocPolicy) {
 			case CombMFF:
 			case MFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedMostFullFirst(hostList); }
-				};
+				vmAllocationFac = VmAllocationPolicyCombinedMostFullFirst::new;
 				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 				ls = new LinkSelectionPolicyDestinationAddress();
 				break;
 			case CombLFF:
 			case LFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyCombinedLeastFullFirst(hostList); }
-				};
+				vmAllocationFac = hostList -> new VmAllocationPolicyCombinedLeastFullFirst(hostList);
 				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 				ls = new LinkSelectionPolicyDestinationAddress();
 				break;
 			case MipMFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsMostFullFirst(hostList); }
-				};
+				vmAllocationFac = hostList -> new VmAllocationPolicyMipsMostFullFirst(hostList);
 				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 				ls = new LinkSelectionPolicyDestinationAddress();
 				break;
 			case MipLFF:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> hostList) { return new VmAllocationPolicyMipsLeastFullFirst(hostList); }
-				};				
+				vmAllocationFac = hostList -> new VmAllocationPolicyMipsLeastFullFirst(hostList);
 				PhysicalTopologyParser.loadPhysicalTopologySingleDC(physicalTopologyFile, nos, hsFac);
 				ls = new LinkSelectionPolicyDestinationAddress();
 				break;
@@ -160,7 +152,9 @@ public class SimpleExample {
 
 			// Broker
 			SDNBroker broker = createBroker();
-			int brokerId = broker.getId();
+			if (broker != null) {
+				int brokerId = broker.getId();
+			}
 
 			// Submit virtual topology
 			broker.submitDeployApplication(datacenter, deploymentFile);
@@ -274,7 +268,7 @@ public class SimpleExample {
 	 * @return the datacenter broker
 	 */
 	protected static SDNBroker createBroker() {
-		SDNBroker broker = null;
+		SDNBroker broker;
 		try {
 			broker = new SDNBroker("Broker");
 		} catch (Exception e) {

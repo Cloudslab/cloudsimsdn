@@ -42,7 +42,7 @@ public class LogWriter {
 	
 	public void printLine() {
 		if(out == null)
-			System.err.println("");
+			System.err.println();
 		else
 			out.println();
 	}

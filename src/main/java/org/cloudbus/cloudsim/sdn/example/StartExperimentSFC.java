@@ -185,7 +185,7 @@ public class StartExperimentSFC {
 			}
 		}
 		else {
-			workloads = (List<String>) Arrays.asList(workload_files);
+			workloads = Arrays.asList(workload_files);
 		}
 		
 		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory+Configuration.experimentName+"log.out.txt");
@@ -338,7 +338,9 @@ public class StartExperimentSFC {
 
 			// Broker
 			SDNBroker broker = createBroker();
-			int brokerId = broker.getId();
+			if (broker != null) {
+				int brokerId = broker.getId();
+			}
 
 			// Submit virtual topology
 			broker.submitDeployApplication(datacenter, deploymentFile);

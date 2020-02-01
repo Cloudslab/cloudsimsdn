@@ -410,7 +410,6 @@ public class VmAllocationPolicyEx extends VmAllocationPolicy implements PowerUti
 	
 	public void updateResourceAllocation(Host host) {
 		// Update the resource allocation ratio of every VM
-		return;
 	}
 	
 	// Temporary resource reservation for migration purpose

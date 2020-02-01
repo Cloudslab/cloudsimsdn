@@ -114,7 +114,9 @@ public class VmGroup implements Comparable<VmGroup> {
 				if(dstVm != null) {
 					// dst vm is not grouped yet. put dst into the same group
 					vmGroup = findVmGroup(groups, a.getSrcId());
-					vmGroup.addVm(dstVm);
+					if (vmGroup != null) {
+						vmGroup.addVm(dstVm);
+					}
 				}
 				else {
 					// dst vm is also already grouped. both are in group.

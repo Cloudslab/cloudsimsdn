@@ -174,7 +174,7 @@ public class StartExperimentQOS {
 			}
 		}
 		else {
-			workloads = (List<String>) Arrays.asList(workload_files);
+			workloads = Arrays.asList(workload_files);
 		}
 		
 		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory+Configuration.experimentName+"log.out.txt");
@@ -232,8 +232,8 @@ public class StartExperimentQOS {
 					public VmAllocationPolicy create(List<? extends Host> list,
 							HostSelectionPolicy hostSelectionPolicy,
 							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
+							) {
+						return new VmAllocationPolicyCombinedLeastFullFirst(list);
 					}
 				};
 				nos = new NetworkOperatingSystemSimple();
