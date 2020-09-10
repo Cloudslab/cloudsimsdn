@@ -16,9 +16,22 @@ CloudSimSDN: SDN extension of CloudSim project. Version 2.0 is now availalbe.
 CloudSimSDN supports calculating power consumption by both hosts and switches. For instance, network-aware VM placement policies can be evaluated using CloudSimSDN. As an example, we will present energy savings in SDN-enabled cloud data center via VM consolidation. If VMs are consolidated to the minimum number of hosts, the unused hosts and switches can be powered off to save more power. We will show two different VM placement policies: Best Fit (MFF, Most Full First) and Worst Fit (LFF, Least Full First).
 
 ## Program Dependencies📄
-1. You can download cloudsim-4.0.jar here (https://github.com/Cloudslab/cloudsimsdn/releases/tag/v2.0.1-beta)
-or clone [CloudSim (cloudsim-4.0)] src code (https://github.com/Cloudslab/cloudsim), either include all src code or export the jar of the newest version (bugs fixed to support cloudsimsdn-nfv);
-2. Add (downloaded cloudsim-4.0.jar) local jar into the maven dependencies: add 2 lines of cloudsim dependency in pom.xml.
+You need to integrate CloudSim with CloudSimSDN. There are two ways to include CloudSim into the project: (1) including the CloudSim Source code; (2) importing the CloudSim jar.
+
+### Method1: including the CloudSim Source Code
+In order to integrate the CloudSim src code, download CloudSim source code from (https://github.com/Cloudslab/cloudsim), then copy the CloudSim src code (\cloudsim-master\modules\cloudsim\src\main) into (\cloudsimsdn-master\src\main).
+For the dependency of opencsv used in the container module of CloudSim, include the dependency in the pom.xml:
+```
+<dependency>
+        <groupId>com.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+        <version>3.7</version>
+</dependency>
+```
+
+### Method2: importing the CloudSim jar
+1. You need download or clone [CloudSim](https://github.com/Cloudslab/cloudsim) and export the jar of the newest version (bugs fixed to support cloudsimsdn-nfv), name it (cloudsim-4.0.jar);
+2. Add generated cloudsim-4.0.jar local jar into the maven dependencies: add the cloudsim dependency in pom.xml.
 ````
         <dependency>
             <groupId>org.cloudbus.cloudsim</groupId>
