@@ -242,7 +242,7 @@ To compare with the result of LFF policy, run the same program with 'LFF' parame
 3. Implement different NetworkOperatingSystem to test different network policies.
 
 ## Publication
-For the NFV and SFC version, please cite this paper:
+For the newest Edge computing, NFV and SFC version, please cite this paper:
 * Jungmin Son, TianZhang He, and Rajkumar Buyya, ["CloudSimSDN-NFV: Modeling and Simulation of Network Function Virtualization and Service Function Chaining in Edge Computing Environments"](https://doi.org/10.1002/spe.2755), Software: Practive and Experience. 2019;1–17.https://doi.org/10.1002/spe.2755
 
 Please cite this paper:
