@@ -1,6 +1,6 @@
 # CloudSimSDN
 
-CloudSimSDN: SDN extension of CloudSim project. Version 2.0 is now availalbe.
+CloudSimSDN: SDN extension of CloudSim project. Version 2.0 (CloudSimSDN-NFV) is now availalbe.
 
 ## New Features:
 
