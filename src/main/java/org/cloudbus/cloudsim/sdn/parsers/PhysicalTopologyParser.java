@@ -71,7 +71,7 @@ public class PhysicalTopologyParser {
 		for(String dcName: dcNameType.keySet()) {
 			NetworkOperatingSystem nos;
 			nos = new NetworkOperatingSystemSimple("NOS_"+dcName);
-			
+
 			netOsList.put(dcName, nos);
 			parser.parseNode(dcName);
 		}
@@ -85,6 +85,8 @@ public class PhysicalTopologyParser {
 		}
 		for(String dcName: dcNameType.keySet()) {
 			if("network".equals(dcNameType.get(dcName))) {
+				//potential bug: why do same operations for different type of dcNameType? This results in "net" to gain zero
+				//nodeTable
 				NetworkOperatingSystem nos = netOsList.get(dcName);
 				nos.configurePhysicalTopology(parser.getHosts(dcName), parser.getSwitches(dcName), parser.getLinks());
 			}

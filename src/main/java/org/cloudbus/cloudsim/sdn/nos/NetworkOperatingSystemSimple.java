@@ -43,11 +43,7 @@ public class NetworkOperatingSystemSimple extends NetworkOperatingSystem {
 		Log.printLine(CloudSim.clock() + ": " + getName() + ": Starting deploying application..");
 
 		// Sort VMs in decending order of the required MIPS
-		Collections.sort(vms, new Comparator<Vm>() {
-		    public int compare(Vm o1, Vm o2) {
-		        return (int) (o2.getMips()*o2.getNumberOfPes() - o1.getMips()*o1.getNumberOfPes());
-		    }
-		});
+		Collections.sort(vms, (o1, o2) -> (int) (o2.getMips()*o2.getNumberOfPes() - o1.getMips()*o1.getNumberOfPes()));
 				
 				
 		for(Vm vm:vms)

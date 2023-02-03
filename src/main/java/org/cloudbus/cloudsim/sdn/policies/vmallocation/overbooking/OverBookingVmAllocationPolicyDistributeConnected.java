@@ -43,7 +43,7 @@ public class OverBookingVmAllocationPolicyDistributeConnected extends Overbookin
 		else {
 			// Other VMs in the group has been already allocated
 			// Avoid the correlated hosts.
-			List<SDNHost> allHosts = new ArrayList<SDNHost>(this.<SDNHost>getHostList());
+			List<SDNHost> allHosts = new ArrayList<SDNHost>(this.getHostList());
 			allHosts.removeAll(connectedHosts);
 			
 			if(allocateHostForVm(vm, hostSelectionPolicy.selectHostForVm((SDNVm)vm, allHosts)) == true) {

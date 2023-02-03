@@ -183,7 +183,7 @@ public class StartExperimentSFCEdge {
 			}
 		}
 		else {
-			workloads = (List<String>) Arrays.asList(workload_files);
+			workloads = Arrays.asList(workload_files);
 		}
 		
 		FileOutputStream output = new FileOutputStream(Configuration.workingDirectory+Configuration.experimentName+"log.out.txt");
@@ -208,40 +208,19 @@ public class StartExperimentSFCEdge {
 			switch(vmAllocPolicy) {
 			case Random:
 			case RandomFlow:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
-					}
-				};
+				vmAllocationFac = (list, hostSelectionPolicy1, vmMigrationPolicy1) -> new VmAllocationPolicyCombinedLeastFullFirst(list);
 				nos = new NetworkOperatingSystemSimple();
 				break;			
 			case MFF:
 			case MFFFlow:
 			case MFFCPU:
 			case MFFBW:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) {
-						return new VmAllocationPolicyCombinedMostFullFirst(list); 
-					}
-				};
+				vmAllocationFac = (list, hostSelectionPolicy12, vmMigrationPolicy12) -> new VmAllocationPolicyCombinedMostFullFirst(list);
 				nos = new NetworkOperatingSystemSimple();
 				break;
 			case LFF:
 			case LFFFlow:
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyCombinedLeastFullFirst(list); 
-					}
-				};
+				vmAllocationFac = (list, hostSelectionPolicy13, vmMigrationPolicy13) -> new VmAllocationPolicyCombinedLeastFullFirst(list);
 				nos = new NetworkOperatingSystemSimple();
 				break;
 			case HPF:	// High Priority First
@@ -249,14 +228,7 @@ public class StartExperimentSFCEdge {
 				// Initial placement: overbooking, MFF
 				// Initial placement connectivity: Connected VMs in one host
 				// Migration: none
-				vmAllocationFac = new VmAllocationPolicyFactory() {
-					public VmAllocationPolicy create(List<? extends Host> list,
-							HostSelectionPolicy hostSelectionPolicy,
-							VmMigrationPolicy vmMigrationPolicy
-							) { 
-						return new VmAllocationPolicyPriorityFirst(list, hostSelectionPolicy, vmMigrationPolicy); 
-					}
-				};
+				vmAllocationFac = (list, hostSelectionPolicy14, vmMigrationPolicy14) -> new VmAllocationPolicyPriorityFirst(list, hostSelectionPolicy14, vmMigrationPolicy14);
 				nos = new NetworkOperatingSystemGroupPriority();
 				hostSelectionPolicy = new HostSelectionPolicyMostFull();
 				vmMigrationPolicy = null;
@@ -301,7 +273,9 @@ public class StartExperimentSFCEdge {
 
 			// Broker
 			SDNBroker broker = createBroker();
-			int brokerId = broker.getId();
+			if (broker != null) {
+				int brokerId = broker.getId();
+			}
 
 			// Submit virtual topology
 			broker.submitDeployApplication(dcs.values(), deploymentFile);
@@ -368,12 +342,14 @@ public class StartExperimentSFCEdge {
 			HostSelectionPolicy hostSelectionPolicy,
 			VmMigrationPolicy vmMigrationPolicy) {
 		HashMap<NetworkOperatingSystem, SDNDatacenter> dcs = new HashMap<NetworkOperatingSystem, SDNDatacenter>();
-		// This funciton creates Datacenters and NOS inside the data cetner.
+		// This funciton creates Datacenters and NOS inside the data center.
 		Map<String, NetworkOperatingSystem> dcNameNOS = PhysicalTopologyParser.loadPhysicalTopologyMultiDC(physicalTopologyFile);
 		
 		for(String dcName:dcNameNOS.keySet()) {
 			NetworkOperatingSystem nos = dcNameNOS.get(dcName);
 			nos.setLinkSelectionPolicy(ls);
+			//if ("net".equals(dcName)) continue;
+			if (!nos.getPhysicalTopology().isCloudNode()) continue;
 			SDNDatacenter datacenter = createSDNDatacenter(dcName, nos, vmAllocationFac, hostSelectionPolicy,
 					vmMigrationPolicy);
 			
@@ -458,7 +434,7 @@ public class StartExperimentSFCEdge {
 	 * @return the datacenter broker
 	 */
 	protected static SDNBroker createBroker() {
-		SDNBroker broker = null;
+		SDNBroker broker;
 		try {
 			broker = new SDNBroker("Broker");
 		} catch (Exception e) {

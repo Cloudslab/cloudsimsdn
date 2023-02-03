@@ -120,7 +120,7 @@ public class MonitoringValues {
 
 		do {
 			// Calculate the average values between start and end time
-			endInterval =  endInterval > endTime ? endTime : endInterval;
+			endInterval = Math.min(endInterval, endTime);
 			double sum = 0;
 			double totalDuration = 0;
 			double t_prev = startInterval;

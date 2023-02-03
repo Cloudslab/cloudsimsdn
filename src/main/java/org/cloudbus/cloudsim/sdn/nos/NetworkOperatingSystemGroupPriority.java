@@ -33,11 +33,7 @@ public class NetworkOperatingSystemGroupPriority extends NetworkOperatingSystemG
 		List<FlowConfig> arcPool = new ArrayList<FlowConfig>(flows);	// all virtual Links
 		
 		// Sort links by their bandwidth 
-		Collections.sort(arcPool, new Comparator<FlowConfig>() {
-		    public int compare(FlowConfig o1, FlowConfig o2) {
-		        return (int) (o1.getBw() - o2.getBw());
-		    }
-		});
+		Collections.sort(arcPool, (o1, o2) -> (int) (o1.getBw() - o2.getBw()));
 		
 		// Separate groups by link bandwidth order
 		List<VmGroup> groups = VmGroupPriority.classifyGroupByArcList(arcPool, vmPool);

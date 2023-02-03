@@ -98,12 +98,10 @@ public class VmMigrationPolicyLeastCorrelated extends VmMigrationPolicy{
 		}
 		
 		// Sort the most utilized VMs
-		Collections.sort(hosts, new Comparator<Host>() {
-		    public int compare(Host o1, Host o2) {
-		    	double o1cc = corr.get(o1);
-		    	double o2cc = corr.get(o2);
-		        return Double.compare(o1cc, o2cc);
-		    }
+		Collections.sort(hosts, (Comparator<Host>) (o1, o2) -> {
+			double o1cc = corr.get(o1);
+			double o2cc = corr.get(o2);
+			return Double.compare(o1cc, o2cc);
 		});
 		return (List<T>) hosts;
 	}
