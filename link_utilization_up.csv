@@ -1,0 +1,408 @@
+2host03,1.0,0.0
+Switch: 2edge2,1.0,0.001324
+Switch: 2core,1.0,0.0
+2host01,1.0,0.0
+2host02,1.0,0.0
+Switch: 2edge1,1.0,0.0
+2host04,1.0,0.001324
+host03,1.0,0.0
+Switch: edge1,1.0,0.00316
+host02,1.0,0.00316
+Switch: edge2,1.0,0.00316
+host04,1.0,0.00316
+host01,1.0,0.0
+Switch: core,1.0,0.00632
+Switch: inter2,1.0,0.0
+Switch: gw1,1.0,0.00632
+Switch: gw2,1.0,0.0
+2host03,2.0,0.0
+Switch: 2edge2,2.0,0.0032
+Switch: 2core,2.0,0.0
+2host01,2.0,0.0
+2host02,2.0,0.0
+Switch: 2edge1,2.0,0.0
+2host04,2.0,0.0032
+host03,2.0,0.0
+Switch: edge1,2.0,0.004
+host02,2.0,0.004
+Switch: edge2,2.0,0.004
+host04,2.0,0.004
+host01,2.0,0.0
+Switch: core,2.0,0.008
+Switch: inter2,2.0,0.0
+Switch: gw1,2.0,0.008
+Switch: gw2,2.0,0.0
+2host03,3.0,0.0
+Switch: 2edge2,3.0,0.005912
+Switch: 2core,3.0,0.0
+2host01,3.0,0.0
+2host02,3.0,0.0
+Switch: 2edge1,3.0,0.0
+2host04,3.0,0.005912
+host03,3.0,0.0
+Switch: edge1,3.0,0.004
+host02,3.0,0.004
+Switch: edge2,3.0,0.004
+host04,3.0,0.004
+host01,3.0,0.0
+Switch: core,3.0,0.008
+Switch: inter2,3.0,0.0
+Switch: gw1,3.0,0.008
+Switch: gw2,3.0,0.0
+2host03,4.0,0.0
+Switch: 2edge2,4.0,0.004
+Switch: 2core,4.0,0.0
+2host01,4.0,0.0
+2host02,4.0,0.0
+Switch: 2edge1,4.0,0.0
+2host04,4.0,0.004
+host03,4.0,0.0
+Switch: edge1,4.0,0.00324
+host02,4.0,0.00324
+Switch: edge2,4.0,0.00324
+host04,4.0,0.00324
+host01,4.0,0.0
+Switch: core,4.0,0.00648
+Switch: inter2,4.0,0.0
+Switch: gw1,4.0,0.00648
+Switch: gw2,4.0,0.0
+2host03,5.0,0.0
+Switch: 2edge2,5.0,0.002222
+Switch: 2core,5.0,0.0
+2host01,5.0,0.0
+2host02,5.0,0.0
+Switch: 2edge1,5.0,0.0
+2host04,5.0,0.002222
+host03,5.0,0.0
+Switch: edge1,5.0,0.00396
+host02,5.0,0.00396
+Switch: edge2,5.0,0.0096
+host04,5.0,0.0096
+host01,5.0,0.0
+Switch: core,5.0,0.01356
+Switch: inter2,5.0,0.0
+Switch: gw1,5.0,0.01356
+Switch: gw2,5.0,0.0
+2host03,6.0,0.0
+Switch: 2edge2,6.0,0.007378
+Switch: 2core,6.0,0.0
+2host01,6.0,0.0
+2host02,6.0,0.0
+Switch: 2edge1,6.0,0.0
+2host04,6.0,0.007378
+host03,6.0,0.0
+Switch: edge1,6.0,0.004
+host02,6.0,0.004
+Switch: edge2,6.0,0.00312
+host04,6.0,0.00312
+host01,6.0,0.0
+Switch: core,6.0,0.00712
+Switch: inter2,6.0,0.0
+Switch: gw1,6.0,0.00712
+Switch: gw2,6.0,0.0
+2host03,7.0,0.0
+Switch: 2edge2,7.0,3.72E-4
+Switch: 2core,7.0,0.0
+2host01,7.0,0.0
+2host02,7.0,0.0
+Switch: 2edge1,7.0,0.0
+2host04,7.0,3.72E-4
+host03,7.0,0.0
+Switch: edge1,7.0,0.004
+host02,7.0,0.004
+Switch: edge2,7.0,0.008
+host04,7.0,0.008
+host01,7.0,0.0
+Switch: core,7.0,0.012
+Switch: inter2,7.0,0.0
+Switch: gw1,7.0,0.012
+Switch: gw2,7.0,0.0
+2host03,8.0,0.0
+Switch: 2edge2,8.0,0.008
+Switch: 2core,8.0,0.0
+2host01,8.0,0.0
+2host02,8.0,0.0
+Switch: 2edge1,8.0,0.0
+2host04,8.0,0.008
+host03,8.0,0.0
+Switch: edge1,8.0,0.004
+host02,8.0,0.004
+Switch: edge2,8.0,0.00568
+host04,8.0,0.00568
+host01,8.0,0.0
+Switch: core,8.0,0.00968
+Switch: inter2,8.0,0.0
+Switch: gw1,8.0,0.00968
+Switch: gw2,8.0,0.0
+2host03,9.0,0.0
+Switch: 2edge2,9.0,0.006196
+Switch: 2core,9.0,0.0
+2host01,9.0,0.0
+2host02,9.0,0.0
+Switch: 2edge1,9.0,0.0
+2host04,9.0,0.006196
+host03,9.0,0.0
+Switch: edge1,9.0,0.004
+host02,9.0,0.004
+Switch: edge2,9.0,0.0024
+host04,9.0,0.0024
+host01,9.0,0.0
+Switch: core,9.0,0.0064
+Switch: inter2,9.0,0.0
+Switch: gw1,9.0,0.0064
+Switch: gw2,9.0,0.0
+2host03,10.0,0.0
+Switch: 2edge2,10.0,0.00628696
+Switch: 2core,10.0,0.0
+2host01,10.0,0.0
+2host02,10.0,0.0
+Switch: 2edge1,10.0,0.0
+2host04,10.0,0.00628696
+host03,10.0,0.0
+Switch: edge1,10.0,0.004
+host02,10.0,0.004
+Switch: edge2,10.0,0.0016
+host04,10.0,0.0016
+host01,10.0,0.0
+Switch: core,10.0,0.0056
+Switch: inter2,10.0,0.0
+Switch: gw1,10.0,0.0056
+Switch: gw2,10.0,0.0
+2host03,11.0,0.0
+Switch: 2edge2,11.0,8.0E-4
+Switch: 2core,11.0,0.0
+2host01,11.0,0.0
+2host02,11.0,0.0
+Switch: 2edge1,11.0,0.0
+2host04,11.0,8.0E-4
+host03,11.0,0.0
+Switch: edge1,11.0,0.004
+host02,11.0,0.004
+Switch: edge2,11.0,8.0E-4
+host04,11.0,8.0E-4
+host01,11.0,0.0
+Switch: core,11.0,0.0048
+Switch: inter2,11.0,0.0
+Switch: gw1,11.0,0.0048
+Switch: gw2,11.0,0.0
+2host03,12.0,0.0
+Switch: 2edge2,12.0,8.0E-4
+Switch: 2core,12.0,0.0
+2host01,12.0,0.0
+2host02,12.0,0.0
+Switch: 2edge1,12.0,0.0
+2host04,12.0,8.0E-4
+host03,12.0,0.0
+Switch: edge1,12.0,0.004
+host02,12.0,0.004
+Switch: edge2,12.0,8.0E-4
+host04,12.0,8.0E-4
+host01,12.0,0.0
+Switch: core,12.0,0.0048
+Switch: inter2,12.0,0.0
+Switch: gw1,12.0,0.0048
+Switch: gw2,12.0,0.0
+2host03,13.0,0.0
+Switch: 2edge2,13.0,0.001524
+Switch: 2core,13.0,0.0
+2host01,13.0,0.0
+2host02,13.0,0.0
+Switch: 2edge1,13.0,0.0
+2host04,13.0,0.001524
+host03,13.0,0.0
+Switch: edge1,13.0,0.00244
+host02,13.0,0.00244
+Switch: edge2,13.0,0.0024
+host04,13.0,0.0024
+host01,13.0,0.0
+Switch: core,13.0,0.00484
+Switch: inter2,13.0,0.0
+Switch: gw1,13.0,0.00484
+Switch: gw2,13.0,0.0
+2host03,14.0,0.0
+Switch: 2edge2,14.0,0.001676
+Switch: 2core,14.0,0.0
+2host01,14.0,0.0
+2host02,14.0,0.0
+Switch: 2edge1,14.0,0.0
+2host04,14.0,0.001676
+host03,14.0,0.0
+Switch: edge1,14.0,8.0E-4
+host02,14.0,8.0E-4
+Switch: edge2,14.0,8.0E-4
+host04,14.0,8.0E-4
+host01,14.0,0.0
+Switch: core,14.0,0.0016
+Switch: inter2,14.0,0.0
+Switch: gw1,14.0,0.0016
+Switch: gw2,14.0,0.0
+2host03,15.0,0.0
+Switch: 2edge2,15.0,1.24E-4
+Switch: 2core,15.0,0.0
+2host01,15.0,0.0
+2host02,15.0,0.0
+Switch: 2edge1,15.0,0.0
+2host04,15.0,1.24E-4
+host03,15.0,0.0
+Switch: edge1,15.0,0.0016
+host02,15.0,0.0016
+Switch: edge2,15.0,0.0016
+host04,15.0,0.0016
+host01,15.0,0.0
+Switch: core,15.0,0.0032
+Switch: inter2,15.0,0.0
+Switch: gw1,15.0,0.0032
+Switch: gw2,15.0,0.0
+2host03,16.0,0.0
+Switch: 2edge2,16.0,0.0016
+Switch: 2core,16.0,0.0
+2host01,16.0,0.0
+2host02,16.0,0.0
+Switch: 2edge1,16.0,0.0
+2host04,16.0,0.0016
+host03,16.0,0.0
+Switch: edge1,16.0,8.0E-4
+host02,16.0,8.0E-4
+Switch: edge2,16.0,8.0E-4
+host04,16.0,8.0E-4
+host01,16.0,0.0
+Switch: core,16.0,0.0016
+Switch: inter2,16.0,0.0
+Switch: gw1,16.0,0.0016
+Switch: gw2,16.0,0.0
+2host03,17.0,0.0
+Switch: 2edge2,17.0,0.0022
+Switch: 2core,17.0,0.0
+2host01,17.0,0.0
+2host02,17.0,0.0
+Switch: 2edge1,17.0,0.0
+2host04,17.0,0.0022
+host03,17.0,0.0
+Switch: edge1,17.0,0.0016
+host02,17.0,0.0016
+Switch: edge2,17.0,0.0016
+host04,17.0,0.0016
+host01,17.0,0.0
+Switch: core,17.0,0.0032
+Switch: inter2,17.0,0.0
+Switch: gw1,17.0,0.0032
+Switch: gw2,17.0,0.0
+2host03,18.0,0.0
+Switch: 2edge2,18.0,0.001
+Switch: 2core,18.0,0.0
+2host01,18.0,0.0
+2host02,18.0,0.0
+Switch: 2edge1,18.0,0.0
+2host04,18.0,0.001
+host03,18.0,0.0
+Switch: edge1,18.0,0.00276
+host02,18.0,0.00276
+Switch: edge2,18.0,0.00276
+host04,18.0,0.00276
+host01,18.0,0.0
+Switch: core,18.0,0.00552
+Switch: inter2,18.0,0.0
+Switch: gw1,18.0,0.00552
+Switch: gw2,18.0,0.0
+2host03,19.0,0.0
+Switch: 2edge2,19.0,0.002276
+Switch: 2core,19.0,0.0
+2host01,19.0,0.0
+2host02,19.0,0.0
+Switch: 2edge1,19.0,0.0
+2host04,19.0,0.002276
+host03,19.0,0.0
+Switch: edge1,19.0,4.4E-4
+host02,19.0,4.4E-4
+Switch: edge2,19.0,4.4E-4
+host04,19.0,4.4E-4
+host01,19.0,0.0
+Switch: core,19.0,8.8E-4
+Switch: inter2,19.0,0.0
+Switch: gw1,19.0,8.8E-4
+Switch: gw2,19.0,0.0
+2host03,20.0,0.0
+Switch: 2edge2,20.0,0.0
+Switch: 2core,20.0,0.0
+2host01,20.0,0.0
+2host02,20.0,0.0
+Switch: 2edge1,20.0,0.0
+2host04,20.0,0.0
+host03,20.0,0.0
+Switch: edge1,20.0,0.0
+host02,20.0,0.0
+Switch: edge2,20.0,0.0
+host04,20.0,0.0
+host01,20.0,0.0
+Switch: core,20.0,0.0
+Switch: inter2,20.0,0.0
+Switch: gw1,20.0,0.0
+Switch: gw2,20.0,0.0
+2host03,30.0,0.0
+Switch: 2edge2,30.0,0.0
+Switch: 2core,30.0,0.01
+2host01,30.0,0.005
+2host02,30.0,0.005
+Switch: 2edge1,30.0,0.01
+2host04,30.0,0.0
+host03,30.0,0.0
+Switch: edge1,30.0,0.0
+host02,30.0,0.0
+Switch: edge2,30.0,0.0
+host04,30.0,0.0
+host01,30.0,0.0
+Switch: core,30.0,0.0
+Switch: inter2,30.0,0.01
+Switch: gw1,30.0,0.0
+Switch: gw2,30.0,0.01
+2host03,100.0,0.0
+Switch: 2edge2,100.0,0.0
+Switch: 2core,100.0,0.01
+2host01,100.0,0.005
+2host02,100.0,0.005
+Switch: 2edge1,100.0,0.01
+2host04,100.0,0.0
+host03,100.0,0.0
+Switch: edge1,100.0,0.0
+host02,100.0,0.0
+Switch: edge2,100.0,0.0
+host04,100.0,0.0
+host01,100.0,0.0
+Switch: core,100.0,0.0
+Switch: inter2,100.0,0.01
+Switch: gw1,100.0,0.0
+Switch: gw2,100.0,0.01
+2host03,101.0,0.0
+Switch: 2edge2,101.0,0.001724
+Switch: 2core,101.0,0.0
+2host01,101.0,0.0
+2host02,101.0,0.0
+Switch: 2edge1,101.0,0.0
+2host04,101.0,0.001724
+host03,101.0,0.0
+Switch: edge1,101.0,0.0032
+host02,101.0,0.0032
+Switch: edge2,101.0,0.0032
+host04,101.0,0.0032
+host01,101.0,0.0
+Switch: core,101.0,0.0064
+Switch: inter2,101.0,0.0
+Switch: gw1,101.0,0.0064
+Switch: gw2,101.0,0.0
+2host03,102.0,0.0
+Switch: 2edge2,102.0,0.001476
+Switch: 2core,102.0,0.0
+2host01,102.0,0.0
+2host02,102.0,0.0
+Switch: 2edge1,102.0,0.0
+2host04,102.0,0.001476
+host03,102.0,0.0
+Switch: edge1,102.0,0.0
+host02,102.0,0.0
+Switch: edge2,102.0,0.0
+host04,102.0,0.0
+host01,102.0,0.0
+Switch: core,102.0,0.0
+Switch: inter2,102.0,0.0
+Switch: gw1,102.0,0.0
+Switch: gw2,102.0,0.0
