@@ -69,11 +69,11 @@ Workload_ID,    App_ID,SubmitTime,Pr:StartTime,Pr:EndTime,Pr:CPUTime,   Pr:Size,
 #Over transmissions:57
 #Over transmissions per cent:1
 #======================================
-#Total serve time:66.57270666666673
-#CPU serve time:1.5196533333334434
-#Network serve time:65.05305333333331
-#Average total serve time:1.1679422222222233
-#Average CPU serve time per workload:0.02666058479532357
-#Average network serve time per workload:1.1412816374269001
-#Average CPU serve time per Cloudlet:0.013330292397661784
-#Average network serve time per transmission:1.1412816374269001
+#Total serve time:66.57299999999998
+#CPU serve time:1.5200000000001124
+#Network serve time:65.05299999999987
+#Average total serve time:1.1679473684210522
+#Average CPU serve time per workload:0.02666666666666864
+#Average network serve time per workload:1.1412807017543836
+#Average CPU serve time per Cloudlet:0.01333333333333432
+#Average network serve time per transmission:1.1412807017543836

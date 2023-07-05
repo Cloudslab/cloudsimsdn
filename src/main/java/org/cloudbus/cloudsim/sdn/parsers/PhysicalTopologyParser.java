@@ -29,6 +29,7 @@ import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.AggregationSwitch;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.CoreSwitch;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.EdgeSwitch;
+//import org.cloudbus.cloudsim.network.datacenter.EdgeSwitch;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.GatewaySwitch;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.IntercloudSwitch;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.Switch;
@@ -42,7 +43,7 @@ import com.google.common.collect.Multimap;
 /**
  * This class parses Physical Topology JSON file.
  * It supports multiple data centers.
- * 
+ *
  * @author Jungmin Son
  * @since CloudSimSDN 1.0
  */
@@ -54,12 +55,12 @@ public class PhysicalTopologyParser {
 	private List<Link> links = new ArrayList<Link>();
 	private Hashtable<String, Node> nameNodeTable = new Hashtable<String, Node>();
 	private HostFactory hostFactory = null;
-	
+
 	public PhysicalTopologyParser(String jsonFilename, HostFactory hostFactory) {
 		sdnHosts = HashMultimap.create();
 		switches = HashMultimap.create();
 		this.hostFactory = hostFactory;
-		
+
 		this.filename = jsonFilename;
 	}
 
@@ -67,16 +68,16 @@ public class PhysicalTopologyParser {
 		PhysicalTopologyParser parser = new PhysicalTopologyParser(physicalTopologyFilename, new HostFactorySimple());
 		Map<String, String> dcNameType = parser.parseDatacenters(); // DC Name -> DC Type
 		Map<String, NetworkOperatingSystem> netOsList = new HashMap<String, NetworkOperatingSystem>();
-		
+
 		for(String dcName: dcNameType.keySet()) {
 			NetworkOperatingSystem nos;
 			nos = new NetworkOperatingSystemSimple("NOS_"+dcName);
-			
+
 			netOsList.put(dcName, nos);
 			parser.parseNode(dcName);
 		}
 		parser.parseLink();
-		
+
 		for(String dcName: dcNameType.keySet()) {
 			if(!"network".equals(dcNameType.get(dcName))) {
 				NetworkOperatingSystem nos = netOsList.get(dcName);
@@ -92,68 +93,68 @@ public class PhysicalTopologyParser {
 
 		return netOsList;
 	}
-	
+
 	public static void loadPhysicalTopologySingleDC(String physicalTopologyFilename, NetworkOperatingSystem nos, HostFactory hostFactory) {
 		PhysicalTopologyParser parser = new PhysicalTopologyParser(physicalTopologyFilename, hostFactory);
 		parser.parse(nos);
 		nos.configurePhysicalTopology(parser.getHosts(), parser.getSwitches(), parser.getLinks());
 	}
-	
+
 	public Collection<SDNHost> getHosts() {
 		return this.sdnHosts.values();
 	}
-	
+
 	public Collection<SDNHost> getHosts(String dcName) {
 		return this.sdnHosts.get(dcName);
 	}
-	
+
 	public Collection<Switch> getSwitches() {
 		return this.switches.values();
 	}
-	
+
 	public Collection<Switch> getSwitches(String dcName) {
 		return this.switches.get(dcName);
 	}
-	
+
 	public List<Link> getLinks() {
 		return this.links;
 	}
-	
+
 	public Map<String, String> parseDatacenters() {
 		HashMap<String, String> dcNameType = new HashMap<String, String>();
 		try {
     		JSONObject doc = (JSONObject) JSONValue.parse(new FileReader(this.filename));
-    		
+
     		JSONArray datacenters = (JSONArray) doc.get("datacenters");
     		@SuppressWarnings("unchecked")
-			Iterator<JSONObject> iter = datacenters.iterator(); 
+			Iterator<JSONObject> iter = datacenters.iterator();
 			while(iter.hasNext()){
 				JSONObject node = iter.next();
 				String dcName = (String) node.get("name");
 				String type = (String) node.get("type");
-				
+
 				dcNameType.put(dcName, type);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
-		return dcNameType;		
+
+		return dcNameType;
 	}
-	
+
 	private void parse(NetworkOperatingSystem nos) {
 		parseNode(null);
 		parseLink();
 	}
-	
+
 	public void parseNode(String datacenterName) {
 		try {
     		JSONObject doc = (JSONObject) JSONValue.parse(new FileReader(this.filename));
-    		
+
     		// Get Nodes (Switches and Hosts)
     		JSONArray nodes = (JSONArray) doc.get("nodes");
     		@SuppressWarnings("unchecked")
-			Iterator<JSONObject> iter =nodes.iterator(); 
+			Iterator<JSONObject> iter =nodes.iterator();
 			while(iter.hasNext()){
 				JSONObject node = iter.next();
 				String nodeType = (String) node.get("type");
@@ -162,18 +163,18 @@ public class PhysicalTopologyParser {
 				if(datacenterName != null && !datacenterName.equals(dcName)) {
 					continue;
 				}
-				
+
 				if(nodeType.equalsIgnoreCase("host")){
 					////////////////////////////////////////
 					// Host
 					////////////////////////////////////////
-					
+
 					long pes = (Long) node.get("pes");
 					long mips = (Long) node.get("mips");
 					int ram = new BigDecimal((Long)node.get("ram")).intValueExact();
 					long storage = (Long) node.get("storage");
 					long bw = new BigDecimal((Long)node.get("bw")).intValueExact();
-					
+
 					int num = 1;
 					if (node.get("nums")!= null)
 						num = new BigDecimal((Long)node.get("nums")).intValueExact();
@@ -181,21 +182,21 @@ public class PhysicalTopologyParser {
 					for(int n = 0; n< num; n++) {
 						String nodeName2 = nodeName;
 						if(num >1) nodeName2 = nodeName + n;
-						
+
 						SDNHost sdnHost = hostFactory.createHost(ram, bw, storage, pes, mips, nodeName);
 						nameNodeTable.put(nodeName2, sdnHost);
 						//hostId++;
-						
+
 						this.sdnHosts.put(dcName, sdnHost);
 					}
-					
+
 				} else {
 					////////////////////////////////////////
 					// Switch
 					////////////////////////////////////////
-					
+
 					int MAX_PORTS = 256;
-							
+
 					long bw = new BigDecimal((Long)node.get("bw")).longValueExact();
 					long iops = (Long) node.get("iops");
 					int upports = MAX_PORTS;
@@ -205,7 +206,7 @@ public class PhysicalTopologyParser {
 					if (node.get("downports")!= null)
 						downports = new BigDecimal((Long)node.get("downports")).intValueExact();
 					Switch sw = null;
-					
+
 					if(nodeType.equalsIgnoreCase("core")) {
 						sw = new CoreSwitch(nodeName, bw, iops, upports, downports);
 					} else if (nodeType.equalsIgnoreCase("aggregate")){
@@ -223,7 +224,7 @@ public class PhysicalTopologyParser {
 					} else {
 						throw new IllegalArgumentException("No switch found!");
 					}
-					
+
 					if(sw != null) {
 						nameNodeTable.put(nodeName, sw);
 						this.switches.put(dcName, sw);
@@ -234,32 +235,32 @@ public class PhysicalTopologyParser {
 			e.printStackTrace();
 		}
 	}
-		
+
 	public void parseLink() {
 		try {
     		JSONObject doc = (JSONObject) JSONValue.parse(new FileReader(this.filename));
-    		
+
 			JSONArray links = (JSONArray) doc.get("links");
 			@SuppressWarnings("unchecked")
-			Iterator<JSONObject> linksIter =links.iterator(); 
+			Iterator<JSONObject> linksIter =links.iterator();
 			while(linksIter.hasNext()){
 				JSONObject link = linksIter.next();
-				String src = (String) link.get("source");  
+				String src = (String) link.get("source");
 				String dst = (String) link.get("destination");
 				double lat = (Double) link.get("latency");
-				
+
 				Node srcNode = nameNodeTable.get(src);
 				Node dstNode = nameNodeTable.get(dst);
-				
+
 				Link l = new Link(srcNode, dstNode, lat, -1); // Temporary Link (blueprint) to create the real one in NOS
 				this.links.add(l);
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public Hashtable<String, Node> getNameNode() {
 		return nameNodeTable;
 	}

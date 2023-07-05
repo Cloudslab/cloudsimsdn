@@ -35,20 +35,20 @@ import org.cloudbus.cloudsim.sdn.workload.WorkloadResultWriter;
 /**
  * Broker class for CloudSimSDN example. This class represents a broker (Service Provider)
  * who uses the Cloud data center.
- * 
+ *
  * @author Jungmin Son
  * @since CloudSimSDN 1.0
  */
 public class SDNBroker extends SimEntity {
-	
+
 	public static double experimentStartTime = -1;
 	public static double experimentFinishTime = Double.POSITIVE_INFINITY;
 
 	public static int lastAppId = 0;
-	
+
 	private static Map<String, SDNDatacenter> datacenters = new HashMap<String, SDNDatacenter>();
 	private static Map<Integer, SDNDatacenter> vmIdToDc = new HashMap<Integer, SDNDatacenter>();
-	
+
 	private String applicationFileName = null;
 	private HashMap<WorkloadParser, Integer> workloadId=null;
 	private HashMap<Long, Workload> requestMap=null;
@@ -60,7 +60,7 @@ public class SDNBroker extends SimEntity {
 		workloadId = new HashMap<WorkloadParser, Integer>();
 		requestMap = new HashMap<Long, Workload>();
 	}
-	
+
 	@Override
 	public void startEntity() {
 		sendNow(getId(), CloudSimTagsSDN.APPLICATION_SUBMIT, this.applicationFileName);
@@ -75,20 +75,20 @@ public class SDNBroker extends SimEntity {
 		}
 	}
 	public void printResult() {
-		int numWorkloads=0, numWorkloadsCPU=0, numWorkloadsNetwork =0, 
+		int numWorkloads=0, numWorkloadsCPU=0, numWorkloadsNetwork =0,
 				numWorkloadsOver=0, numWorkloadsNetworkOver=0, numWorkloadsCPUOver=0, numTimeout=0;
 		double totalServetime=0, totalServetimeCPU=0, totalServetimeNetwork=0;
-		
-		// For group analysis		
+
+		// For group analysis
 		int[] groupNumWorkloads = new int[SDNBroker.lastAppId];
 		double[] groupTotalServetime = new double[SDNBroker.lastAppId];
 		double[] groupTotalServetimeCPU = new double[SDNBroker.lastAppId];
 		double[] groupTotalServetimeNetwork = new double[SDNBroker.lastAppId];
-		
+
 		for(WorkloadParser wp:workloadId.keySet()) {
-			WorkloadResultWriter wrw = wp.getResultWriter(); 
+			WorkloadResultWriter wrw = wp.getResultWriter();
 			wrw.printStatistics();
-			
+
 			numWorkloads += wrw.getWorklaodNum();
 			numTimeout +=  wrw.getTimeoutNum();
 			numWorkloadsOver += wrw.getWorklaodNumOvertime();
@@ -96,18 +96,18 @@ public class SDNBroker extends SimEntity {
 			numWorkloadsCPUOver += wrw.getWorklaodNumCPUOvertime();
 			numWorkloadsNetwork += wrw.getWorklaodNumNetwork();
 			numWorkloadsNetworkOver += wrw.getWorklaodNumNetworkOvertime();
-			
+
 			totalServetime += wrw.getServeTime();
 			totalServetimeCPU += wrw.getServeTimeCPU();
 			totalServetimeNetwork += wrw.getServeTimeNetwork();
-			
+
 			// For group analysis
 			groupNumWorkloads[wp.getGroupId()] += wrw.getWorklaodNum();
 			groupTotalServetime[wp.getGroupId()] += wrw.getServeTime();
 			groupTotalServetimeCPU[wp.getGroupId()] += wrw.getServeTimeCPU();
 			groupTotalServetimeNetwork[wp.getGroupId()] += wrw.getServeTimeNetwork();
 		}
-		
+
 		Log.printLine("============= SDNBroker.printResult() =============================");
 		Log.printLine("Workloads Num: "+ numWorkloads);
 		Log.printLine("Workloads CPU Num: "+ numWorkloadsCPU);
@@ -129,7 +129,7 @@ public class SDNBroker extends SimEntity {
 			Log.printLine("Avg serve time Network: "+ totalServetimeNetwork/numWorkloadsNetwork);
 			Log.printLine("Network overtime percentage: "+ (double)numWorkloadsNetworkOver/numWorkloadsNetwork);
 		}
-			
+
 		// For group analysis
 		Log.printLine("============= SDNBroker.printResult() Group analysis =======================");
 		for(int i=0; i<SDNBroker.lastAppId; i++) {
@@ -140,17 +140,17 @@ public class SDNBroker extends SimEntity {
 				Log.printLine("Group num: "+i+", groupTotalServetimeNetwork:"+groupTotalServetimeNetwork[i]);
 				Log.printLine("Group num: "+i+", group avg Serve time:"+groupTotalServetime[i]/groupNumWorkloads[i]);
 				Log.printLine("Group num: "+i+", group avg Serve time CPU:"+groupTotalServetimeCPU[i]/groupNumWorkloads[i]);
-				Log.printLine("Group num: "+i+", group avg Serve time Network:"+groupTotalServetimeNetwork[i]/groupNumWorkloads[i]);				
+				Log.printLine("Group num: "+i+", group avg Serve time Network:"+groupTotalServetimeNetwork[i]/groupNumWorkloads[i]);
 			}
-			
+
 		}
 	}
-	
+
 	public void submitDeployApplication(SDNDatacenter dc, String filename) {
 		SDNBroker.datacenters.put(dc.getName(), dc); // default DC
 		this.applicationFileName = filename;
 	}
-	
+
 	public void submitDeployApplication(Collection<SDNDatacenter> dcs, String filename) {
 		for(SDNDatacenter dc: dcs) {
 			if(dc != null)
@@ -158,7 +158,7 @@ public class SDNBroker extends SimEntity {
 		}
 		this.applicationFileName = filename;
 	}
-	
+
 	public void submitRequests(String filename) {
 		this.workloadFileNames.add(filename);
 	}
@@ -166,33 +166,33 @@ public class SDNBroker extends SimEntity {
 	@Override
 	public void processEvent(SimEvent ev) {
 		int tag = ev.getTag();
-		
+
 		switch(tag){
 			case CloudSimTags.VM_CREATE_ACK:
 				processVmCreate(ev);
 				break;
-			case CloudSimTagsSDN.APPLICATION_SUBMIT: 
-				processApplication(ev.getSource(),(String) ev.getData()); 
+			case CloudSimTagsSDN.APPLICATION_SUBMIT:
+				processApplication(ev.getSource(),(String) ev.getData());
 				break;
 			case CloudSimTagsSDN.APPLICATION_SUBMIT_ACK:
-				applicationSubmitCompleted(ev); 
+				applicationSubmitCompleted(ev);
 				break;
 			case CloudSimTagsSDN.REQUEST_COMPLETED:
-				requestCompleted(ev); 
+				requestCompleted(ev);
 				break;
 			case CloudSimTagsSDN.REQUEST_FAILED:
-				requestFailed(ev); 
+				requestFailed(ev);
 				break;
 			case CloudSimTagsSDN.REQUEST_OFFER_MORE:
 				requestOfferMode(ev);
-				break;					
-			default: 
+				break;
+			default:
 				System.out.println("Unknown event received by "+super.getName()+". Tag:"+ev.getTag());
 				break;
 		}
 	}
 	private void processVmCreate(SimEvent ev) {
-		
+
 	}
 
 	private void requestFailed(SimEvent ev) {
@@ -201,31 +201,33 @@ public class SDNBroker extends SimEntity {
 		wl.failed = true;
 		wl.writeResult();
 	}
-	
+
 	private void requestCompleted(SimEvent ev) {
 		Request req = (Request) ev.getData();
 		Workload wl = requestMap.remove(req.getRequestId());
 		wl.writeResult();
 	}
-	
+
 	private void applicationSubmitCompleted(SimEvent ev) {
 		for(String filename: this.workloadFileNames) {
 			WorkloadParser wParser = startWorkloadParser(filename);
 			workloadId.put(wParser, SDNBroker.lastAppId);
-			SDNBroker.lastAppId++;
-			
+			SDNBroker.lastAppId++; // 第几个文件对应的 workload
 			scheduleRequest(wParser);
 		}
 	}
-	
+
+	/**
+	 * 建立虚拟拓扑
+	 */
 	private void processApplication(int userId, String vmsFileName){
-		SDNDatacenter defaultDC = SDNBroker.datacenters.entrySet().iterator().next().getValue();		
+		SDNDatacenter defaultDC = SDNBroker.datacenters.entrySet().iterator().next().getValue();
 		VirtualTopologyParser parser = new VirtualTopologyParser(defaultDC.getName(), vmsFileName, userId);
-		
+		// 对于每个 dc，根据拓扑图新建 vm(s)。由对应的 nos管理。
 		for(String dcName: SDNBroker.datacenters.keySet()) {
 			SDNDatacenter dc = SDNBroker.datacenters.get(dcName);
 			NetworkOperatingSystem nos = dc.getNOS();
-			
+
 			for(SDNVm vm:parser.getVmList(dcName)) {
 				nos.addVm(vm);
 				if(vm instanceof ServiceFunction) {
@@ -235,11 +237,11 @@ public class SDNBroker extends SimEntity {
 				SDNBroker.vmIdToDc.put(vm.getId(), dc);
 			}
 		}
-			
+		// 根据文件建立流（links）的 map
 		for(FlowConfig arc:parser.getArcList()) {
 			SDNDatacenter srcDc = SDNBroker.vmIdToDc.get(arc.getSrcId());
 			SDNDatacenter dstDc = SDNBroker.vmIdToDc.get(arc.getDstId());
-			
+
 			if(srcDc.equals(dstDc)) {
 				// Intra-DC traffic: create a virtual flow inside the DC
 				srcDc.getNOS().addFlow(arc);
@@ -265,46 +267,54 @@ public class SDNBroker extends SimEntity {
 				dstDc.getNOS().addSFCPolicy(policy);
 			}
 		}
-		
+
 		for(String dcName: SDNBroker.datacenters.keySet()) {
 			SDNDatacenter dc = SDNBroker.datacenters.get(dcName);
 			NetworkOperatingSystem nos = dc.getNOS();
 			nos.startDeployApplicatoin();
 		}
-		
+
 		send(userId, 0, CloudSimTagsSDN.APPLICATION_SUBMIT_ACK, vmsFileName);
 	}
-	
+
 	public static SDNDatacenter getDataCenterByName(String dcName) {
 		return SDNBroker.datacenters.get(dcName);
 	}
-	
+
 	public static SDNDatacenter getDataCenterByVmID(int vmId) {
 		return SDNBroker.vmIdToDc.get(vmId);
 	}
-	
+
 	private void requestOfferMode(SimEvent ev) {
 		WorkloadParser wp = (WorkloadParser) ev.getData();
 		scheduleRequest(wp);
 	}
-	
+
+	/**
+	 * parser初始化时模拟时间为-1，结束时间为inf
+	 */
 	private WorkloadParser startWorkloadParser(String workloadFile) {
-		WorkloadParser workParser = new WorkloadParser(workloadFile, this.getId(), new UtilizationModelFull(), 
+		WorkloadParser workParser = new WorkloadParser(workloadFile, this.getId(), new UtilizationModelFull(),
 				NetworkOperatingSystem.getVmNameToIdMap(), NetworkOperatingSystem.getFlowNameToIdMap());
-		
+
 		//System.err.println("SDNBroker.startWorkloadParser : DEBUGGGGGGGGGGG REMOVE here!");
 		workParser.forceStartTime(experimentStartTime);
 		workParser.forceFinishTime(experimentFinishTime);
 		return workParser;
-		
+
 	}
+
+	/**
+	 * scheduleRequest为一个 workload文件创建 requests
+	 */
 	private void scheduleRequest(WorkloadParser workParser) {
+		// 这里指的是appID
 		int workloadId = this.workloadId.get(workParser);
 		workParser.parseNextWorkloads();
 		List<Workload> parsedWorkloads = workParser.getParsedWorkloads();
-		
+
 		if(parsedWorkloads.size() > 0) {
-			// Schedule the parsed workloads 
+			// Schedule the parsed workloads
 			for(Workload wl: parsedWorkloads) {
 				double scehduleTime = wl.time - CloudSim.clock();
 				if(scehduleTime <0) {
@@ -317,16 +327,16 @@ public class SDNBroker extends SimEntity {
 				send(dc.getId(), scehduleTime, CloudSimTagsSDN.REQUEST_SUBMIT, wl.request);
 				requestMap.put(wl.request.getTerminalRequest().getRequestId(), wl);
 			}
-			
+
 //			this.cloudletList.addAll(workParser.getParsedCloudlets());
 //			this.workloads.addAll(parsedWorkloads);
-			
+
 			// Schedule the next workload submission
 			Workload lastWorkload = parsedWorkloads.get(parsedWorkloads.size()-1);
 			send(this.getId(), lastWorkload.time - CloudSim.clock(), CloudSimTagsSDN.REQUEST_OFFER_MORE, workParser);
 		}
 	}
-	
+
 	public List<Workload> getWorkloads() {
 //		return workloads;
 		return null;

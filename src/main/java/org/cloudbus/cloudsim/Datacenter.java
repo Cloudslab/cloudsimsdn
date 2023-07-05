@@ -1,7 +1,7 @@
 /*
  * Title: CloudSim Toolkit Description: CloudSim (Cloud Simulation) Toolkit for Modeling and
  * Simulation of Clouds Licence: GPL - http://www.gnu.org/copyleft/gpl.html
- * 
+ *
  * Copyright (c) 2009-2012, The University of Melbourne, Australia
  */
 
@@ -20,16 +20,16 @@ import org.cloudbus.cloudsim.core.SimEvent;
 
 /**
  * Datacenter class is a CloudResource whose hostList are virtualized. It deals with processing of
- * VM queries (i.e., handling of VMs) instead of processing Cloudlet-related queries. 
- * 
- * So, even though an AllocPolicy will be instantiated (in the init() method of the superclass, 
- * it will not be used, as processing of cloudlets are handled by the CloudletScheduler and 
+ * VM queries (i.e., handling of VMs) instead of processing Cloudlet-related queries.
+ *
+ * So, even though an AllocPolicy will be instantiated (in the init() method of the superclass,
+ * it will not be used, as processing of cloudlets are handled by the CloudletScheduler and
  * processing of VirtualMachines are handled by the VmAllocationPolicy.
- * 
+ *
  * @author Rodrigo N. Calheiros
  * @author Anton Beloglazov
  * @since CloudSim Toolkit 1.0
- * 
+ *
  * @todo In fact, there isn't the method init() in the super class, as stated in
  * the documentation here. An AllocPolicy isn't being instantiated there.
  * The last phrase of the class documentation appears to be out-of-date or wrong.
@@ -39,7 +39,7 @@ public class Datacenter extends SimEntity {
 	/** The characteristics. */
 	private DatacenterCharacteristics characteristics;
 
-	/** The regional Cloud Information Service (CIS) name. 
+	/** The regional Cloud Information Service (CIS) name.
          * @see org.cloudbus.cloudsim.core.CloudInformationService
          */
 	private String regionalCisName;
@@ -61,7 +61,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Allocates a new Datacenter object.
-	 * 
+	 *
 	 * @param name the name to be associated with this entity (as required by the super class)
 	 * @param characteristics the characteristics of the datacenter to be created
 	 * @param storageList a List of storage elements, for data simulation
@@ -72,10 +72,10 @@ public class Datacenter extends SimEntity {
 	 *    <li>creating this entity before initializing CloudSim package
 	 *    <li>this entity name is <tt>null</tt> or empty
 	 *    <li>this entity has <tt>zero</tt> number of PEs (Processing Elements). <br/>
-	 *    No PEs mean the Cloudlets can't be processed. A CloudResource must contain 
+	 *    No PEs mean the Cloudlets can't be processed. A CloudResource must contain
 	 *    one or more Machines. A Machine must contain one or more PEs.
 	 *  </ul>
-         * 
+         *
 	 * @pre name != null
 	 * @pre resource != null
 	 * @post $none
@@ -104,7 +104,7 @@ public class Datacenter extends SimEntity {
                     throw new Exception(super.getName()
                         + " : Error - this entity has no PEs. Therefore, can't process any Cloudlets.");
 		}
-		
+
 		if(getCharacteristics().getNumberOfPes()==0 && getCharacteristics().getHostList().size() == 0) {
 			Log.printLine(name+": inter-cloud networking topology created...");
 		}
@@ -116,10 +116,10 @@ public class Datacenter extends SimEntity {
 	/**
 	 * Overrides this method when making a new and different type of resource. <br>
 	 * <b>NOTE:</b> You do not need to override {@link #body()} method, if you use this method.
-	 * 
+	 *
 	 * @pre $none
 	 * @post $none
-         * 
+         *
          * @todo This method doesn't appear to be used
 	 */
 	protected void registerOtherEntity() {
@@ -259,6 +259,7 @@ public class Datacenter extends SimEntity {
 
 			// other unknown tags are processed by this method
 			default:
+				// 专门给 SDNdatacenter的 events
 				processOtherEvent(ev);
 				break;
 		}
@@ -266,9 +267,9 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Process a file deletion request.
-	 * 
+	 *
 	 * @param ev information about the event just happened
-	 * @param ack indicates if the event's sender expects to receive 
+	 * @param ack indicates if the event's sender expects to receive
          * an acknowledge message when the event finishes to be processed
 	 */
 	protected void processDataDelete(SimEvent ev, boolean ack) {
@@ -305,9 +306,9 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Process a file inclusion request.
-	 * 
+	 *
 	 * @param ev information about the event just happened
-	 * @param ack indicates if the event's sender expects to receive 
+	 * @param ack indicates if the event's sender expects to receive
          * an acknowledge message when the event finishes to be processed
 	 */
 	protected void processDataAdd(SimEvent ev, boolean ack) {
@@ -343,9 +344,9 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Processes a ping request.
-	 * 
+	 *
 	 * @param ev information about the event just happened
-         * 
+         *
 	 * @pre ev != null
 	 * @post $none
 	 */
@@ -361,9 +362,9 @@ public class Datacenter extends SimEntity {
 	/**
 	 * Process the event for an User/Broker who wants to know the status of a Cloudlet. This
 	 * Datacenter will then send the status back to the User/Broker.
-	 * 
+	 *
 	 * @param ev information about the event just happened
-         * 
+         *
 	 * @pre ev != null
 	 * @post $none
 	 */
@@ -418,9 +419,9 @@ public class Datacenter extends SimEntity {
          * the {@link #processEvent(org.cloudbus.cloudsim.core.SimEvent)} method.
          * This method should be overridden by subclasses in other to process
          * new defined events.
-	 * 
+	 *
 	 * @param ev information about the event just happened
-         * 
+         *
 	 * @pre $none
 	 * @post $none
 	 */
@@ -433,11 +434,11 @@ public class Datacenter extends SimEntity {
 	/**
 	 * Process the event for an User/Broker who wants to create a VM in this Datacenter. This
 	 * Datacenter will then send the status back to the User/Broker.
-	 * 
+	 *
 	 * @param ev information about the event just happened
-	 * @param ack indicates if the event's sender expects to receive 
+	 * @param ack indicates if the event's sender expects to receive
          * an acknowledge message when the event finishes to be processed
-         * 
+         *
 	 * @pre ev != null
 	 * @post $none
 	 */
@@ -476,11 +477,11 @@ public class Datacenter extends SimEntity {
 	 * Process the event for an User/Broker who wants to destroy a VM previously created in this
 	 * Datacenter. This Datacenter may send, upon request, the status back to the
 	 * User/Broker.
-	 * 
+	 *
 	 * @param ev information about the event just happened
-	 * @param ack indicates if the event's sender expects to receive 
+	 * @param ack indicates if the event's sender expects to receive
          * an acknowledge message when the event finishes to be processed
-         * 
+         *
 	 * @pre ev != null
 	 * @post $none
 	 */
@@ -503,11 +504,11 @@ public class Datacenter extends SimEntity {
 	/**
 	 * Process the event for an User/Broker who wants to migrate a VM. This Datacenter will
 	 * then send the status back to the User/Broker.
-	 * 
+	 *
 	 * @param ev information about the event just happened
-	 * @param ack indicates if the event's sender expects to receive 
+	 * @param ack indicates if the event's sender expects to receive
          * an acknowledge message when the event finishes to be processed
-         * 
+         *
 	 * @pre ev != null
 	 * @post $none
 	 */
@@ -522,7 +523,7 @@ public class Datacenter extends SimEntity {
 
 		Vm vm = (Vm) migrate.get("vm");
 		Host host = (Host) migrate.get("host");
-		
+
 		//destroy VM in src host
 		getVmAllocationPolicy().deallocateHostForVm(vm);
 		host.removeMigratingInVm(vm);
@@ -555,10 +556,10 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Processes a Cloudlet based on the event type.
-	 * 
+	 *
 	 * @param ev information about the event just happened
 	 * @param type event type
-         * 
+         *
 	 * @pre ev != null
 	 * @pre type > 0
 	 * @post $none
@@ -622,10 +623,10 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Process the event for an User/Broker who wants to move a Cloudlet.
-	 * 
+	 *
 	 * @param receivedData information about the migration
 	 * @param type event type
-         * 
+         *
 	 * @pre receivedData != null
 	 * @pre type > 0
 	 * @post $none
@@ -693,11 +694,11 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Processes a Cloudlet submission.
-	 * 
+	 *
 	 * @param ev information about the event just happened
-	 * @param ack indicates if the event's sender expects to receive 
+	 * @param ack indicates if the event's sender expects to receive
          * an acknowledge message when the event finishes to be processed
-         * 
+         *
 	 * @pre ev != null
 	 * @post $none
 	 */
@@ -739,7 +740,7 @@ public class Datacenter extends SimEntity {
 
 			// process this Cloudlet to this CloudResource
 			cl.setResourceParameter(
-                                getId(), getCharacteristics().getCostPerSecond(), 
+                                getId(), getCharacteristics().getCostPerSecond(),
                                 getCharacteristics().getCostPerBw());
 
 			int userId = cl.getUserId();
@@ -782,7 +783,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Predict the total time to transfer a list of files.
-	 * 
+	 *
 	 * @param requiredFiles the files to be transferred
 	 * @return the predicted time
 	 */
@@ -802,17 +803,17 @@ public class Datacenter extends SimEntity {
 			}
 		}
 		return time;
-	}        
+	}
 
 	/**
 	 * Processes a Cloudlet resume request.
-	 * 
+	 *
 	 * @param cloudletId ID of the cloudlet to be resumed
 	 * @param userId ID of the cloudlet's owner
-	 * @param ack indicates if the event's sender expects to receive 
+	 * @param ack indicates if the event's sender expects to receive
          * an acknowledge message when the event finishes to be processed
 	 * @param vmId the id of the VM where the cloudlet has to be resumed
-         * 
+         *
 	 * @pre $none
 	 * @post $none
 	 */
@@ -843,13 +844,13 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Processes a Cloudlet pause request.
-	 * 
+	 *
 	 * @param cloudletId ID of the cloudlet to be paused
 	 * @param userId ID of the cloudlet's owner
-	 * @param ack indicates if the event's sender expects to receive 
+	 * @param ack indicates if the event's sender expects to receive
          * an acknowledge message when the event finishes to be processed
 	 * @param vmId the id of the VM where the cloudlet has to be paused
-         * 
+         *
 	 * @pre $none
 	 * @post $none
 	 */
@@ -872,11 +873,11 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Processes a Cloudlet cancel request.
-	 * 
+	 *
 	 * @param cloudletId ID of the cloudlet to be canceled
 	 * @param userId ID of the cloudlet's owner
 	 * @param vmId the id of the VM where the cloudlet has to be canceled
-         * 
+         *
 	 * @pre $none
 	 * @post $none
 	 */
@@ -887,10 +888,11 @@ public class Datacenter extends SimEntity {
 	}
 
 	/**
+	 * 更新这个 dc里的所有任务进度，计算下一次更新时间，并向自己发送 41号消息进行更新。
 	 * Updates processing of each cloudlet running in this Datacenter. It is necessary because
 	 * Hosts and VirtualMachines are simple objects, not entities. So, they don't receive events and
 	 * updating cloudlets inside them must be called from the outside.
-	 * 
+	 *
 	 * @pre $none
 	 * @post $none
 	 */
@@ -900,6 +902,7 @@ public class Datacenter extends SimEntity {
 		// simulation step is skipped and schedulers are not properly initialized
 		if (CloudSim.clock() < 0.111 || CloudSim.clock() >= getLastProcessTime() + CloudSim.getMinTimeBetweenEvents()) {
 			List<? extends Host> list = getVmAllocationPolicy().getHostList();
+			// smallerTime是最近一个任务预计完成时间
 			double smallerTime = Double.MAX_VALUE;
 			// for each host...
 			for (int i = 0; i < list.size(); i++) {
@@ -911,10 +914,12 @@ public class Datacenter extends SimEntity {
 					smallerTime = time;
 				}
 			}
+
 			// gurantees a minimal interval before scheduling the event
 			if (smallerTime < CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01) {
 				smallerTime = CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01;
 			}
+			// >=0.02秒后更新所有的任务进度
 			if (smallerTime != Double.MAX_VALUE) {
 				schedule(getId(), (smallerTime - CloudSim.clock()), CloudSimTags.VM_DATACENTER_EVENT);
 			}
@@ -923,9 +928,9 @@ public class Datacenter extends SimEntity {
 	}
 
 	/**
-	 * Verifies if some cloudlet inside this Datacenter already finished. 
+	 * Verifies if some cloudlet inside this Datacenter already finished.
          * If yes, send it to the User/Broker
-	 * 
+	 *
 	 * @pre $none
 	 * @post $none
 	 */
@@ -945,10 +950,10 @@ public class Datacenter extends SimEntity {
 	}
 
 	/**
-	 * Adds a file into the resource's storage before the experiment starts. 
-         * If the file is a master file, then it will be registered to the RC 
+	 * Adds a file into the resource's storage before the experiment starts.
+         * If the file is a master file, then it will be registered to the RC
          * when the experiment begins.
-	 * 
+	 *
 	 * @param file a DataCloud file
 	 * @return a tag number denoting whether this operation is a success or not
 	 */
@@ -983,7 +988,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Checks whether the datacenter has the given file.
-	 * 
+	 *
 	 * @param file a file to be searched
 	 * @return <tt>true</tt> if successful, <tt>false</tt> otherwise
 	 */
@@ -996,7 +1001,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Checks whether the datacenter has the given file.
-	 * 
+	 *
 	 * @param fileName a file name to be searched
 	 * @return <tt>true</tt> if successful, <tt>false</tt> otherwise
 	 */
@@ -1021,12 +1026,12 @@ public class Datacenter extends SimEntity {
 	}
 
 	/**
-	 * Deletes the file from the storage. 
+	 * Deletes the file from the storage.
          * Also, check whether it is possible to delete the file from the storage.
-	 * 
+	 *
 	 * @param fileName the name of the file to be deleted
 	 * @return the tag denoting the status of the operation,
-         * either {@link DataCloudTags#FILE_DELETE_ERROR} or 
+         * either {@link DataCloudTags#FILE_DELETE_ERROR} or
          *  {@link DataCloudTags#FILE_DELETE_SUCCESSFUL}
 	 */
 	private int deleteFileFromStorage(String fileName) {
@@ -1068,7 +1073,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Gets the host list.
-	 * 
+	 *
 	 * @return the host list
 	 */
 	@SuppressWarnings("unchecked")
@@ -1078,7 +1083,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Gets the datacenter characteristics.
-	 * 
+	 *
 	 * @return the datacenter characteristics
 	 */
 	protected DatacenterCharacteristics getCharacteristics() {
@@ -1087,7 +1092,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Sets the datacenter characteristics.
-	 * 
+	 *
 	 * @param characteristics the new datacenter characteristics
 	 */
 	protected void setCharacteristics(DatacenterCharacteristics characteristics) {
@@ -1095,8 +1100,8 @@ public class Datacenter extends SimEntity {
 	}
 
 	/**
-	 * Gets the regional Cloud Information Service (CIS) name. 
-	 * 
+	 * Gets the regional Cloud Information Service (CIS) name.
+	 *
 	 * @return the regional CIS name
 	 */
 	protected String getRegionalCisName() {
@@ -1105,7 +1110,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Sets the regional cis name.
-	 * 
+	 *
 	 * @param regionalCisName the new regional cis name
 	 */
 	protected void setRegionalCisName(String regionalCisName) {
@@ -1114,7 +1119,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Gets the vm allocation policy.
-	 * 
+	 *
 	 * @return the vm allocation policy
 	 */
 	public VmAllocationPolicy getVmAllocationPolicy() {
@@ -1123,7 +1128,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Sets the vm allocation policy.
-	 * 
+	 *
 	 * @param vmAllocationPolicy the new vm allocation policy
 	 */
 	protected void setVmAllocationPolicy(VmAllocationPolicy vmAllocationPolicy) {
@@ -1132,7 +1137,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Gets the last time some cloudlet was processed in the datacenter.
-	 * 
+	 *
 	 * @return the last process time
 	 */
 	protected double getLastProcessTime() {
@@ -1141,7 +1146,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Sets the last process time.
-	 * 
+	 *
 	 * @param lastProcessTime the new last process time
 	 */
 	protected void setLastProcessTime(double lastProcessTime) {
@@ -1150,7 +1155,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Gets the storage list.
-	 * 
+	 *
 	 * @return the storage list
 	 */
 	protected List<Storage> getStorageList() {
@@ -1159,7 +1164,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Sets the storage list.
-	 * 
+	 *
 	 * @param storageList the new storage list
 	 */
 	protected void setStorageList(List<Storage> storageList) {
@@ -1168,7 +1173,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Gets the vm list.
-	 * 
+	 *
 	 * @return the vm list
 	 */
 	@SuppressWarnings("unchecked")
@@ -1178,7 +1183,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Sets the vm list.
-	 * 
+	 *
 	 * @param vmList the new vm list
 	 */
 	protected <T extends Vm> void setVmList(List<T> vmList) {
@@ -1187,7 +1192,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Gets the scheduling interval.
-	 * 
+	 *
 	 * @return the scheduling interval
 	 */
 	protected double getSchedulingInterval() {
@@ -1196,7 +1201,7 @@ public class Datacenter extends SimEntity {
 
 	/**
 	 * Sets the scheduling interval.
-	 * 
+	 *
 	 * @param schedulingInterval the new scheduling interval
 	 */
 	protected void setSchedulingInterval(double schedulingInterval) {

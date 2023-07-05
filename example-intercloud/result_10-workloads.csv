@@ -1,0 +1,26 @@
+Workload_ID,    App_ID,SubmitTime,Pr:StartTime,Pr:EndTime,Pr:CPUTime,   Pr:Size,Tr:StartTime,Tr:EndTime,Tr:NetworkTime,   Tr:Size,Tr:Channel,Pr:StartTime,Pr:EndTime,Pr:CPUTime,   Pr:Size,ResponseTime,
+ 0, 0, 0.4, 0.4, 0.41, 0.01, 5, 0.41, 0.619, 0.209, 10000, 0, 0.619, 0.629, 0.01, 5,     0.229,
+ 1, 0, 0.4, 0.4, 0.43, 0.03, 5, 0.43, 0.819, 0.389, 10000, 0, 0.819, 0.829, 0.01, 5,     0.429,
+ 2, 0, 0.4, 0.4, 0.45, 0.05, 5, 0.45, 1.019, 0.569, 10000, 0, 1.019, 1.029, 0.01, 5,     0.629,
+ 3, 0, 0.4, 0.4, 0.47, 0.07, 5, 0.47, 1.219, 0.749, 10000, 0, 1.219, 1.229, 0.01, 5,     0.829,
+#======================================
+#Number of workloads:4
+#Timeout workloads:0
+#Timeout workloads per cent:0
+#Over workloads:0
+#Over workloads per cent:0
+#Number of Cloudlets:8
+#Over Cloudlets:0
+#Over Cloudlets per cent:0
+#Number of transmissions:4
+#Over transmissions:4
+#Over transmissions per cent:1
+#======================================
+#Total serve time:2.1159999999999997
+#CPU serve time:0.20000000000000018
+#Network serve time:1.9159999999999995
+#Average total serve time:0.5289999999999999
+#Average CPU serve time per workload:0.050000000000000044
+#Average network serve time per workload:0.47899999999999987
+#Average CPU serve time per Cloudlet:0.025000000000000022
+#Average network serve time per transmission:0.47899999999999987
