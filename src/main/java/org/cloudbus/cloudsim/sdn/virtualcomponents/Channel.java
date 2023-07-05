@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.PacketScheduler;
+import org.cloudbus.cloudsim.sdn.PacketSchedulerSpaceShared;
 import org.cloudbus.cloudsim.sdn.PacketSchedulerTimeShared;
 import org.cloudbus.cloudsim.sdn.monitor.MonitoringValues;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Link;
@@ -55,8 +56,8 @@ public class Channel {
 	private SDNVm srcVm;
 //	private SDNVm dstVm;
 
-	//	PacketScheduler packetScheduler = new PacketSchedulerSpaceShared(this);
-	PacketScheduler packetScheduler = new PacketSchedulerTimeShared(this);
+	//PacketScheduler packetScheduler = new PacketSchedulerSpaceShared(this);
+	PacketScheduler packetScheduler = new PacketSchedulerTimeShared(null);
 
 	public Channel(int chId, int srcId, int dstId, List<Node> nodes, List<Link> links, double bandwidth, SDNVm srcVm, SDNVm dstVm) {
 		this.isWireless = false;
@@ -96,12 +97,12 @@ public class Channel {
 	}
 
 	// 用于测试/debug，ignore it
-	public static void main(String[] args) {
-		List<String> list = new ArrayList<String>(Arrays.asList("大少", "二少", "三少"));
-		List<String> link = list.subList(0,  1);
-
-		System.out.println("\nlalalala\n");
-	}
+//	public static void main(String[] args) {
+//		List<String> list = new ArrayList<String>(Arrays.asList("大少", "二少", "三少"));
+//		List<String> link = list.subList(0,  1);
+//
+//		System.out.println("\nlalalala\n");
+//	}
 
 	public void initialize() {
 		// Assign BW to all links
