@@ -9,6 +9,8 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Link;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Node;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.SDNHost;
+import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.GatewaySwitch;
+import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.IntercloudSwitch;
 import org.cloudbus.cloudsim.sdn.sfc.ServiceFunctionForwarder;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.Channel;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
@@ -30,6 +32,10 @@ public class ChannelManager {
 		this.sfcForwarder = sfcForwarder;
 	}
 
+	/**
+	 * 从 srcHost 到 dstHost 的整个 links 链（linksAll）。
+	 * 但是 nodes、links、bw 只包含到 gateway 部分
+	 */
 	public Channel createChannel(int src, int dst, int flowId, Node srcNode) {
 		// For dynamic routing, rebuild forwarding table (select which link to use).
 		vnMapper.updateDynamicForwardingTableRec(srcNode, src, dst, flowId, false);
@@ -57,8 +63,13 @@ public class ChannelManager {
 		nodes.add(origin);
 
 		// Find the lowest available bandwidth along the link.
+		boolean isEther = true;
+		boolean isWireless = false;
 		while(true) {
 			Link link = origin.getLinkTo(dest);
+			if(dest instanceof IntercloudSwitch){
+				isWireless = true;
+			}
 			if(link == null)
 				throw new IllegalArgumentException("Link is NULL for srcNode:"+origin+" -> dstNode:"+dest);
 
@@ -67,7 +78,10 @@ public class ChannelManager {
 			links.add(link);
 			nodes.add(dest);
 
-			if(lowestBw > link.getFreeBandwidth(origin)) {
+			if (origin instanceof GatewaySwitch) { // 带宽只计算发送方有线网部分
+				isEther = false;
+			}
+			if(isEther && lowestBw > link.getFreeBandwidth(origin)) {
 				lowestBw = link.getFreeBandwidth(origin);
 			}
 
@@ -86,7 +100,7 @@ public class ChannelManager {
 		}
 
 		Channel channel=new Channel(flowId, src, dst, nodes, links, reqBw,
-				(SDNVm)NetworkOperatingSystem.findVmGlobal(src), (SDNVm)NetworkOperatingSystem.findVmGlobal(dst));
+				(SDNVm)NetworkOperatingSystem.findVmGlobal(src), (SDNVm)NetworkOperatingSystem.findVmGlobal(dst), isWireless, 0);
 		//Log.printLine(CloudSim.clock() + ": " + getName() + ".createChannel:"+channel);
 
 		return channel;
@@ -241,7 +255,7 @@ public class ChannelManager {
 		}
 
 		if(completeChannels.size() != 0) {
-			nos.processCompletePackets(completeChannels); // 发送 SDN-1 号消息
+			nos.processCompletePackets(completeChannels); // 发送SDN-101给发包dc / SDN-1给收包dc
 			updateChannel(); // 删除空闲 channels
 		}
 
@@ -285,4 +299,11 @@ public class ChannelManager {
 	}
 
 
+//	public boolean needWireless(int from, int to, int channelId) {
+//		Channel channel=channelTable.get(getChannelKey(from, to, channelId));
+//		if (channel == null) {
+//			channel=channelTable.get(getChannelKey(from,to));
+//		}
+//		return channel.isWireless;
+//	}
 }

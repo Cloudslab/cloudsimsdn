@@ -20,6 +20,7 @@ import org.cloudbus.cloudsim.sdn.monitor.MonitoringValues;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Link;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Node;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.CoreSwitch;
+import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.GatewaySwitch;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.IntercloudSwitch;
 import org.cloudbus.cloudsim.sdn.workload.Transmission;
 
@@ -38,11 +39,12 @@ import org.cloudbus.cloudsim.sdn.workload.Transmission;
  * @since CloudSimSDN 1.0
  */
 public class Channel {
-	private boolean isWireless;
+	public boolean isWireless;
+	public int wirelessLevel = 0;
 	private List<Node> nodes;
-	private List<Node> nodesAll;
+	public List<Node> nodesAll;
 	private List<Link> links;
-	private List<Link> linksAll;
+	public List<Link> linksAll;
 	private double allocatedBandwidth; // Actual bandwidth allocated to the channel
 	private double previousTime;
 
@@ -57,46 +59,92 @@ public class Channel {
 //	private SDNVm dstVm;
 
 	//PacketScheduler packetScheduler = new PacketSchedulerSpaceShared(this);
-	PacketScheduler packetScheduler = new PacketSchedulerTimeShared(null);
+	PacketScheduler packetScheduler = new PacketSchedulerTimeShared(this);
 
-	public Channel(int chId, int srcId, int dstId, List<Node> nodes, List<Link> links, double bandwidth, SDNVm srcVm, SDNVm dstVm) {
-		this.isWireless = false;
-		boolean interCloud = false;
-		int intercloudIndex = -1;
-		for (int i=0; i<nodes.size(); ++i){
-			Node node_i = nodes.get(i);
-			if (node_i instanceof IntercloudSwitch){
-				if(interCloud) {// 碰见第二个 IntercloudSwitch，设置 wireless 为 true
-					this.isWireless = true;
-					intercloudIndex = i;
-				}
-				interCloud = true;
-			}
-		}
+	public Channel(int chId, int srcId, int dstId, List<Node> nodes, List<Link> links, double bandwidth, SDNVm srcVm, SDNVm dstVm, boolean wireless, int wirelessLevel) {
+		this.isWireless = wireless;
+		this.wirelessLevel = wirelessLevel;
 		this.chId = chId;
 		this.srcId = srcId;
 		this.dstId = dstId;
+		int gatewayIndex = -1;
+		int interCloudIndex = -1;
 		if (isWireless) {
-			this.nodes = nodes.subList(0, intercloudIndex);//src 到第一个 IntercloudSwitch
+			switch (wirelessLevel){
+				case 0: // 发送方有线网： srcHost -> GatewaySwitch
+					for (int i=0; i<nodes.size(); ++i){
+						Node node_i = nodes.get(i);
+						if (node_i instanceof GatewaySwitch){// 碰见第一个 GatewaySwitch
+							gatewayIndex = i;
+							break;
+						}
+					}
+					this.nodes = nodes.subList(0, gatewayIndex+1); //srcHost -> GatewaySwitch
+					this.links = links.subList(0, gatewayIndex);
+					break;
+				case 1: // 上传WIFI： GatewaySwitch -> InterCloudSwitch(wifi)
+					for (int i=0; i<nodes.size(); ++i){
+						Node node_i = nodes.get(i);
+						if (node_i instanceof GatewaySwitch){// 碰见第一个 GatewaySwitch
+							gatewayIndex = i;
+						}
+						if (node_i instanceof IntercloudSwitch){// 碰见 IntercloudSwitch
+							interCloudIndex = i;
+							break;
+						}
+					}
+					this.nodes = nodes.subList(gatewayIndex, interCloudIndex+1);
+					this.links = links.subList(gatewayIndex, interCloudIndex);
+					break;
+				case 2: // WIFI下载： InterCloudSwitch -> GatewaySwitch
+					for (int i=0; i<nodes.size(); ++i){
+						Node node_i = nodes.get(i);
+						if (node_i instanceof IntercloudSwitch){// 碰见 IntercloudSwitch
+							interCloudIndex = i;
+						}
+						if (node_i instanceof GatewaySwitch && interCloudIndex > 0){// 碰见第二个 GatewaySwitch
+							gatewayIndex = i;
+							break;
+						}
+					}
+					this.nodes = nodes.subList(interCloudIndex, gatewayIndex+1);
+					this.links = links.subList(interCloudIndex, gatewayIndex);
+					break;
+				case 3: // 接收方有线网： GatewaySwitch -> destHost
+					for (int i=0; i<nodes.size(); ++i){
+						Node node_i = nodes.get(i);
+						if (node_i instanceof IntercloudSwitch){// 碰见 IntercloudSwitch
+							interCloudIndex = i;
+						}
+						if (node_i instanceof GatewaySwitch && interCloudIndex > 0){// 碰见第二个 GatewaySwitch
+							gatewayIndex = i;
+							break;
+						}
+					}
+					this.nodes = nodes.subList(gatewayIndex, nodes.size());
+					this.links = links.subList(gatewayIndex, links.size());
+					break;
+				default:
+					this.nodes = nodes;
+					this.links = links;
+			}
 		} else {
 			this.nodes = nodes;
-		}
-		if (isWireless) {
-			this.links = links.subList(0, intercloudIndex-1);
-		} else {
 			this.links = links;
 		}
+
 		this.nodesAll = nodes;
 		this.linksAll = links;
+//		this.nodes = nodes;
+//		this.links = links;
 		this.allocatedBandwidth = bandwidth;
 		this.requestedBandwidth = bandwidth;
 
 		this.srcVm = srcVm;
-//		this.dstVm = dstVm;
 		packetScheduler.setTimeOut(Configuration.TIME_OUT); // If the packet is not successfull in 3 seconds, it will be discarded.
 	}
 
-	// 用于测试/debug，ignore it
+//	/* 用于 debug，ignore it */
 //	public static void main(String[] args) {
 //		List<String> list = new ArrayList<String>(Arrays.asList("大少", "二少", "三少"));
 //		List<String> link = list.subList(0,  1);
@@ -515,5 +563,8 @@ public class Channel {
 				&& packetScheduler.getTimedOutTransmission().isEmpty())
 			return false;	// Nothing changed
 		return true;
+	}
+
+	public void proceedChannel() {
 	}
 }

@@ -7,6 +7,7 @@
  */
 package org.cloudbus.cloudsim.sdn.physicalcomponents;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,13 +24,16 @@ import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEvent;
+import org.cloudbus.cloudsim.sdn.ChanAndTrans;
 import org.cloudbus.cloudsim.sdn.CloudSimTagsSDN;
 import org.cloudbus.cloudsim.sdn.CloudletSchedulerMonitor;
 import org.cloudbus.cloudsim.sdn.Packet;
+import org.cloudbus.cloudsim.sdn.nos.ChannelManager;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationInGroup;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyPriorityFirst;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmGroup;
+import org.cloudbus.cloudsim.sdn.virtualcomponents.Channel;
 import org.cloudbus.cloudsim.sdn.virtualcomponents.SDNVm;
 import org.cloudbus.cloudsim.sdn.workload.Activity;
 import org.cloudbus.cloudsim.sdn.workload.Processing;
@@ -57,6 +61,7 @@ public class SDNDatacenter extends Datacenter {
 	public static int migrationCompleted = 0;
 	public static int migrationAttempted = 0;
 
+	public Node wirelessGateway;
 
 	public SDNDatacenter(String name, DatacenterCharacteristics characteristics, VmAllocationPolicy vmAllocationPolicy, List<Storage> storageList, double schedulingInterval, NetworkOperatingSystem nos) throws Exception {
 		super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
@@ -208,9 +213,96 @@ public class SDNDatacenter extends Datacenter {
 			case CloudSimTagsSDN.SDN_VM_CREATE_DYNAMIC:
 				processVmCreateDynamic(ev);
 				break;
+			case CloudSimTagsSDN.SDN_ARRIVED_GATEWAY:
+				PacketArrivedGateway((ChanAndTrans)ev.getData());
+				break;
+			case CloudSimTagsSDN.SDN_ARRIVED_INTERCLOUD:
+				PacketArrivedIntercloud((ChanAndTrans)ev.getData());
+				break;
+			case CloudSimTagsSDN.SDN_ARRIVED_GATEWAY2:
+				PacketAcrossArrivedGateway((ChanAndTrans)ev.getData());
+				break;
 			default:
 				System.out.println("Unknown event recevied by SdnDatacenter. Tag:"+ev.getTag());
 		}
+	}
+
+	private void PacketArrivedGateway(ChanAndTrans data) {
+		ChannelManager channelManager = nos.getChannelManager();
+		Packet pkt = data.tr.getPacket();
+		Channel originCh = data.chan;
+		int src = pkt.getOrigin(); // 发送方虚机
+		int dst = pkt.getDestination(); // 接收方虚机
+		int flowId = pkt.getFlowId();
+		double wirelessBwUp = 20000;
+		Channel channel = channelManager.findChannel(src, dst, flowId+1000);
+		if(channel == null) {
+			channel = new Channel(flowId + 1000, src, dst, originCh.nodesAll, originCh.linksAll, wirelessBwUp,
+					(SDNVm) NetworkOperatingSystem.findVmGlobal(src), (SDNVm) NetworkOperatingSystem.findVmGlobal(dst), true, 1);
+			if (channel == null) {
+				// failed to create channel
+				System.err.println("ERROR!! Cannot create channel!" + pkt);
+				return;
+			}
+		}
+		channelManager.addChannel(src, dst, flowId+1000, channel);
+		Transmission tr = new Transmission(pkt);
+		tr.setRequestedBW(wirelessBwUp);
+		channel.addTransmission(tr);
+		this.nos.sendInternalEvent();
+		pkt.setPacketStartTime(CloudSim.clock());
+	}
+
+	private void PacketArrivedIntercloud(ChanAndTrans data) {
+		ChannelManager channelManager = nos.getChannelManager();
+		Packet pkt = data.tr.getPacket();
+		Channel originCh = data.chan;
+		int src = pkt.getOrigin(); // 发送方虚机
+		int dst = pkt.getDestination(); // 接收方虚机
+		int flowId = pkt.getFlowId();
+		double wirelessBwDown = 20000;
+		Channel channel = channelManager.findChannel(src, dst, flowId+2000);
+		if(channel == null) {
+			channel = new Channel(flowId + 2000, src, dst, originCh.nodesAll, originCh.linksAll, wirelessBwDown,
+					(SDNVm) NetworkOperatingSystem.findVmGlobal(src), (SDNVm) NetworkOperatingSystem.findVmGlobal(dst), true, 2);
+			if (channel == null) {
+				// failed to create channel
+				System.err.println("ERROR!! Cannot create channel!" + pkt);
+				return;
+			}
+		}
+		channelManager.addChannel(src, dst, flowId+2000, channel);
+		Transmission tr = new Transmission(pkt);
+		tr.setRequestedBW(wirelessBwDown);
+		channel.addTransmission(tr);
+		this.nos.sendInternalEvent();
+		pkt.setPacketStartTime(CloudSim.clock());
+	}
+
+	private void PacketAcrossArrivedGateway(ChanAndTrans data) {
+		ChannelManager channelManager = nos.getChannelManager();
+		Packet pkt = data.tr.getPacket();
+		Channel originCh = data.chan;
+		int src = pkt.getOrigin(); // 发送方虚机
+		int dst = pkt.getDestination(); // 接收方虚机
+		int flowId = pkt.getFlowId();
+		double ethernetBw = nos.getRequestedBandwidth(flowId);;
+		Channel channel = channelManager.findChannel(src, dst, flowId+3000);
+		if(channel == null) {
+			channel = new Channel(flowId + 3000, src, dst, originCh.nodesAll, originCh.linksAll, ethernetBw,
+					(SDNVm) NetworkOperatingSystem.findVmGlobal(src), (SDNVm) NetworkOperatingSystem.findVmGlobal(dst), true, 3);
+			if (channel == null) {
+				// failed to create channel
+				System.err.println("ERROR!! Cannot create channel!" + pkt);
+				return;
+			}
+		}
+		channelManager.addChannel(src, dst, flowId+3000, channel);
+		Transmission tr = new Transmission(pkt);
+		tr.setRequestedBW(ethernetBw);
+		channel.addTransmission(tr);
+		this.nos.sendInternalEvent();
+		pkt.setPacketStartTime(CloudSim.clock());
 	}
 
 	public void processUpdateProcessing() {
@@ -397,6 +489,7 @@ public class SDNDatacenter extends Datacenter {
 	private void processPacketCompleted(Packet pkt) {
 		pkt.setPacketFinishTime(CloudSim.clock());
 		Request req = pkt.getPayload();
+
 		processNextActivity(req);
 	}
 

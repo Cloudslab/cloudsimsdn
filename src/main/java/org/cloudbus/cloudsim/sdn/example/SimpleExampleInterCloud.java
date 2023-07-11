@@ -25,6 +25,7 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.sdn.CloudSimEx;
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.SDNBroker;
+import org.cloudbus.cloudsim.sdn.physicalcomponents.Node;
 import org.cloudbus.cloudsim.sdn.workload.Workload;
 import org.cloudbus.cloudsim.sdn.monitor.power.PowerUtilizationMaxHostInterface;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
@@ -39,28 +40,28 @@ import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyMipsLea
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyMipsMostFullFirst;
 
 /**
- * CloudSimSDN example main program for InterCloud scenario. 
+ * CloudSimSDN example main program for InterCloud scenario.
  * This can create multiple cloud data centers and send packets between them.
- * 
+ *
  * @author Jungmin Son
  * @since CloudSimSDN 3.0
  */
 public class SimpleExampleInterCloud {
 	protected static String physicalTopologyFile 	= "dataset-energy/energy-physical.json";
 	protected static String deploymentFile 		= "dataset-energy/energy-virtual.json";
-	protected static String [] workload_files 			= { 
+	protected static String [] workload_files 			= {
 		"dataset-energy/energy-workload.csv"
 		};
-	
+
 	protected static List<String> workloads;
-	
+
 	private  static boolean logEnabled = true;
 
 	public interface VmAllocationPolicyFactory {
 		public VmAllocationPolicy create(List<? extends Host> list);
 	}
-	enum VmAllocationPolicyEnum{ CombLFF, CombMFF, MipLFF, MipMFF, OverLFF, OverMFF, LFF, MFF, Overbooking}	
-	
+	enum VmAllocationPolicyEnum{ CombLFF, CombMFF, MipLFF, MipMFF, OverLFF, OverMFF, LFF, MFF, Overbooking}
+
 	private static void printUsage() {
 		String runCmd = "java SDNExample";
 		System.out.format("Usage: %s <LFF|MFF> [physical.json] [virtual.json] [workload1.csv] [workload2.csv] [...]\n", runCmd);
@@ -76,13 +77,13 @@ public class SimpleExampleInterCloud {
 		CloudSimEx.setStartTime();
 
 		workloads = new ArrayList<String>();
-		
+
 		// Parse system arguments
 		if(args.length < 1) {
 			printUsage();
 			System.exit(1);
 		}
-		
+
 		VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(args[0]);
 		if(args.length > 1)
 			physicalTopologyFile = args[1];
@@ -94,7 +95,7 @@ public class SimpleExampleInterCloud {
 			}
 		else
 			workloads = (List<String>) Arrays.asList(workload_files);
-		
+
 		printArguments(physicalTopologyFile, deploymentFile, workloads);
 		Log.printLine("Starting CloudSim SDN...");
 
@@ -104,7 +105,7 @@ public class SimpleExampleInterCloud {
 			Calendar calendar = Calendar.getInstance();
 			boolean trace_flag = false; // mean trace events
 			CloudSim.init(num_user, calendar, trace_flag);
-			
+
 			VmAllocationPolicyFactory vmAllocationFac = null;
 			LinkSelectionPolicy ls = null;
 			switch(vmAllocPolicy) {
@@ -145,7 +146,7 @@ public class SimpleExampleInterCloud {
 				printUsage();
 				System.exit(1);
 			}
-			
+
 			Configuration.monitoringTimeInterval = Configuration.migrationTimeInterval = 1;
 
 			// Create multiple Datacenters
@@ -157,98 +158,103 @@ public class SimpleExampleInterCloud {
 
 			// Submit virtual topology
 			broker.submitDeployApplication(dcs.values(), deploymentFile);
-			
+
 			// Submit individual workloads
 			submitWorkloads(broker);
-			
+
 			// Sixth step: Starts the simulation
-			if(!SimpleExampleInterCloud.logEnabled) 
+			if(!SimpleExampleInterCloud.logEnabled)
 				Log.disable();
-			
+
 			startSimulation(broker, dcs.values());
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.printLine("Unwanted errors happen");
 		}
 	}
-	
+
 	public static void startSimulation(SDNBroker broker, Collection<SDNDatacenter> dcs) {
 		double finishTime = CloudSim.startSimulation();
 		CloudSim.stopSimulation();
-		
+
 		Log.enable();
-		
+
 		broker.printResult();
-		
+
 		Log.printLine(finishTime+": ========== EXPERIMENT FINISHED ===========");
-		
+
 		// Print results when simulation is over
 		List<Workload> wls = broker.getWorkloads();
 		if(wls != null)
 			LogPrinter.printWorkloadList(wls);
-		
+
 		// Print hosts' and switches' total utilization.
 		List<Host> hostList = getAllHostList(dcs);
 		List<Switch> switchList = getAllSwitchList(dcs);
 		LogPrinter.printEnergyConsumption(hostList, switchList, finishTime);
 
-		Log.printLine("Simultanously used hosts:"+maxHostHandler.getMaxNumHostsUsed());			
+		Log.printLine("Simultanously used hosts:"+maxHostHandler.getMaxNumHostsUsed());
 		Log.printLine("CloudSim SDN finished!");
 	}
-	
+
 	private static List<Switch> getAllSwitchList(Collection<SDNDatacenter> dcs) {
 		List<Switch> allSwitch = new ArrayList<Switch>();
 		for(SDNDatacenter dc:dcs) {
 			allSwitch.addAll(dc.getNOS().getSwitchList());
 		}
-		
+
 		return allSwitch;
 	}
-	
+
 	private static List<Host> getAllHostList(Collection<SDNDatacenter> dcs) {
 		List<Host> allHosts = new ArrayList<Host>();
 		for(SDNDatacenter dc:dcs) {
 			if(dc.getNOS().getHostList()!=null)
 				allHosts.addAll(dc.getNOS().getHostList());
 		}
-		
+
 		return allHosts;
 	}
-	
+
+	/**
+	 * dc 中初始化了 wirelessGateway
+	 */
 	public static Map<NetworkOperatingSystem, SDNDatacenter> createPhysicalTopology(String physicalTopologyFile, LinkSelectionPolicy ls, VmAllocationPolicyFactory vmAllocationFac) {
 		HashMap<NetworkOperatingSystem, SDNDatacenter> dcs = new HashMap<NetworkOperatingSystem, SDNDatacenter>();
 		// This funciton creates Datacenters and NOS inside the data cetner.
 		Map<String, NetworkOperatingSystem> dcNameNOS = PhysicalTopologyParser.loadPhysicalTopologyMultiDC(physicalTopologyFile);
-		
+		Map<String, Node> dcAndWirelessGateway = PhysicalTopologyParser.getDcAndWirelessGateway(physicalTopologyFile);
 		for(String dcName:dcNameNOS.keySet()) {
 			NetworkOperatingSystem nos = dcNameNOS.get(dcName);
+			Node node = dcAndWirelessGateway.get(dcName);
 			nos.setLinkSelectionPolicy(ls);
 			SDNDatacenter datacenter = createSDNDatacenter(dcName, nos, vmAllocationFac);
+			datacenter.wirelessGateway = node;
 			dcs.put(nos, datacenter);
-		}		
+		}
 		return dcs;
 	}
-	
+
 	public static void submitWorkloads(SDNBroker broker) {
 		// Submit workload files individually
 		if(workloads != null) {
 			for(String workload:workloads)
 				broker.submitRequests(workload);
 		}
-		
+
 		// Or, Submit groups of workloads
 		//submitGroupWorkloads(broker, WORKLOAD_GROUP_NUM, WORKLOAD_GROUP_PRIORITY, WORKLOAD_GROUP_FILENAME, WORKLOAD_GROUP_FILENAME_BG);
 	}
-	
+
 	public static void printArguments(String physical, String virtual, List<String> workloads) {
 		System.out.println("Data center infrastructure (Physical Topology) : "+ physical);
 		System.out.println("Virtual Machine and Network requests (Virtual Topology) : "+ virtual);
 		System.out.println("Workloads: ");
 		for(String work:workloads)
-			System.out.println("  "+work);		
+			System.out.println("  "+work);
 	}
-	
+
 	/**
 	 * Creates the datacenter.
 	 *
@@ -264,7 +270,7 @@ public class SimpleExampleInterCloud {
 		String arch = "x86"; // system architecture
 		String os = "Linux"; // operating system
 		String vmm = "Xen";
-		
+
 		double time_zone = 10.0; // time zone this resource located
 		double cost = 3.0; // the cost of using processing in this resource
 		double costPerMem = 0.05; // the cost of using memory in this resource
@@ -282,18 +288,18 @@ public class SimpleExampleInterCloud {
 		SDNDatacenter datacenter = null;
 		try {
 			VmAllocationPolicy vmPolicy = null;
-			//if(hostList.size() != 0) 
+			//if(hostList.size() != 0)
 			{
 				vmPolicy = vmAllocationFactory.create(hostList);
 				maxHostHandler = (PowerUtilizationMaxHostInterface)vmPolicy;
 				datacenter = new SDNDatacenter(name, characteristics, vmPolicy, storageList, 0, nos);
 			}
-			
+
 			nos.setDatacenter(datacenter);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return datacenter;
 	}
 
@@ -315,51 +321,51 @@ public class SimpleExampleInterCloud {
 		}
 		return broker;
 	}
-	
+
 
 	static String WORKLOAD_GROUP_FILENAME = "workload_10sec_100_default.csv";	// group 0~9
 	static String WORKLOAD_GROUP_FILENAME_BG = "workload_10sec_100.csv"; // group 10~29
 	static int WORKLOAD_GROUP_NUM = 50;
 	static int WORKLOAD_GROUP_PRIORITY = 1;
-	
+
 	public static void submitGroupWorkloads(SDNBroker broker, int workloadsNum, int groupSeperateNum, String filename_suffix_group1, String filename_suffix_group2) {
 		for(int set=0; set<workloadsNum; set++) {
 			String filename = filename_suffix_group1;
-			if(set>=groupSeperateNum) 
+			if(set>=groupSeperateNum)
 				filename = filename_suffix_group2;
-			
+
 			filename = set+"_"+filename;
 			broker.submitRequests(filename);
 		}
 	}
 
-	
+
 	/// Under development
 	/*
 	static class WorkloadGroup {
 		static int autoIdGenerator = 0;
 		final int groupId;
-		
+
 		String groupFilenamePrefix;
 		int groupFilenameStart;
 		int groupFileNum;
-		
+
 		WorkloadGroup(int id, String groupFilenamePrefix, int groupFileNum, int groupFilenameStart) {
 			this.groupId = id;
 			this.groupFilenamePrefix = groupFilenamePrefix;
 			this.groupFileNum = groupFileNum;
 		}
-		
+
 		List<String> getFileList() {
 			List<String> filenames = new LinkedList<String>();
-			
+
 			for(int fileId=groupFilenameStart; fileId< this.groupFilenameStart+this.groupFileNum; fileId++) {
 				String filename = groupFilenamePrefix + fileId;
 				filenames.add(filename);
 			}
 			return filenames;
 		}
-		
+
 		public static WorkloadGroup createWorkloadGroup(String groupFilenamePrefix, int groupFileNum) {
 			return new WorkloadGroup(autoIdGenerator++, groupFilenamePrefix, groupFileNum, 0);
 		}
@@ -367,7 +373,7 @@ public class SimpleExampleInterCloud {
 			return new WorkloadGroup(autoIdGenerator++, groupFilenamePrefix, groupFileNum, groupFilenameStart);
 		}
 	}
-	
+
 	static LinkedList<WorkloadGroup> workloadGroups = new LinkedList<WorkloadGroup>();
 	 */
 }

@@ -10,18 +10,20 @@ package org.cloudbus.cloudsim.sdn;
 
 /**
  * Constant variables to use
- * 
+ *
  * @author Jungmin Son
  * @author Rodrigo N. Calheiros
  * @since CloudSimSDN 1.0
  */
 public class CloudSimTagsSDN {
-	/** Starting constant value for network-related tags. **/
+    /** Starting constant value for network-related tags. **/
 	private static final int SDN_BASE = 89000000;
-	
+	public static final int SDN_ARRIVED_GATEWAY = SDN_BASE + 101; // 有包裹到达 Gateway
+	public static final int SDN_ARRIVED_INTERCLOUD = SDN_BASE + 102; // 有包裹到达 Intercloud(wifi)
+	public static final int SDN_ARRIVED_GATEWAY2 = SDN_BASE + 103; // 有包裹到达对方 Gateway
 	public static final int SDN_PACKET_COMPLETE = SDN_BASE + 1;	// Deliver Cloudlet (computing workload) to VM
 	public static final int SDN_PACKET_FAILED = SDN_BASE + 2;	// Deliver Cloudlet (computing workload) to VM
-	public static final int SDN_INTERNAL_PACKET_PROCESS = SDN_BASE + 3; 
+	public static final int SDN_INTERNAL_PACKET_PROCESS = SDN_BASE + 3;
 	public static final int SDN_VM_CREATE_IN_GROUP = SDN_BASE + 4;
 	public static final int SDN_VM_CREATE_IN_GROUP_ACK = SDN_BASE + 5;
 	public static final int SDN_VM_CREATE_DYNAMIC = SDN_BASE + 6;
@@ -32,7 +34,7 @@ public class CloudSimTagsSDN {
 	public static final int REQUEST_COMPLETED = SDN_BASE + 11;
 	public static final int REQUEST_OFFER_MORE = SDN_BASE + 12;
 	public static final int REQUEST_FAILED = SDN_BASE + 13;
-	
+
 	public static final int APPLICATION_SUBMIT = SDN_BASE + 20;	// Broker -> Datacenter.
 	public static final int APPLICATION_SUBMIT_ACK = SDN_BASE + 21;
 

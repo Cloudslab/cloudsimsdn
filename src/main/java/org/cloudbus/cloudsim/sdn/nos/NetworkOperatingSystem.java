@@ -27,11 +27,7 @@ import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
-import org.cloudbus.cloudsim.sdn.CloudSimEx;
-import org.cloudbus.cloudsim.sdn.CloudSimTagsSDN;
-import org.cloudbus.cloudsim.sdn.Configuration;
-import org.cloudbus.cloudsim.sdn.LogWriter;
-import org.cloudbus.cloudsim.sdn.Packet;
+import org.cloudbus.cloudsim.sdn.*;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Link;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.Node;
 import org.cloudbus.cloudsim.sdn.physicalcomponents.PhysicalTopology;
@@ -98,6 +94,9 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	private double lastAdjustAllChannelTime = -1;
 	private double nextEventTime = -1;
 
+	public ChannelManager getChannelManager(){
+		return this.channelManager;
+	}
 	/**
 	 * 1. map VMs and middleboxes to hosts, add the new vm/mb to the vmHostTable, advise host, advise dc
 	 * 2. set channels and bws
@@ -314,6 +313,8 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			pkt.changeDestination(dst);
 		}
 
+//		boolean isWireless = channelManager.needWireless(src, dst, flowId);
+
 		Channel channel = channelManager.findChannel(src, dst, flowId);
 		if(channel == null) {
 			//No channel established. Create a new channel.
@@ -340,15 +341,35 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	}
 
 	/**
-	 * 有 channel 传输包完毕。发送 SDN-1 号消息给收包的 dc
+	 * 有 channel 传输包完毕。发送SDN-101给发包dc / SDN-1给收包dc。
 	 */
 	public void processCompletePackets(List<Channel> channels){
 		for(Channel ch:channels) {
 			for (Transmission tr:ch.getArrivedPackets()){
+/* **********************************************************************/
+				if(ch.isWireless && ch.wirelessLevel == 0){ // 包即将抵达Gateway，新建wirelessUpChan(gateway->intercloud)并addTransmission
+					double delay = ch.getTotalLatency(); // 有线部分的物理链路延迟(srchost->gateway)
+					send(this.datacenter.getId(), delay, CloudSimTagsSDN.SDN_ARRIVED_GATEWAY, new ChanAndTrans(ch, tr));
+					continue; // 在上一层 caller 会删除空闲 channel
+				}
+				if(ch.isWireless && ch.wirelessLevel == 1){ // 包即将抵达intercloud(wifi)，给netDC发消息，新建wirelessDownChan(intercloud->gateway)并addTransmission
+					double delay = ch.getTotalLatency(); // gateway->intercloud的延迟
+					send(CloudSim.getEntityId("net"), delay, CloudSimTagsSDN.SDN_ARRIVED_INTERCLOUD, new ChanAndTrans(ch, tr));
+					continue; // 在上一层 caller 会删除空闲 channel
+				}
+				if(ch.isWireless && ch.wirelessLevel == 2){ // 包即将跨平台抵达Gateway，新建EthernetChan(gateway->desthost)并addTransmission
+					double delay = ch.getTotalLatency(); // intercloud->gateway的延迟
+					Packet pkt = tr.getPacket();
+					int vmId = pkt.getDestination();
+					Datacenter dc = SDNDatacenter.findDatacenterGlobal(vmId);
+					send(dc.getId(), delay, CloudSimTagsSDN.SDN_ARRIVED_GATEWAY2, new ChanAndTrans(ch, tr));
+					continue; // 在上一层 caller 会删除空闲 channel
+				}
+/* **********************************************************************/
+				// 以太网内部：包裹即将到达destHost
 				Packet pkt = tr.getPacket();
 				int vmId = pkt.getDestination();
 				Datacenter dc = SDNDatacenter.findDatacenterGlobal(vmId);
-
 				//Log.printLine(CloudSim.clock() + ": " + getName() + ": Packet completed: "+pkt +". Send to destination:"+ch.getLastNode());
 				double tmp = ch.getTotalLatency();
 				sendPacketCompleteEvent(dc, pkt, ch.getTotalLatency());
@@ -376,7 +397,10 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		}
 	}
 
-	private void sendInternalEvent() {
+	/**
+	 * 计算nextFinishTime时间，发 SDN-3 号消息(SDN_INTERNAL_PACKET_PROCESS)
+	 */
+	public void sendInternalEvent() {
 		if(channelManager.getTotalChannelNum() != 0) {
 			if(nextEventTime == CloudSim.clock() + CloudSim.getMinTimeBetweenEvents())
 				return;

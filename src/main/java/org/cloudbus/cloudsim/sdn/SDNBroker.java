@@ -87,7 +87,7 @@ public class SDNBroker extends SimEntity {
 
 		for(WorkloadParser wp:workloadId.keySet()) {
 			WorkloadResultWriter wrw = wp.getResultWriter();
-			wrw.printStatistics();
+			wrw.printStatistics(); // todo：解除注释
 
 			numWorkloads += wrw.getWorklaodNum();
 			numTimeout +=  wrw.getTimeoutNum();

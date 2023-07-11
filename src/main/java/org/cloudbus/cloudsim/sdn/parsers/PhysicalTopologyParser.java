@@ -55,7 +55,7 @@ public class PhysicalTopologyParser {
 	private List<Link> links = new ArrayList<Link>();
 	private Hashtable<String, Node> nameNodeTable = new Hashtable<String, Node>();
 	private HostFactory hostFactory = null;
-
+	public Map<String, Node> dcAndWirelessGateway = new HashMap<>();
 	public PhysicalTopologyParser(String jsonFilename, HostFactory hostFactory) {
 		sdnHosts = HashMultimap.create();
 		switches = HashMultimap.create();
@@ -64,6 +64,9 @@ public class PhysicalTopologyParser {
 		this.filename = jsonFilename;
 	}
 
+	/**
+	 * 创建物理组件 DataCenter、NOS、Node、Link等
+	 */
 	public static Map<String, NetworkOperatingSystem> loadPhysicalTopologyMultiDC(String physicalTopologyFilename) {
 		PhysicalTopologyParser parser = new PhysicalTopologyParser(physicalTopologyFilename, new HostFactorySimple());
 		Map<String, String> dcNameType = parser.parseDatacenters(); // DC Name -> DC Type
@@ -74,6 +77,7 @@ public class PhysicalTopologyParser {
 			nos = new NetworkOperatingSystemSimple("NOS_"+dcName);
 
 			netOsList.put(dcName, nos);
+			// 在这里 parse switch 和 host
 			parser.parseNode(dcName);
 		}
 		parser.parseLink();
@@ -92,6 +96,15 @@ public class PhysicalTopologyParser {
 		}
 
 		return netOsList;
+	}
+
+	public static Map<String, Node> getDcAndWirelessGateway(String physicalTopologyFilename) {
+		PhysicalTopologyParser parser = new PhysicalTopologyParser(physicalTopologyFilename, new HostFactorySimple());
+		Map<String, String> dcNameType = parser.parseDatacenters();
+		for(String dcName: dcNameType.keySet()) {
+			parser.parseWirelessGateway(dcName);
+		}
+		return parser.dcAndWirelessGateway;
 	}
 
 	public static void loadPhysicalTopologySingleDC(String physicalTopologyFilename, NetworkOperatingSystem nos, HostFactory hostFactory) {
@@ -147,6 +160,10 @@ public class PhysicalTopologyParser {
 		parseLink();
 	}
 
+	/**
+	 * parse switch 和 host
+	 * 并在该函数中创建 dc 与 wirelessGateway 之间的映射
+	 */
 	public void parseNode(String datacenterName) {
 		try {
     		JSONObject doc = (JSONObject) JSONValue.parse(new FileReader(this.filename));
@@ -215,6 +232,7 @@ public class PhysicalTopologyParser {
 						sw = new EdgeSwitch(nodeName, bw, iops, upports, downports);
 					} else if (nodeType.equalsIgnoreCase("intercloud")){
 						sw = new IntercloudSwitch(nodeName, bw, iops, upports, downports);
+						this.dcAndWirelessGateway.put(datacenterName, sw);
 					} else if (nodeType.equalsIgnoreCase("gateway")){
 						// Find if this gateway is already created? If so, share it!
 						if(nameNodeTable.get(nodeName) != null)
@@ -228,6 +246,52 @@ public class PhysicalTopologyParser {
 					if(sw != null) {
 						nameNodeTable.put(nodeName, sw);
 						this.switches.put(dcName, sw);
+					}
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 创建 dc 与 wirelessGateway 之间的映射
+	 */
+	public void parseWirelessGateway(String datacenterName) {
+		try {
+			JSONObject doc = (JSONObject) JSONValue.parse(new FileReader(this.filename));
+			// Get Nodes (Switches and Hosts)
+			JSONArray nodes = (JSONArray) doc.get("nodes");
+			@SuppressWarnings("unchecked")
+			Iterator<JSONObject> iter =nodes.iterator();
+			while(iter.hasNext()){
+				JSONObject node = iter.next();
+				String nodeType = (String) node.get("type");
+				String nodeName = (String) node.get("name");
+				String dcName = (String) node.get("datacenter");
+				if(datacenterName != null && !datacenterName.equals(dcName)) {
+					continue;
+				}
+				if(nodeType.equalsIgnoreCase("host")){
+				} else {
+					////////////////////////////////////////
+					// Switch
+					////////////////////////////////////////
+					int MAX_PORTS = 256;
+
+					long bw = new BigDecimal((Long)node.get("bw")).longValueExact();
+					long iops = (Long) node.get("iops");
+					int upports = MAX_PORTS;
+					int downports = MAX_PORTS;
+					if (node.get("upports")!= null)
+						upports = new BigDecimal((Long)node.get("upports")).intValueExact();
+					if (node.get("downports")!= null)
+						downports = new BigDecimal((Long)node.get("downports")).intValueExact();
+					Switch sw = null;
+
+					if (nodeType.equalsIgnoreCase("gateway")){
+						sw = new IntercloudSwitch(nodeName, bw, iops, upports, downports);
+						this.dcAndWirelessGateway.put(datacenterName, sw);
 					}
 				}
 			}
