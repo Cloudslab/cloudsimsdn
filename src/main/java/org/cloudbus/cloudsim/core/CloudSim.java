@@ -22,6 +22,8 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.predicates.Predicate;
 import org.cloudbus.cloudsim.core.predicates.PredicateAny;
 import org.cloudbus.cloudsim.core.predicates.PredicateNone;
+import org.cloudbus.cloudsim.sdn.WirelessScheduler;
+import org.cloudbus.cloudsim.sdn.virtualcomponents.Channel;
 
 /**
  * This class extends the CloudSimCore to enable network simulation in CloudSim. Also, it disables
@@ -36,6 +38,7 @@ import org.cloudbus.cloudsim.core.predicates.PredicateNone;
  * @since CloudSim Toolkit 1.0
  */
 public class CloudSim {
+	public static WirelessScheduler wirelessScheduler = new WirelessScheduler();
 
 	/** The Constant CLOUDSIM_VERSION_STRING. */
 	private static final String CLOUDSIM_VERSION_STRING = "3.0";

@@ -53,7 +53,7 @@ public class Channel {
 	private final int chId;// flowID，也是 channelID
 	private double requestedBandwidth;	// Requested by user
 
-	private double totalLatency = 0;
+	public double totalLatency = 0;
 
 	private SDNVm srcVm;
 //	private SDNVm dstVm;
@@ -144,6 +144,13 @@ public class Channel {
 		packetScheduler.setTimeOut(Configuration.TIME_OUT); // If the packet is not successfull in 3 seconds, it will be discarded.
 	}
 
+	public void enableChannel(){
+		this.allocatedBandwidth = this.requestedBandwidth;
+	}
+
+	public void disableChannel(){
+		this.allocatedBandwidth = 0;
+	}
 //	/* 用于 debug，ignore it */
 //	public static void main(String[] args) {
 //		List<String> list = new ArrayList<String>(Arrays.asList("大少", "二少", "三少"));

@@ -123,6 +123,12 @@ public class ChannelManager {
 			nos.sendAdjustAllChannelEvent();
 	//		allChannels.add(ch);
 		}
+	public void addWirelessChannel(int src, int dst, int chId, Channel ch) {
+		//System.err.println("NOS.addChannel:"+getKey(src, dst, chId));
+		this.channelTable.put(getChannelKey(src, dst, chId), ch);
+//		ch.initialize();
+		ch.totalLatency = 0.01;
+	}
 
 	public Channel findChannel(int from, int to, int channelId) {
 		// check if there is a pre-configured channel for this application
@@ -158,6 +164,9 @@ public class ChannelManager {
 			if(ch.getActiveTransmissionNum() == 0) {
 				// No more job in channel. Delete
 				removeCh.add(key);
+/* **************************************************/
+				CloudSim.wirelessScheduler.RemoveChannel(ch);
+/* **************************************************/
 			}
 		}
 
@@ -228,7 +237,7 @@ public class ChannelManager {
 	}
 
 	/**
-	 * 找出所有完成传输的 channels，向接收端数据中心发送 SDN-1号消息
+	 * 找出所有完成传输的 channels，发送SDN-101/102/103给对应的dc
 	 * 之后删除空闲 channels。
 	 */
 	public boolean updatePacketProcessing() {

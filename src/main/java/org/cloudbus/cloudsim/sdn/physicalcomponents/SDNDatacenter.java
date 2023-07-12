@@ -7,10 +7,7 @@
  */
 package org.cloudbus.cloudsim.sdn.physicalcomponents;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.CloudletScheduler;
@@ -24,6 +21,7 @@ import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEvent;
+import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.sdn.ChanAndTrans;
 import org.cloudbus.cloudsim.sdn.CloudSimTagsSDN;
 import org.cloudbus.cloudsim.sdn.CloudletSchedulerMonitor;
@@ -248,15 +246,46 @@ public class SDNDatacenter extends Datacenter {
 				return;
 			}
 		}
-		channelManager.addChannel(src, dst, flowId+1000, channel);
+		channel.disableChannel();
+		channelManager.addWirelessChannel(src, dst, flowId+1000, channel);
 		Transmission tr = new Transmission(pkt);
-		tr.setRequestedBW(wirelessBwUp);
+
 		channel.addTransmission(tr);
-		this.nos.sendInternalEvent();
-		pkt.setPacketStartTime(pkt.getStartTime()/*CloudSim.clock()*/);
+		String chankey = CloudSim.wirelessScheduler.makeChanKey(this.getName(), "net");
+		if (CloudSim.wirelessScheduler.ChanKeyExist(chankey)){
+			CloudSim.wirelessScheduler.AddChannel(this.getName(),"net", channel);
+		} else {
+			CloudSim.wirelessScheduler.AddChannel(this.getName(), "net", channel);
+			this.nos.sendWirelessTimeSlide(this.nos.getId(), chankey);
+		}
 	}
 
 	private void PacketArrivedIntercloud(ChanAndTrans data) {
+//		ChannelManager channelManager = nos.getChannelManager();
+//		Packet pkt = data.tr.getPacket();
+//		Channel originCh = data.chan;
+//		int src = pkt.getOrigin(); // 发送方虚机
+//		int dst = pkt.getDestination(); // 接收方虚机
+//		int flowId = pkt.getFlowId();
+//		double wirelessBwDown = 20000;
+//		Channel channel = channelManager.findChannel(src, dst, flowId+2000);
+//		if(channel == null) {
+//			channel = new Channel(flowId + 2000, src, dst, originCh.nodesAll, originCh.linksAll, wirelessBwDown,
+//					(SDNVm) NetworkOperatingSystem.findVmGlobal(src), (SDNVm) NetworkOperatingSystem.findVmGlobal(dst), true, 2);
+//			if (channel == null) {
+//				// failed to create channel
+//				System.err.println("ERROR!! Cannot create channel!" + pkt);
+//				return;
+//			}
+//		}
+//		channelManager.addChannel(src, dst, flowId+2000, channel);
+//		Transmission tr = new Transmission(pkt);
+////		tr.setRequestedBW(wirelessBwDown);
+//		channel.addTransmission(tr);
+//		this.nos.sendInternalEvent();
+////		pkt.setPacketStartTime(pkt.getStartTime()/*CloudSim.clock()*/);
+
+
 		ChannelManager channelManager = nos.getChannelManager();
 		Packet pkt = data.tr.getPacket();
 		Channel originCh = data.chan;
@@ -274,12 +303,18 @@ public class SDNDatacenter extends Datacenter {
 				return;
 			}
 		}
-		channelManager.addChannel(src, dst, flowId+2000, channel);
+		channel.disableChannel();
+		channelManager.addWirelessChannel(src, dst, flowId+2000, channel);
 		Transmission tr = new Transmission(pkt);
-		tr.setRequestedBW(wirelessBwDown);
 		channel.addTransmission(tr);
-		this.nos.sendInternalEvent();
-		pkt.setPacketStartTime(pkt.getStartTime()/*CloudSim.clock()*/);
+
+		String chankey = CloudSim.wirelessScheduler.makeChanKey(this.getName(), SDNDatacenter.findDatacenterGlobal(dst).getName());
+		if (CloudSim.wirelessScheduler.ChanKeyExist(chankey)){
+			CloudSim.wirelessScheduler.AddChannel(this.getName(),SDNDatacenter.findDatacenterGlobal(dst).getName(), channel);
+		} else {
+			CloudSim.wirelessScheduler.AddChannel(this.getName(), SDNDatacenter.findDatacenterGlobal(dst).getName(), channel);
+			this.nos.sendWirelessTimeSlide(this.nos.getId(), chankey);
+		}
 	}
 
 	private void PacketAcrossArrivedGateway(ChanAndTrans data) {
@@ -302,10 +337,10 @@ public class SDNDatacenter extends Datacenter {
 		}
 		channelManager.addChannel(src, dst, flowId+3000, channel);
 		Transmission tr = new Transmission(pkt);
-		tr.setRequestedBW(ethernetBw);
+//		tr.setRequestedBW(ethernetBw);
 		channel.addTransmission(tr);
 		this.nos.sendInternalEvent();
-		pkt.setPacketStartTime(pkt.getStartTime()/*CloudSim.clock()*/);
+//		pkt.setPacketStartTime(pkt.getStartTime()/*CloudSim.clock()*/);
 	}
 
 	public void processUpdateProcessing() {

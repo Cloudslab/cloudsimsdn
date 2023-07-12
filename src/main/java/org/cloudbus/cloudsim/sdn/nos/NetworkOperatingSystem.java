@@ -162,6 +162,11 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 			case CloudSimTagsSDN.SDN_INTERNAL_PACKET_PROCESS:
 				processInternalPacketProcessing();
 				break;
+			/* **************************************************************/
+			case CloudSimTagsSDN.SDN_WIRELESS_TIMESLIDE:
+				processWirelessTimeSlot((String)ev.getData());
+				break;
+			/* **************************************************************/
 			case CloudSimTags.VM_CREATE_ACK:
 				processVmCreateAck(ev);
 				break;
@@ -397,6 +402,22 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		}
 	}
 
+	private void processWirelessTimeSlot(String chankey) {
+		List<Channel> list = CloudSim.wirelessScheduler.GetChanList(chankey);
+		if(list == null || list.size() == 0){
+			// 不再继续该chankey对应的 timeslot
+			return;
+		}
+		if (list.size() == 1){
+			int a = 0;
+		}
+		CloudSim.wirelessScheduler.PushBackAndDisableOthers(chankey);
+
+		channelManager.updatePacketProcessing(); // 此步会处理 processCompletePackets
+		// 继续该chankey对应的 timeslot
+		sendWirelessTimeSlide(this.getId(), chankey);
+	}
+
 	/**
 	 * 计算nextFinishTime时间，发 SDN-3 号消息(SDN_INTERNAL_PACKET_PROCESS)
 	 */
@@ -430,6 +451,10 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 		}
 	}
 
+	public void sendWirelessTimeSlide(int destNOSID, String chankey) {
+//		CloudSim.cancelAll(destNOSID, new PredicateType(CloudSimTagsSDN.SDN_WIRELESS_TIMESLIDE));
+		send(destNOSID, 0.01, CloudSimTagsSDN.SDN_WIRELESS_TIMESLIDE, chankey);
+	}
 	public void updateChannelBandwidth(int src, int dst, int flowId, long newBandwidth) {
 		if(channelManager.updateChannelBandwidth(src, dst, flowId, newBandwidth)) {
 			// As the requested bandwidth updates, find alternative path if the current path cannot provide the new bandwidth.
