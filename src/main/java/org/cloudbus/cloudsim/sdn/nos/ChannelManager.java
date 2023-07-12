@@ -214,14 +214,15 @@ public class ChannelManager {
 		for(Channel ch:channelTable.values()){
 
 			double eft = ch.nextFinishTime();
+
 			if (eft<earliestEft){
 				earliestEft=eft;
 			}
 		}
 
-		if(earliestEft == Double.POSITIVE_INFINITY) {
-			throw new IllegalArgumentException("NOS.nextFinishTime(): next finish time is infinite!");
-		}
+//		if(earliestEft == Double.POSITIVE_INFINITY) {
+//			throw new IllegalArgumentException("NOS.nextFinishTime(): next finish time is infinite!");
+//		}
 		return earliestEft;
 
 	}

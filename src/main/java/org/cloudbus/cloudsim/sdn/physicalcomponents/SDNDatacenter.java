@@ -227,6 +227,9 @@ public class SDNDatacenter extends Datacenter {
 		}
 	}
 
+	/**
+	 * 网络包抵达发送方Gateway
+	 */
 	private void PacketArrivedGateway(ChanAndTrans data) {
 		ChannelManager channelManager = nos.getChannelManager();
 		Packet pkt = data.tr.getPacket();
@@ -250,7 +253,7 @@ public class SDNDatacenter extends Datacenter {
 		tr.setRequestedBW(wirelessBwUp);
 		channel.addTransmission(tr);
 		this.nos.sendInternalEvent();
-		pkt.setPacketStartTime(CloudSim.clock());
+		pkt.setPacketStartTime(pkt.getStartTime()/*CloudSim.clock()*/);
 	}
 
 	private void PacketArrivedIntercloud(ChanAndTrans data) {
@@ -276,7 +279,7 @@ public class SDNDatacenter extends Datacenter {
 		tr.setRequestedBW(wirelessBwDown);
 		channel.addTransmission(tr);
 		this.nos.sendInternalEvent();
-		pkt.setPacketStartTime(CloudSim.clock());
+		pkt.setPacketStartTime(pkt.getStartTime()/*CloudSim.clock()*/);
 	}
 
 	private void PacketAcrossArrivedGateway(ChanAndTrans data) {
@@ -302,7 +305,7 @@ public class SDNDatacenter extends Datacenter {
 		tr.setRequestedBW(ethernetBw);
 		channel.addTransmission(tr);
 		this.nos.sendInternalEvent();
-		pkt.setPacketStartTime(CloudSim.clock());
+		pkt.setPacketStartTime(pkt.getStartTime()/*CloudSim.clock()*/);
 	}
 
 	public void processUpdateProcessing() {

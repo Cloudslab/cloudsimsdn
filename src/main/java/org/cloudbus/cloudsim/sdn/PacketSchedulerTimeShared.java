@@ -52,6 +52,10 @@ public class PacketSchedulerTimeShared extends PacketSchedulerSpaceShared {
 	}
 
 	// The earliest finish time among all transmissions in this channel
+
+	/**
+	 * 若channel的带宽为0，返回Double.POSITIVE_INFINITY
+	 */
 	@Override
 	public double nextFinishTime() {
 		//now, predicts delay to next transmission completion

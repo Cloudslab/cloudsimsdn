@@ -13,13 +13,13 @@ Switch: edge1,1.0,0.0
 Switch: edge2,1.0,0.0
 Switch: edge2,1.0,0.0
 Switch: inter,1.0,0.0
-Switch: inter,1.0,4.576E-4
-Switch: 2edge1,2.0,0.0
+Switch: inter,1.0,9.152E-4
+Switch: 2edge1,2.0,8.0E-4
 Switch: 2core,2.0,0.0
 Switch: 2edge2,2.0,0.0
-Switch: gw2,2.0,8.0E-4
+Switch: gw2,2.0,0.0016
 Switch: 2edge2,2.0,0.0
-Switch: 2core,2.0,8.0E-4
+Switch: 2core,2.0,0.0016
 Switch: 2edge1,2.0,8.0E-4
 Switch: edge1,2.0,0.0
 Switch: gw1,2.0,0.0
@@ -29,4 +29,4 @@ Switch: edge1,2.0,0.0
 Switch: edge2,2.0,0.0
 Switch: edge2,2.0,0.0
 Switch: inter,2.0,0.0
-Switch: inter,2.0,3.424E-4
+Switch: inter,2.0,6.848E-4

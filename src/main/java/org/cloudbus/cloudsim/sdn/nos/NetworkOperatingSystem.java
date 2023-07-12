@@ -407,7 +407,11 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 
 			// More to process. Send event again
 			double delay = channelManager.nextFinishTime();
-
+/* ********************************************************************************************/
+			if(delay == Double.POSITIVE_INFINITY) {// channel都被disable了
+				return;
+			}
+/* ********************************************************************************************/
 			if (delay < CloudSim.getMinTimeBetweenEvents()) {
 				//Log.printLine(CloudSim.clock() + ":Channel: delay is too short: "+ delay);
 				delay = CloudSim.getMinTimeBetweenEvents();
