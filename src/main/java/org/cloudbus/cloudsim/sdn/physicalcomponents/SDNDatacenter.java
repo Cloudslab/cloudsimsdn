@@ -245,47 +245,27 @@ public class SDNDatacenter extends Datacenter {
 				System.err.println("ERROR!! Cannot create channel!" + pkt);
 				return;
 			}
-		}
-		channel.disableChannel();
-		channelManager.addWirelessChannel(src, dst, flowId+1000, channel);
-		Transmission tr = new Transmission(pkt);
 
-		channel.addTransmission(tr);
-		String chankey = CloudSim.wirelessScheduler.makeChanKey(this.getName(), "net");
-		if (CloudSim.wirelessScheduler.ChanKeyExist(chankey)){
-			CloudSim.wirelessScheduler.AddChannel(this.getName(),"net", channel);
-		} else {
-			CloudSim.wirelessScheduler.AddChannel(this.getName(), "net", channel);
-			this.nos.sendWirelessTimeSlide(this.nos.getId(), chankey);
+			channel.disableChannel();
+			channelManager.addWirelessChannel(src, dst, flowId+1000, channel);
+			Transmission tr = new Transmission(pkt);
+
+			channel.addTransmission(tr);
+			String chankey = CloudSim.wirelessScheduler.makeChanKey(this.getName(), "net");
+			if (CloudSim.wirelessScheduler.ChanKeyExist(chankey)){
+				CloudSim.wirelessScheduler.AddChannel(this.getName(),"net", channel);
+			} else {
+				CloudSim.wirelessScheduler.AddChannel(this.getName(), "net", channel);
+				this.nos.sendWirelessTimeSlide(this.nos.getId(), chankey);
+			}
+
+		} else { // channel已经有包了，需排队等待
+			Transmission tr = new Transmission(pkt);
+			channel.addTransmission(tr);
 		}
 	}
 
 	private void PacketArrivedIntercloud(ChanAndTrans data) {
-//		ChannelManager channelManager = nos.getChannelManager();
-//		Packet pkt = data.tr.getPacket();
-//		Channel originCh = data.chan;
-//		int src = pkt.getOrigin(); // 发送方虚机
-//		int dst = pkt.getDestination(); // 接收方虚机
-//		int flowId = pkt.getFlowId();
-//		double wirelessBwDown = 20000;
-//		Channel channel = channelManager.findChannel(src, dst, flowId+2000);
-//		if(channel == null) {
-//			channel = new Channel(flowId + 2000, src, dst, originCh.nodesAll, originCh.linksAll, wirelessBwDown,
-//					(SDNVm) NetworkOperatingSystem.findVmGlobal(src), (SDNVm) NetworkOperatingSystem.findVmGlobal(dst), true, 2);
-//			if (channel == null) {
-//				// failed to create channel
-//				System.err.println("ERROR!! Cannot create channel!" + pkt);
-//				return;
-//			}
-//		}
-//		channelManager.addChannel(src, dst, flowId+2000, channel);
-//		Transmission tr = new Transmission(pkt);
-////		tr.setRequestedBW(wirelessBwDown);
-//		channel.addTransmission(tr);
-//		this.nos.sendInternalEvent();
-////		pkt.setPacketStartTime(pkt.getStartTime()/*CloudSim.clock()*/);
-
-
 		ChannelManager channelManager = nos.getChannelManager();
 		Packet pkt = data.tr.getPacket();
 		Channel originCh = data.chan;
@@ -302,18 +282,21 @@ public class SDNDatacenter extends Datacenter {
 				System.err.println("ERROR!! Cannot create channel!" + pkt);
 				return;
 			}
-		}
-		channel.disableChannel();
-		channelManager.addWirelessChannel(src, dst, flowId+2000, channel);
-		Transmission tr = new Transmission(pkt);
-		channel.addTransmission(tr);
+			channel.disableChannel();
+			channelManager.addWirelessChannel(src, dst, flowId+2000, channel);
+			Transmission tr = new Transmission(pkt);
+			channel.addTransmission(tr);
 
-		String chankey = CloudSim.wirelessScheduler.makeChanKey(this.getName(), SDNDatacenter.findDatacenterGlobal(dst).getName());
-		if (CloudSim.wirelessScheduler.ChanKeyExist(chankey)){
-			CloudSim.wirelessScheduler.AddChannel(this.getName(),SDNDatacenter.findDatacenterGlobal(dst).getName(), channel);
-		} else {
-			CloudSim.wirelessScheduler.AddChannel(this.getName(), SDNDatacenter.findDatacenterGlobal(dst).getName(), channel);
-			this.nos.sendWirelessTimeSlide(this.nos.getId(), chankey);
+			String chankey = CloudSim.wirelessScheduler.makeChanKey(this.getName(), SDNDatacenter.findDatacenterGlobal(dst).getName());
+			if (CloudSim.wirelessScheduler.ChanKeyExist(chankey)){
+				CloudSim.wirelessScheduler.AddChannel(this.getName(),SDNDatacenter.findDatacenterGlobal(dst).getName(), channel);
+			} else {
+				CloudSim.wirelessScheduler.AddChannel(this.getName(), SDNDatacenter.findDatacenterGlobal(dst).getName(), channel);
+				this.nos.sendWirelessTimeSlide(this.nos.getId(), chankey);
+			}
+		} else { // channel已经有包了，需排队等待
+			Transmission tr = new Transmission(pkt);
+			channel.addTransmission(tr);
 		}
 	}
 

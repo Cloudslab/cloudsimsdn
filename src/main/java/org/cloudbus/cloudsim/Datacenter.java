@@ -916,9 +916,10 @@ public class Datacenter extends SimEntity {
 			}
 
 			// gurantees a minimal interval before scheduling the event
-			if (smallerTime < CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01) {
-				smallerTime = CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01;
-			}
+//			if (smallerTime < CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01) {
+//				smallerTime = CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01;
+//			}
+			smallerTime += 0.01; // cloudlet调度时间0.01
 			// >=0.02秒后更新所有的任务进度
 			if (smallerTime != Double.MAX_VALUE) {
 				schedule(getId(), (smallerTime - CloudSim.clock()), CloudSimTags.VM_DATACENTER_EVENT);
