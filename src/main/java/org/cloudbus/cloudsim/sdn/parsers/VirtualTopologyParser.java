@@ -175,7 +175,7 @@ public class VirtualTopologyParser {
 		Hashtable<String, Integer> flowNameIdTable = new Hashtable<String, Integer>();
 
 		// Parse VM-VM links
-		JSONArray links = (JSONArray) doc.get("flows");
+		JSONArray links = (JSONArray) doc.get("links");
 
 		@SuppressWarnings("unchecked")
 		Iterator<JSONObject> linksIter = links.iterator();

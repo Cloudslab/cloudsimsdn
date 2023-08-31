@@ -61,6 +61,18 @@ public class Channel {
 	//PacketScheduler packetScheduler = new PacketSchedulerSpaceShared(this);
 	PacketScheduler packetScheduler = new PacketSchedulerTimeShared(this);
 
+	public double reCalcuMinBandwidth(){
+		double minBw = Double.POSITIVE_INFINITY;
+		for (int i = 0; i<this.links.size(); ++i) {
+			double freei = this.links.get(i).getFreeBandwidth(this.nodes.get(i));
+			if (minBw > freei){
+				minBw = freei;
+			}
+		}
+		this.allocatedBandwidth = minBw;
+		this.requestedBandwidth = minBw;
+		return minBw;
+	}
 	public Channel(int chId, int srcId, int dstId, List<Node> nodes, List<Link> links, double bandwidth, SDNVm srcVm, SDNVm dstVm, boolean wireless, int wirelessLevel) {
 		this.isWireless = wireless;
 		this.wirelessLevel = wirelessLevel;

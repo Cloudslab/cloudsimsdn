@@ -76,7 +76,7 @@
     },
 
   ],
-  "flows" : [
+  "links" : [
     { "name": "default", "source" : "vm01" , "destination" : "vm02" },
     { "name": "default", "source" : "vm02" , "destination" : "vm01" },
     { "name": "default", "source" : "vm02" , "destination" : "vm03" },
@@ -87,15 +87,5 @@
     { "name": "default", "source" : "vm032" , "destination" : "vm022" }
   ],
   "policies" : [
-    {
-	  "name" : "policy1",
-      "source" : "vm01",
-      "destination" : "vm02",
-      "flowname": "default",
-	  "sfc": [
-	    "vnf1"
-	  ],
-	  "expected_time": 0.7
-    }
   ]
 }

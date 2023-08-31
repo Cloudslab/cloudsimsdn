@@ -28,6 +28,8 @@ import org.cloudbus.cloudsim.sdn.CloudletSchedulerMonitor;
 import org.cloudbus.cloudsim.sdn.Packet;
 import org.cloudbus.cloudsim.sdn.nos.ChannelManager;
 import org.cloudbus.cloudsim.sdn.nos.NetworkOperatingSystem;
+import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.GatewaySwitch;
+import org.cloudbus.cloudsim.sdn.physicalcomponents.switches.IntercloudSwitch;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationInGroup;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyPriorityFirst;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmGroup;
@@ -324,11 +326,13 @@ public class SDNDatacenter extends Datacenter {
 		int src = pkt.getOrigin(); // 发送方虚机
 		int dst = pkt.getDestination(); // 接收方虚机
 		int flowId = pkt.getFlowId();
-		double ethernetBw = nos.getRequestedBandwidth(flowId);;
+		double ethernetBw = 100000; //需要重计算
+
 		Channel channel = channelManager.findChannel(src, dst, flowId+3000);
 		if(channel == null) {
 			channel = new Channel(flowId + 3000, src, dst, originCh.nodesAll, originCh.linksAll, ethernetBw,
 					(SDNVm) NetworkOperatingSystem.findVmGlobal(src), (SDNVm) NetworkOperatingSystem.findVmGlobal(dst), true, 3);
+			ethernetBw = channel.reCalcuMinBandwidth();
 			if (channel == null) {
 				// failed to create channel
 				System.err.println("ERROR!! Cannot create channel!" + pkt);

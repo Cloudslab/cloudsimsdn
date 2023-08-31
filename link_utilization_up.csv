@@ -5,12 +5,12 @@ Switch: 2edge2,1.0,0.0
 2host03,1.0,0.0
 Switch: 2core,1.0,0.0
 2host01,1.0,0.0
-host04,1.0,0.029
-Switch: edge2,1.0,0.029
-Switch: core,1.0,0.029
+host04,1.0,0.01
+Switch: edge2,1.0,0.01
+Switch: core,1.0,0.01
 Switch: edge1,1.0,0.0
 host01,1.0,0.0
 host03,1.0,0.0
 host02,1.0,0.0
-Switch: gw1,1.0,4.032E-4
+Switch: gw1,1.0,8.0E-5
 Switch: gw2,1.0,0.0
