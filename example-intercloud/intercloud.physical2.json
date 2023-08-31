@@ -125,9 +125,6 @@
       "bw" : 12500000,
 	  "datacenter": "dc1",
     },
-
-
-
     {
       "name": "gw2",
       "type" : "gateway",
@@ -158,6 +155,7 @@
     {
       "name": "2edge2",
       "type" : "edge",
+      "sl" : 0.001,
       "iops" : 1000000000,
       "upports" : 1,
       "downports" : 4,

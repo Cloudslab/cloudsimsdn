@@ -305,6 +305,7 @@ public class ChannelManager {
 			sfcForwarder.updateSFCMonitor(ch.getSrcId(), ch.getDstId(), ch.getChId(), processedBytes);
 		}
 		this.resetTempRemovedChannel();
+
 	}
 
 

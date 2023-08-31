@@ -45,18 +45,7 @@ public class WirelessScheduler {
 			chanTable.put(chankey, list);
 		} else {
 			if (channelExisted(chankey, chan)) { // channel已存在
-				int a= 1;
-				a= 2;
-				a= 3;
-				a= 3;
-				a= 3;
-				a= 3;
-				a= 3;
-				a= 3;
-				a= 3;
-				a= 3;
-
-				System.err.println("\nWirelessChanTable已存在该chan!!!\n"); // 一个
+				System.err.println("\nWirelessChanTable已存在该chan!!!\n");
 			} else {
 				list.add(chan);
 				chanTable.put(chankey, list);

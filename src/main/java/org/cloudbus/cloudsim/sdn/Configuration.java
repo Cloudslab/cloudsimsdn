@@ -117,7 +117,7 @@ public class Configuration {
 	public static final double SFC_UNDERLOAD_THRESHOLD_BW = 0.4;
 	public static final double SFC_UNDERLOAD_THRESHOLD_VM = 0.4;
 
-	public static final double TIME_OUT = 50; //Double.POSITIVE_INFINITY; //
+	public static final double TIME_OUT = 10; //Double.POSITIVE_INFINITY; //
 
 	public static boolean ENABLE_SFC = false;
 
