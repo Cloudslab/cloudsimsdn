@@ -7,6 +7,10 @@
  */
 package org.cloudbus.cloudsim.sdn.example;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -38,6 +42,8 @@ import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyCombine
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyCombinedMostFullFirst;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyMipsLeastFullFirst;
 import org.cloudbus.cloudsim.sdn.policies.vmallocation.VmAllocationPolicyMipsMostFullFirst;
+import org.json.JSONObject;
+import org.json.XML;
 
 /**
  * CloudSimSDN example main program for InterCloud scenario.
@@ -73,7 +79,9 @@ public class SimpleExampleInterCloud {
 	 * @param args the args
 	 */
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
+//		xml2Json("example-intercloud/hmz_inputtest.xml");
+
 		CloudSimEx.setStartTime();
 
 		workloads = new ArrayList<String>();
@@ -337,6 +345,18 @@ public class SimpleExampleInterCloud {
 			filename = set+"_"+filename;
 			broker.submitRequests(filename);
 		}
+	}
+
+	public static void xml2Json(String path) throws IOException {
+		String xml = Files.readString(Path.of(path));
+		JSONObject xmlJSONObj = XML.toJSONObject(xml);
+		//设置缩进
+		String jsonPrettyPrintString = xmlJSONObj.toString(4);
+		//保存格式化后的json
+		FileWriter writer = new FileWriter("example-intercloud/hmz_convert.json");
+		writer.write(jsonPrettyPrintString);
+		writer.close();
+//		System.out.println(jsonPrettyPrintString);
 	}
 
 
