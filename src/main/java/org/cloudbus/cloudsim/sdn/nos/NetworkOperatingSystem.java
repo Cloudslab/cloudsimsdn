@@ -282,9 +282,8 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 
 	public boolean startDeployApplicatoin() {
 		List<Vm> vms = new ArrayList<Vm>(vmMapId2Vm.values());
-		List<ServiceFunctionChainPolicy> sfcPolicies = new ArrayList<ServiceFunctionChainPolicy>(sfcForwarder.getAllPolicies());
-		boolean result = deployApplication(vms, this.flowMapVmId2Flow.values(), sfcPolicies);
-
+//		List<ServiceFunctionChainPolicy> sfcPolicies = new ArrayList<ServiceFunctionChainPolicy>(sfcForwarder.getAllPolicies());
+		boolean result = deployApplication(vms, this.flowMapVmId2Flow.values(), null);
 		isApplicationDeployed = result;
 		return result;
 	}
@@ -661,47 +660,47 @@ public abstract class NetworkOperatingSystem extends SimEntity {
 	public void addFlow(FlowConfig flow) {
 		insertFlowToMap(flow);
 
-		if(flow.getFlowId() != -1) {
-			gFlowMapFlowId2Flow.put(flow.getFlowId(), flow);
-		}
+//		if(flow.getFlowId() != -1) {
+//			gFlowMapFlowId2Flow.put(flow.getFlowId(), flow);
+//		}
 	}
 
-	public void addSFCPolicy(ServiceFunctionChainPolicy policy) {
-		sfcForwarder.addPolicy(policy);
-		List<FlowConfig> extraFlows = createExtraFlowSFCPolicy(policy);
-		for(FlowConfig flow:extraFlows)
-			insertFlowToMap(flow);
-	}
+//	public void addSFCPolicy(ServiceFunctionChainPolicy policy) {
+//		sfcForwarder.addPolicy(policy);
+//		List<FlowConfig> extraFlows = createExtraFlowSFCPolicy(policy);
+//		for(FlowConfig flow:extraFlows)
+//			insertFlowToMap(flow);
+//	}
 
-	private List<FlowConfig> createExtraFlowSFCPolicy(ServiceFunctionChainPolicy policy) {
-		// Add extra Flow for ServiceFunctionChain
-
-		List<FlowConfig> flowList = new LinkedList<FlowConfig>();
-		int flowId = policy.getFlowId();
-
-		long bw = 0;
-		double latency = 0.0;
-
-		if(flowId != -1)
-		{
-			FlowConfig orgFlow = gFlowMapFlowId2Flow.get(flowId);
-			bw = orgFlow.getBw();
-			latency = orgFlow.getLatency();
-		}
-
-		List<Integer> vmIds = policy.getServiceFunctionChainIncludeVM();
-		for(int i=0; i < vmIds.size()-1; i++) {
-			// Build channel chain: SrcVM ---> SF1 ---> SF2 ---> DstVM
-			int fromId = vmIds.get(i);
-			int toId = vmIds.get(i+1);
-
-			FlowConfig sfcFlow = new FlowConfig(fromId, toId, flowId, bw, latency);
-			flowList.add(sfcFlow);
-		}
-
-		policy.setInitialBandwidth(bw);
-		return flowList;
-	}
+//	private List<FlowConfig> createExtraFlowSFCPolicy(ServiceFunctionChainPolicy policy) {
+//		// Add extra Flow for ServiceFunctionChain
+//
+//		List<FlowConfig> flowList = new LinkedList<FlowConfig>();
+//		int flowId = policy.getFlowId();
+//
+//		long bw = 0;
+//		double latency = 0.0;
+//
+//		if(flowId != -1)
+//		{
+//			FlowConfig orgFlow = gFlowMapFlowId2Flow.get(flowId);
+//			bw = orgFlow.getBw();
+//			latency = orgFlow.getLatency();
+//		}
+//
+//		List<Integer> vmIds = policy.getServiceFunctionChainIncludeVM();
+//		for(int i=0; i < vmIds.size()-1; i++) {
+//			// Build channel chain: SrcVM ---> SF1 ---> SF2 ---> DstVM
+//			int fromId = vmIds.get(i);
+//			int toId = vmIds.get(i+1);
+//
+//			FlowConfig sfcFlow = new FlowConfig(fromId, toId, flowId, bw, latency);
+//			flowList.add(sfcFlow);
+//		}
+//
+//		policy.setInitialBandwidth(bw);
+//		return flowList;
+//	}
 
 	// for monitoring
 	private void updateBWMonitor(double monitoringTimeUnit) {

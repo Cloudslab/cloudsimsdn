@@ -68,9 +68,10 @@ public class VirtualTopologyParser {
     		JSONObject doc = (JSONObject) JSONValue.parse(new FileReader(vmsFileName));
 
     		Hashtable<String, Integer> vmNameIdTable = parseVMs(doc);
-    		Hashtable<String, Integer> flowNameIdTable = parseLinks(doc, vmNameIdTable);
+//    		Hashtable<String, Integer> flowNameIdTable //
+			parseLinks(doc, vmNameIdTable);
 			/* 不需要SFC */
-    		parseSFCPolicies(doc, vmNameIdTable, flowNameIdTable);
+//    		parseSFCPolicies(doc, vmNameIdTable, flowNameIdTable);
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -171,11 +172,11 @@ public class VirtualTopologyParser {
 		return vmNameIdTable;
 	}
 
-	private Hashtable<String, Integer> parseLinks(JSONObject doc, Hashtable<String, Integer> vmNameIdTable) {
-		Hashtable<String, Integer> flowNameIdTable = new Hashtable<String, Integer>();
+	private void /*Hashtable<String, Integer>*/ parseLinks(JSONObject doc, Hashtable<String, Integer> vmNameIdTable) {
+//		Hashtable<String, Integer> flowNameIdTable = new Hashtable<String, Integer>();
 
 		// Parse VM-VM links
-		JSONArray links = (JSONArray) doc.get("links");
+		JSONArray links = (JSONArray) doc.get("flows");
 
 		@SuppressWarnings("unchecked")
 		Iterator<JSONObject> linksIter = links.iterator();
@@ -215,50 +216,50 @@ public class VirtualTopologyParser {
 			}
 
 			arcList.add(arc);
-			flowNameIdTable.put(name, flowId);
+//			flowNameIdTable.put(name, flowId);
 		}
-		return flowNameIdTable;
+//		return flowNameIdTable;
 	}
 
-	private void parseSFCPolicies(JSONObject doc, Hashtable<String, Integer> vmNameIdTable, Hashtable<String, Integer> flowNameIdTable) {
-		// Parse SFC policies
-		JSONArray policies = (JSONArray)doc.get("policies");
-
-		if(policies == null)
-			return;
-
-		@SuppressWarnings("unchecked")
-		Iterator<JSONObject> policyIter = policies.iterator();
-		while(policyIter.hasNext()){
-			JSONObject policy = policyIter.next();
-			String name = (String) policy.get("name");
-			String src = (String) policy.get("source");
-			String dst = (String) policy.get("destination");
-			String flowname = (String) policy.get("flowname");
-			Double expectedTime = (Double)policy.get("expected_time");
-			if(expectedTime == null) {
-				expectedTime = Double.POSITIVE_INFINITY;
-			}
-
-			int srcId = vmNameIdTable.get(src);
-			int dstId = vmNameIdTable.get(dst);
-			int flowId = flowNameIdTable.get(flowname);
-
-			JSONArray sfc = (JSONArray)policy.get("sfc");
-			ArrayList<Integer> sfcList = new ArrayList<Integer>();
-			for (int i=0;i<sfc.size();i++){
-				String sfName = sfc.get(i).toString();
-				int sfVmId =  vmNameIdTable.get(sfName);
-				sfcList.add(sfVmId);
-			}
-
-			ServiceFunctionChainPolicy pol = new ServiceFunctionChainPolicy(srcId, dstId, flowId, sfcList, expectedTime);
-			if(name != null)
-				pol.setName(name);
-
-			policyList.add(pol);
-		}
-	}
+//	private void parseSFCPolicies(JSONObject doc, Hashtable<String, Integer> vmNameIdTable, Hashtable<String, Integer> flowNameIdTable) {
+//		// Parse SFC policies
+//		JSONArray policies = (JSONArray)doc.get("policies");
+//
+//		if(policies == null)
+//			return;
+//
+//		@SuppressWarnings("unchecked")
+//		Iterator<JSONObject> policyIter = policies.iterator();
+//		while(policyIter.hasNext()){
+//			JSONObject policy = policyIter.next();
+//			String name = (String) policy.get("name");
+//			String src = (String) policy.get("source");
+//			String dst = (String) policy.get("destination");
+//			String flowname = (String) policy.get("flowname");
+//			Double expectedTime = (Double)policy.get("expected_time");
+//			if(expectedTime == null) {
+//				expectedTime = Double.POSITIVE_INFINITY;
+//			}
+//
+//			int srcId = vmNameIdTable.get(src);
+//			int dstId = vmNameIdTable.get(dst);
+//			int flowId = flowNameIdTable.get(flowname);
+//
+//			JSONArray sfc = (JSONArray)policy.get("sfc");
+//			ArrayList<Integer> sfcList = new ArrayList<Integer>();
+//			for (int i=0;i<sfc.size();i++){
+//				String sfName = sfc.get(i).toString();
+//				int sfVmId =  vmNameIdTable.get(sfName);
+//				sfcList.add(sfVmId);
+//			}
+//
+//			ServiceFunctionChainPolicy pol = new ServiceFunctionChainPolicy(srcId, dstId, flowId, sfcList, expectedTime);
+//			if(name != null)
+//				pol.setName(name);
+//
+//			policyList.add(pol);
+//		}
+//	}
 
 	public Collection<SDNVm> getVmList(String dcName) {
 		return vmList.get(dcName);

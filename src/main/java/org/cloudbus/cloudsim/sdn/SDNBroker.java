@@ -223,29 +223,29 @@ public class SDNBroker extends SimEntity {
 	private void processApplication(int userId, String vmsFileName){
 		SDNDatacenter defaultDC = SDNBroker.datacenters.entrySet().iterator().next().getValue();
 		VirtualTopologyParser parser = new VirtualTopologyParser(defaultDC.getName(), vmsFileName, userId);
-		// 对于每个 dc，根据拓扑图新建 vm(s)。由对应的 nos管理。
+		// 对于每个 dc，新建 vm(s)。由对应的 nos管理。
 		for(String dcName: SDNBroker.datacenters.keySet()) {
 			SDNDatacenter dc = SDNBroker.datacenters.get(dcName);
 			NetworkOperatingSystem nos = dc.getNOS();
 
 			for(SDNVm vm:parser.getVmList(dcName)) {
 				nos.addVm(vm);
-				if(vm instanceof ServiceFunction) {
-					ServiceFunction sf = (ServiceFunction)vm;
-					sf.setNetworkOperatingSystem(nos);
-				}
+//				if(vm instanceof ServiceFunction) {
+//					ServiceFunction sf = (ServiceFunction)vm;
+//					sf.setNetworkOperatingSystem(nos);
+//				}
 				SDNBroker.vmIdToDc.put(vm.getId(), dc);
 			}
 		}
-		// 根据文件建立流（links）的 map
+		// 根据流（flows）的配置让对应的网络操作系统nos初始化流量通道。
 		for(FlowConfig arc:parser.getArcList()) {
 			SDNDatacenter srcDc = SDNBroker.vmIdToDc.get(arc.getSrcId());
 			SDNDatacenter dstDc = SDNBroker.vmIdToDc.get(arc.getDstId());
-
+			// 同一个平台内部
 			if(srcDc.equals(dstDc)) {
 				// Intra-DC traffic: create a virtual flow inside the DC
 				srcDc.getNOS().addFlow(arc);
-			}
+			} // 跨平台
 			else {
 				// Inter-DC traffic: Create it in inter-DC N.O.S.
 				srcDc.getNOS().addFlow(arc);
@@ -253,20 +253,20 @@ public class SDNBroker extends SimEntity {
 			}
 		}
 
-		// Add parsed ServiceFunctionChainPolicy
-		for(ServiceFunctionChainPolicy policy:parser.getSFCPolicyList()) {
-			SDNDatacenter srcDc = SDNBroker.vmIdToDc.get(policy.getSrcId());
-			SDNDatacenter dstDc = SDNBroker.vmIdToDc.get(policy.getDstId());
-			if(srcDc.equals(dstDc)) {
-				// Intra-DC traffic: create a virtual flow inside the DC
-				srcDc.getNOS().addSFCPolicy(policy);
-			}
-			else {
-				// Inter-DC traffic: Create it in inter-DC N.O.S.
-				srcDc.getNOS().addSFCPolicy(policy);
-				dstDc.getNOS().addSFCPolicy(policy);
-			}
-		}
+//		// Add parsed ServiceFunctionChainPolicy
+//		for(ServiceFunctionChainPolicy policy:parser.getSFCPolicyList()) {
+//			SDNDatacenter srcDc = SDNBroker.vmIdToDc.get(policy.getSrcId());
+//			SDNDatacenter dstDc = SDNBroker.vmIdToDc.get(policy.getDstId());
+//			if(srcDc.equals(dstDc)) {
+//				// Intra-DC traffic: create a virtual flow inside the DC
+//				srcDc.getNOS().addSFCPolicy(policy);
+//			}
+//			else {
+//				// Inter-DC traffic: Create it in inter-DC N.O.S.
+//				srcDc.getNOS().addSFCPolicy(policy);
+//				dstDc.getNOS().addSFCPolicy(policy);
+//			}
+//		}
 
 		for(String dcName: SDNBroker.datacenters.keySet()) {
 			SDNDatacenter dc = SDNBroker.datacenters.get(dcName);
