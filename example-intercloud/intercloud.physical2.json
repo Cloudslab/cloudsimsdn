@@ -1,7 +1,7 @@
 {
   "datacenters" : [
 	{
-	  "name": "dc1"
+	  "name": "dc1",
 	  "type": "cloud",
 	},
 	{

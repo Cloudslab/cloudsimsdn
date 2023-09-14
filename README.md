@@ -62,6 +62,10 @@ LFF 0 example-edge/edge.physical.json example-edge/edge.virtual.json example-edg
 ````
 LFF 1 example-sfc/sfc-example-physical.json example-sfc/sfc-example-scale-virtual.json example-sfc/ sfc-example-scale-workload.csv
 ````
+* To Run SJTU Dev Version:
+````
+LFF example-intercloud/intercloud.physical2.xml example-intercloud/intercloud.virtual2.json example-intercloud/one-workload.csv
+````
 
 ## Package Components
 1. org.cloudbus.cloudsim.sdn

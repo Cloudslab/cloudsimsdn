@@ -311,8 +311,7 @@ public class PhysicalTopologyParser {
 				JSONObject link = linksIter.next();
 				String src = (String) link.get("source");
 				String dst = (String) link.get("destination");
-				double lat = (Double) link.get("latency");
-
+				double lat = ((Long) link.get("latency")).doubleValue();
 				Node srcNode = nameNodeTable.get(src);
 				Node dstNode = nameNodeTable.get(dst);
 
