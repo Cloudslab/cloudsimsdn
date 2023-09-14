@@ -64,7 +64,7 @@ LFF 1 example-sfc/sfc-example-physical.json example-sfc/sfc-example-scale-virtua
 ````
 * To Run SJTU Dev Version:
 ````
-LFF example-intercloud/intercloud.physical2.json example-intercloud/intercloud.virtual2.json example-intercloud/one-workload.csv
+LFF example-intercloud/intercloud.physical2.xml example-intercloud/intercloud.virtual2.json example-intercloud/one-workload.csv
 ````
 
 ## Package Components
