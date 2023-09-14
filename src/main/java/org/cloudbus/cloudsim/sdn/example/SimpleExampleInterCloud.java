@@ -80,8 +80,6 @@ public class SimpleExampleInterCloud {
 	 */
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws IOException {
-//		xml2Json("example-intercloud/hmz_inputtest.xml");
-
 		CloudSimEx.setStartTime();
 
 		workloads = new ArrayList<String>();
@@ -95,6 +93,7 @@ public class SimpleExampleInterCloud {
 		VmAllocationPolicyEnum vmAllocPolicy = VmAllocationPolicyEnum.valueOf(args[0]);
 		if(args.length > 1)
 			physicalTopologyFile = args[1];
+
 		if(args.length > 2)
 			deploymentFile = args[2];
 		if(args.length > 3)
@@ -158,7 +157,8 @@ public class SimpleExampleInterCloud {
 			Configuration.monitoringTimeInterval = Configuration.migrationTimeInterval = 1;
 
 			// Create multiple Datacenters
-			Map<NetworkOperatingSystem, SDNDatacenter> dcs = createPhysicalTopology(physicalTopologyFile, ls, vmAllocationFac);
+			xml2Json(physicalTopologyFile);
+			Map<NetworkOperatingSystem, SDNDatacenter> dcs = createPhysicalTopology("example-intercloud/hmz_convert.json", ls, vmAllocationFac);
 
 			// Broker
 			SDNBroker broker = createBroker();
