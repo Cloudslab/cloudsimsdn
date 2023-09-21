@@ -89,6 +89,7 @@
 
   "flows" : [
     { "name": "default", "source" : "vm01" , "destination" : "vm21" },
+    { "name": "default", "source" : "vm21" , "destination" : "vm01" },
     { "name": "default", "source" : "vm01" , "destination" : "vm31" },
     { "name": "default", "source" : "vm21" , "destination" : "vm31" }
   ],
