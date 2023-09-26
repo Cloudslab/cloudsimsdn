@@ -236,6 +236,7 @@ public class SDNDatacenter extends Datacenter {
 		Channel originCh = data.chan;
 		int src = pkt.getOrigin(); // 发送方虚机
 		int dst = pkt.getDestination(); // 接收方虚机
+		double time = CloudSim.clock();
 		int flowId = pkt.getFlowId();
 /**********************************  半双工  *************************************/
 		if (CloudSim.HalfDuplex) {
@@ -250,7 +251,21 @@ public class SDNDatacenter extends Datacenter {
 /*******************************************************************************************/
 
 		double wirelessBwUp = 20000;
-		Channel channel = channelManager.findChannel(src, dst, flowId+1000);
+
+		//半双工 如果有反向channel 直接fail
+		Channel channel = channelManager.findChannel(dst, src, 0);
+//		List<Channel> allChannels = channelManager.findAllChannels(src);
+//		allChannels = channelManager.findAllChannels(dst);
+//		Log.printLine("!!!!!!!!!!!!!!!!");
+		if (channel != null) {
+//			Log.printLine("###################");
+			processPacketFailed(pkt);
+			return;
+		}
+
+
+		channel = channelManager.findChannel(src, dst, flowId+1000);
+		time = CloudSim.clock();
 		if(channel == null) {
 			channel = new Channel(flowId + 1000, src, dst, originCh.nodesAll, originCh.linksAll, wirelessBwUp,
 					(SDNVm) NetworkOperatingSystem.findVmGlobal(src), (SDNVm) NetworkOperatingSystem.findVmGlobal(dst), true, 1);
@@ -272,6 +287,8 @@ public class SDNDatacenter extends Datacenter {
 			CloudSim.wirelessScheduler.AddChannel(this.getName(), "net", channel);
 			this.nos.sendWirelessTimeSlide(this.nos.getId(), chankey);
 		}
+		time = CloudSim.clock();
+
 	}
 
 	private void PacketArrivedIntercloud(ChanAndTrans data) {
