@@ -1,4 +1,5 @@
 atime,name.1,zeros,w.1.1,link.1.2,name.2,p.1.2,w.2.1,link.2.3,name.3,p.2.3,w.3
 0,vm01,0,5,default,vm21,1000,5,,,,
-1,vm01,0,5,default,vm31,1000,5,,,,
-1,vm21,0,5,default,vm31,1000,5,,,,
+0,vm21,0,5,default,vm01,1000,5,,,,
+0.1,vm02,0,5,default,vm21,1000,5,,,,
+0.2,vm02,0,5,default,vm21,1000,5,,,,

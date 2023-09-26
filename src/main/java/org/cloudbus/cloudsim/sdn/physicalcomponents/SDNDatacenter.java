@@ -237,6 +237,18 @@ public class SDNDatacenter extends Datacenter {
 		int src = pkt.getOrigin(); // 发送方虚机
 		int dst = pkt.getDestination(); // 接收方虚机
 		int flowId = pkt.getFlowId();
+/**********************************  半双工  *************************************/
+		if (CloudSim.HalfDuplex) {
+			String backkey = CloudSim.wirelessScheduler.makeChanKey("net", this.getName());
+			if (CloudSim.wirelessScheduler.ChanKeyExist(backkey)) {
+				pkt.setPacketFinishTime(CloudSim.clock());
+				processPacketFailed(pkt);
+				return;
+			}
+
+		}
+/*******************************************************************************************/
+
 		double wirelessBwUp = 20000;
 		Channel channel = channelManager.findChannel(src, dst, flowId+1000);
 		if(channel == null) {
@@ -269,6 +281,19 @@ public class SDNDatacenter extends Datacenter {
 		int src = pkt.getOrigin(); // 发送方虚机
 		int dst = pkt.getDestination(); // 接收方虚机
 		int flowId = pkt.getFlowId();
+
+/**********************************  半双工  *************************************/
+		if (CloudSim.HalfDuplex) {
+			String backkey = CloudSim.wirelessScheduler.makeChanKey(SDNDatacenter.findDatacenterGlobal(dst).getName(), this.getName());
+			if (CloudSim.wirelessScheduler.ChanKeyExist(backkey)) {
+				pkt.setPacketFinishTime(CloudSim.clock());
+				processPacketFailed(pkt);
+				return;
+			}
+		}
+/*******************************************************************************************/
+
+
 		double wirelessBwDown = 20000;
 		Channel channel = channelManager.findChannel(src, dst, flowId+2000);
 		if(channel == null) {
@@ -499,7 +524,7 @@ public class SDNDatacenter extends Datacenter {
 		pkt.setPacketFailedTime(CloudSim.clock());
 		Request req = pkt.getPayload();
 
-		Request lastReq = req.getTerminalRequest();
+		Request lastReq = req.getTerminalRequest(); //一般是自身
 		send(req.getUserId(), CloudSim.getMinTimeBetweenEvents(), CloudSimTagsSDN.REQUEST_FAILED, lastReq);
 	}
 
