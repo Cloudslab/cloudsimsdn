@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.cloudbus.cloudsim.CloudletScheduler;
+import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.sdn.CloudletSchedulerSpaceSharedMonitor;
 import org.cloudbus.cloudsim.sdn.Configuration;
 import org.cloudbus.cloudsim.sdn.sfc.ServiceFunction;
@@ -113,15 +114,6 @@ public class VirtualTopologyParser {
 
 			// Optional datacenter specifies the alternative data center if 'data center' has no more resource.
 			ArrayList<String> optionalDatacenter = null;
-			if(node.get("subdatacenters") != null) {
-				optionalDatacenter = new ArrayList<>();
-				JSONArray subDCs = (JSONArray)node.get("subdatacenters");
-
-				for (int i=0;i<subDCs.size();i++){
-					String subdc = subDCs.get(i).toString();
-					optionalDatacenter.add(subdc);
-				}
-			}
 
 			String hostName = "";
 			if(node.get("host") != null)
@@ -149,20 +141,8 @@ public class VirtualTopologyParser {
 					vm.setHostName(hostName);
 					vm.setOptionalDatacenters(optionalDatacenter);
 					vmList.put(dcName, vm);
-				}
-				else {
-					// Create ServiceFunction objects
-					ServiceFunction sf = new ServiceFunction(vmId,userId,mips,pes,ram,bw,size,"VMM", clSch, starttime, endtime);
-					long mipOperation = (Long) node.get("mipoper");
-
-					sf.setName(nodeName2);
-					sf.setHostName(hostName);
-					sf.setOptionalDatacenters(optionalDatacenter);
-					sf.setMIperOperation(mipOperation);
-
-					sf.setMiddleboxType(nodeType);
-					vmList.put(dcName, sf);
-					sfList.add(sf);
+				}else {
+					Log.printLine("Error! Nodes other than VM exist in virtual file.\n");
 				}
 
 				vmNameIdTable.put(nodeName2, vmId);

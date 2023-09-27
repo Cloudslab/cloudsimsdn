@@ -8,6 +8,7 @@
       "mips" : 500,
       "ram"  : 512,
 	  "datacenter": "dc1",
+      "host": "host01"
     },
     {
       "name": "vm02",
@@ -17,6 +18,7 @@
       "mips" : 500,
       "ram"  : 512,
       "datacenter": "dc1",
+      "host": "host02"
     },
     {
       "name" : "vm03",
@@ -26,6 +28,7 @@
       "mips" : 500,
       "ram"  : 512,
       "datacenter": "dc1",
+      "host": "host03"
     },
 
 
@@ -37,6 +40,7 @@
       "mips" : 500,
       "ram"  : 512,
 	  "datacenter": "dc2",
+      "host": "2host01"
     },
     {
       "name": "vm22",
@@ -46,6 +50,7 @@
       "mips" : 500,
       "ram"  : 512,
 	  "datacenter": "dc2",
+      "host": "2host02"
     },
     {
       "name": "vm23",
@@ -55,6 +60,7 @@
       "mips" : 500,
       "ram"  : 512,
       "datacenter": "dc2",
+      "host": "2host03"
     },
 
 
@@ -66,6 +72,7 @@
       "mips" : 500,
       "ram"  : 512,
       "datacenter": "dc3",
+      "host": "3host01"
     },
     {
       "name": "vm32",
@@ -75,6 +82,7 @@
       "mips" : 500,
       "ram"  : 512,
       "datacenter": "dc3",
+      "host": "3host02"
     },
     {
       "name": "vm33",
@@ -84,6 +92,7 @@
       "mips" : 500,
       "ram"  : 512,
       "datacenter": "dc3",
+      "host": "3host03"
     }
   ],
 

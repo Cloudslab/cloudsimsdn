@@ -1,24 +1,14 @@
-2host01,1.0,0.0
-Switch: 2edge1,1.0,0.0
-2host02,1.0,0.0
-Switch: 2edge2,1.0,0.01
-Switch: 2core,1.0,0.01
-2host04,1.0,0.01
+2host01,1.0,0.01
 2host03,1.0,0.0
-host02,1.0,0.0
-Switch: edge1,1.0,0.0
-host03,1.0,0.02
-host04,1.0,0.01
-host01,1.0,0.0
-Switch: edge2,1.0,0.03
+Switch: 2core,1.0,0.01
+Switch: 2edge1,1.0,0.01
+2host02,1.0,0.0
+Switch: 2edge2,1.0,0.0
+2host04,1.0,0.0
+host02,1.0,0.02
+Switch: edge1,1.0,0.03
+host01,1.0,0.01
+host04,1.0,0.0
+Switch: edge2,1.0,0.0
+host03,1.0,0.0
 Switch: core,1.0,0.03
-Switch: 3core,1.0,0.0
-3host01,1.0,0.0
-3host04,1.0,0.0
-3host02,1.0,0.0
-Switch: 3edge1,1.0,0.0
-Switch: 3edge2,1.0,0.0
-3host03,1.0,0.0
-Switch: gw3,1.0,0.0
-Switch: gw1,1.0,1.6E-4
-Switch: gw2,1.0,8.0E-5

@@ -249,22 +249,8 @@ public class SDNDatacenter extends Datacenter {
 
 		}
 /*******************************************************************************************/
-
 		double wirelessBwUp = 20000;
-
-		//半双工 如果有反向channel 直接fail
-		Channel channel = channelManager.findChannel(dst, src, 0);
-//		List<Channel> allChannels = channelManager.findAllChannels(src);
-//		allChannels = channelManager.findAllChannels(dst);
-//		Log.printLine("!!!!!!!!!!!!!!!!");
-		if (channel != null) {
-//			Log.printLine("###################");
-			processPacketFailed(pkt);
-			return;
-		}
-
-
-		channel = channelManager.findChannel(src, dst, flowId+1000);
+		Channel channel = channelManager.findChannel(src, dst, flowId+1000);
 		time = CloudSim.clock();
 		if(channel == null) {
 			channel = new Channel(flowId + 1000, src, dst, originCh.nodesAll, originCh.linksAll, wirelessBwUp,
@@ -298,7 +284,6 @@ public class SDNDatacenter extends Datacenter {
 		int src = pkt.getOrigin(); // 发送方虚机
 		int dst = pkt.getDestination(); // 接收方虚机
 		int flowId = pkt.getFlowId();
-
 /**********************************  半双工  *************************************/
 		if (CloudSim.HalfDuplex) {
 			String backkey = CloudSim.wirelessScheduler.makeChanKey(SDNDatacenter.findDatacenterGlobal(dst).getName(), this.getName());
@@ -309,8 +294,6 @@ public class SDNDatacenter extends Datacenter {
 			}
 		}
 /*******************************************************************************************/
-
-
 		double wirelessBwDown = 20000;
 		Channel channel = channelManager.findChannel(src, dst, flowId+2000);
 		if(channel == null) {

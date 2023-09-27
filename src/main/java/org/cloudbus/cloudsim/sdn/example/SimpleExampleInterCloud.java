@@ -164,7 +164,7 @@ public class SimpleExampleInterCloud {
 			SDNBroker broker = createBroker();
 			int brokerId = broker.getId();
 
-			// Submit virtual topology
+			// Submit virtual topology 创建虚拟机等
 			broker.submitDeployApplication(dcs.values(), deploymentFile);
 
 			// Submit individual workloads
