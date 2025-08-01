@@ -1,6 +1,6 @@
 # CloudSimSDN
 
-CloudSimSDN: SDN extension of CloudSim project. Version 2.0 (CloudSimSDN-NFV) is now availalbe.
+CloudSimSDN: SDN extension of CloudSim project. Version 2.0 (CloudSimSDN-NFV) is now available.
 
 ## New Features:
 
@@ -106,7 +106,7 @@ LFF 1 example-sfc/sfc-example-physical.json example-sfc/sfc-example-scale-virtua
   
  10. org.cloudbus.cloudsim.sdn.sfc
  
-  Main components of Service Function Chaining (SFC) festures, including SFC Forwarder, SFC policy, auto scaling algorihtms (scaling up and out), etc.
+  Main components of Service Function Chaining (SFC) festures, including SFC Forwarder, SFC policy, auto scaling algorithms (scaling up and out), etc.
   
  11. org.cloudbus.cloudsim.sdn.virtualcomponents
  
@@ -114,7 +114,7 @@ LFF 1 example-sfc/sfc-example-physical.json example-sfc/sfc-example-scale-virtua
   
  12. org.cloudbus.cloudsim.sdn.workload
  
-  Core components for workload processing and networking transmission. Request.java represents the message submitted to VM that includes a list of activities(Activity.java) that should be performed at the VM (Processing and Transmission). Furthermore, in some senarios, one request could include another request for the subsequent requests which will be performed at the other VMs.
+  Core components for workload processing and networking transmission. Request.java represents the message submitted to VM that includes a list of activities(Activity.java) that should be performed at the VM (Processing and Transmission). Furthermore, in some scenarios, one request could include another request for the subsequent requests which will be performed at the other VMs.
   
 ## Input Data
 We need to submit three input files to CloudSimSDN: data center configuration (physical topology), resource deployment request (virtual topology), and workloads for VMs.
@@ -230,7 +230,7 @@ For Switch #103, it consumed 27,511 Wh for the whole experiment. No traffic was 
 Host energy consumed: 1848038.3846250002
 Switch energy consumed: 92493.37391543222
 Total energy consumed: 1940531.7585404324
-Simultanously used hosts:30
+Simultaneously used hosts:30
 ```
 Part 5 is the main result of this example. Using MFF policy, total energy consumption of the data center was 1,940,531Wh and at most 30 hosts were used at the same time.
  
@@ -243,7 +243,7 @@ To compare with the result of LFF policy, run the same program with 'LFF' parame
 
 ## Publication
 For the newest Edge computing, NFV and SFC version, please cite this paper:
-* Jungmin Son, TianZhang He, and Rajkumar Buyya, ["CloudSimSDN-NFV: Modeling and Simulation of Network Function Virtualization and Service Function Chaining in Edge Computing Environments"](https://doi.org/10.1002/spe.2755), Software: Practive and Experience. 2019;1–17.https://doi.org/10.1002/spe.2755
+* Jungmin Son, TianZhang He, and Rajkumar Buyya, ["CloudSimSDN-NFV: Modeling and Simulation of Network Function Virtualization and Service Function Chaining in Edge Computing Environments"](https://doi.org/10.1002/spe.2755), Software: Practice and Experience. 2019;1–17.https://doi.org/10.1002/spe.2755
 
 Please cite this paper:
 * Jungmin Son, Amir Vahid Dastjerdi, Rodrigo N. Calheiros, Xiaohui Ji, Young Yoon, and Rajkumar Buyya, ["CloudSimSDN: Modeling and Simulation of Software-Defined Cloud Data Centers"](http://ieeexplore.ieee.org/document/7152513/), Proceedings of the 15th IEEE/ACM International Symposium on Cluster, Cloud and Grid Computing (CCGrid 2015), Shenzhen, China, May 4-7, 2015. doi:10.1109/CCGrid.2015.87
